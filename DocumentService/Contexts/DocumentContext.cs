@@ -23,7 +23,5 @@ namespace DocumentService.Contexts
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseNpgsql(this.configuration.GetConnectionString("Postgsql"));
-
-      
     }
 }

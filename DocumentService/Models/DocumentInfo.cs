@@ -19,11 +19,12 @@ namespace DocumentService.Models
         public string Description { get; set; }
         [Required]
         public int File_Size { get; set; }
-        [Required]
-        public string FileName { get; set; }
-        public int FileTypeCode { get; set; }
+      
+      
         [Required]
         public string Language { get; set; }
+        [Required]
+        public string FileName { get; set; }
         [Required]
         public string DocumentURL { get; set; }
         public DateTime DateCreated { get; set; }
