@@ -17,8 +17,8 @@ namespace DocumentService.Models
 
         [Required]
         public Byte[] DocumentImage { get; set; }
-        public virtual DocumentInfo DocumentInfo { get; set; }
-        public virtual DocumentType DocumentType { get; set; }
+       /* public virtual DocumentInfo DocumentInfo { get; set; }
+        public virtual DocumentType DocumentType { get; set; }*/
 
     }
 }

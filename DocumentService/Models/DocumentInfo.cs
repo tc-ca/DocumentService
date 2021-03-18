@@ -11,9 +11,9 @@ namespace DocumentService.Models
     {   
         [Key]
         public Guid DocumentInfoId{ get; set; }
-        [ForeignKey("Document")]
+        
         public Guid DocumentId { get; set; }
-        [ForeignKey("DocumentType")]
+        
         public Guid DocumentTypeId { get; set; }
         [Required]
         public string Description { get; set; }
@@ -31,7 +31,9 @@ namespace DocumentService.Models
         public int UserCreatedById { get; set; }
         public DateTime DateLastUpdated { get; set; }
         public int UserLastUpdatedById { get; set; }
+       
         public virtual Document Document { get; set; }
+       
         public virtual DocumentType DocumentType { get; set; }
 
     }
