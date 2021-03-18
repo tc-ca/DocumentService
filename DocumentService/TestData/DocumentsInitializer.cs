@@ -12,22 +12,26 @@ namespace DocumentService.TestData
         private readonly string[] names = { "Cory", "Alexandre", "Tibo", "Chris", "Paul", "Mansuer" };
         public DocumentContext context { get; set; }
         Random ran = new Random();
-      /*  public DocumentsInitializer(DocumentContext context)
-        {
-            
-        }*/
+        /*  public DocumentsInitializer(DocumentContext context)
+          {
 
-        
+          }*/
+
+
         public void Seed()
         {
-          
-           // context.Database.EnsureDeleted();
-           context.Database.EnsureCreated();
 
-            var documents = new List<Document>() {
-                new Document { CreateBy = "Cory", CreatedDate = DateTime.Now, ModifiedBy = "Alexandre", ModifiedDate = DateTime.Today, FileBlob = new byte[0] },
-                new Document { CreateBy = "Alexandre", CreatedDate = DateTime.Now, ModifiedBy = "Cory", ModifiedDate = DateTime.Today, FileBlob = new byte[0] }
-            };
+            // context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+        
+        var documents = new List<Document>();
+        var documentsinfo = new List<DocumentInfo>();
+        var documentstype = new List<DocumentType>();
+        documents.Add(new Document {DocumentImage = new byte[0] });
+      /*  documentsinfo.Add(new DocumentInfo { Description = "Hat", File_Size = 0, File_Name = "Pat", Language = "EN", Document_URL = "www.com", Date_Created = DateTime.Today,
+                                             User_Created_By_Id = 0, Date_Last_Updated = DateTime.Today, User_Last_Updated_By_Id = 0 });
+
+        documentstype.Add(new DocumentType { })*/
 
             documents.ForEach(d => context.Documents.Add(d));
             context.SaveChanges();

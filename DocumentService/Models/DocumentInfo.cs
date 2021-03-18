@@ -1,23 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace DocumentService.Models
 {
     public class DocumentInfo
-    {
-        public Guid Document_Id { get; set; }
+    {   
+        [Key]
+        public Guid DocumentInfoId{ get; set; }
+        [ForeignKey("Document")]
+        public Guid DocumentId { get; set; }
+        [ForeignKey("DocumentType")]
+        public Guid DocumentTypeId { get; set; }
+        [Required]
         public string Description { get; set; }
+        [Required]
         public int File_Size { get; set; }
-        public string File_Name { get; set; }
+        [Required]
+        public string FileName { get; set; }
+        public int FileTypeCode { get; set; }
+        [Required]
         public string Language { get; set; }
-        public string Document_URL { get; set; }
-        public DateTime Date_Created { get; set; }
-
-        public int User_Created_By_Id { get; set; }
-        public DateTime Date_Last_Updated { get; set; }
-        public int User_Last_Updated_By_Id { get; set; }
+        [Required]
+        public string DocumentURL { get; set; }
+        public DateTime DateCreated { get; set; }
+        public int UserCreatedById { get; set; }
+        public DateTime DateLastUpdated { get; set; }
+        public int UserLastUpdatedById { get; set; }
+        public virtual Document Document { get; set; }
+        public virtual DocumentType DocumentType { get; set; }
 
     }
 }

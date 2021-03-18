@@ -13,9 +13,12 @@ namespace DocumentService.Models
          * Primary key
          */
         [Key]
-        public Guid Document_Id { get; set; }
+        public Guid DocumentId { get; set; }
 
         [Required]
-        public Byte[] Document_Image { get; set; }
+        public Byte[] DocumentImage { get; set; }
+        public virtual DocumentInfo DocumentInfo { get; set; }
+        public virtual DocumentType DocumentType { get; set; }
+
     }
 }
