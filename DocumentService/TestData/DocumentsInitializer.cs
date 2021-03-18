@@ -33,7 +33,7 @@ namespace DocumentService.TestData
 
         documentstype.Add(new DocumentType { })*/
 
-            documents.ForEach(d => context.Documents.Add(d));
+            documents.ForEach(d => context.Document.Add(d));
             context.SaveChanges();
         }
     }

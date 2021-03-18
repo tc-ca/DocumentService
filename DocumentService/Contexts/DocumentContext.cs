@@ -13,9 +13,9 @@ namespace DocumentService.Contexts
         private IConfiguration configuration;
 
 
-        public DbSet<Document> Documents { get; set; }
-        public DbSet<DocumentType> DocumentTypes { get; set; }
-        public DbSet<DocumentInfo> DocumentInfos { get; set; }
+        public DbSet<Document> Document { get; set; }
+        public DbSet<DocumentType> DocumentType { get; set; }
+        public DbSet<DocumentInfo> DocumentInfo { get; set; }
         public DocumentContext(IConfiguration configuration)
         {
             this.configuration = configuration;
@@ -23,5 +23,9 @@ namespace DocumentService.Contexts
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseNpgsql(this.configuration.GetConnectionString("Postgsql"));
+
+      
+            
+        
     }
 }

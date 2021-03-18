@@ -5,6 +5,8 @@ namespace DocumentService.Contexts
 {
     public interface IDocumentContext
     {
-        DbSet<Document> Documents { get; set; }
+        DbSet<Document> Document { get; set; }
+        DbSet<DocumentType> DocumentType { get; set; }
+        DbSet<DocumentInfo> DocumentInfo { get; set; }
     }
 }
