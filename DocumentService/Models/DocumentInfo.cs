@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DocumentService.Models
 {
@@ -11,7 +8,6 @@ namespace DocumentService.Models
     [Table("DOCUMENT_INFO")]
     public class DocumentInfo
     {
-        
         /// <summary>
         /// gets or sets the description of the file
         /// </summary>
@@ -53,6 +49,7 @@ namespace DocumentService.Models
         /// </summary>
         [Column("DOCUMENT_TYPES", TypeName = "jsonb")]
         public string DocumentTypes { get; set; } 
+
         /// <summary>
         /// gets or sets the information on how the file was submitted
         /// </summary>
