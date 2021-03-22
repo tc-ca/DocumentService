@@ -7,24 +7,44 @@ using System.Threading.Tasks;
 
 namespace DocumentService.Models
 {
-    /*
-     * Correlation entity
-     * Columns:
-     * CORRELATION_ID : GUID
-     * TRANSACTION_COMPLETE_IND : BOOL
-     * USER_LAST_UPDATED_BY_ID : STRING
-     * DATE_LAST_UPDATED_DTE: DATETIME
-     * USER_CREATED_BY_ID : STRING
-     * DATE_CREATED_DTE : DATETIME
-     */
+    [Table("CORRELATION")]
     public class Correlation
     {
+        /// <summary>
+        /// Gets or sets the primary key
+        /// </summary>
+        [Column("CORRELATION_ID")]
         [Key]
-        public Guid CORRELATION_ID { get; set; } //primary key
-        public bool TRANSACTION_COMPLETE_IND { get; set; } //flag to set if the transaction is complete
-        public string USER_LAST_UPDATED_BY_ID { get; set; } //user who last updated the document
-        public DateTime DATE_LAST_UPDATED_DTE { get; set; } //date the file was modified
-        public string USER_CREATED_BY_ID { get; set; } //user who created the document
-        public DateTime DATE_CREATED_DTE { get; set; } //date the document was created
+        public Guid CorrelationId { get; set; }
+       
+        /// <summary>
+        /// gets or sets the flag to see if the transaction is complete
+        /// </summary>
+        [Column("TRANSACTION_COMPLETE_IND")]
+        public bool TransactionComplete { get; set; }
+
+        /// <summary>
+        /// gets or sets user who last updated the document
+        /// </summary>
+        [Column("USER_LAST_UPDATED_BY_ID")]
+        public string UserLastUpdatedById { get; set; }
+
+        /// <summary>
+        /// gets or sets the date the file was modified
+        /// </summary>
+        [Column("DATE_LAST_UPDATED_DTE")]
+        public DateTime DateLastUpdated { get; set; }
+
+        /// <summary>
+        /// gets or sets the user who created the document
+        /// </summary>
+        [Column("USER_CREATED_BY_ID")]
+        public string UserCreatedById { get; set; }
+
+        /// <summary>
+        /// gets or sets date the document was created
+        /// </summary>
+        [Column("DATE_CREATED_DTE")]
+        public DateTime DateCreated { get; set; }
     }
 }

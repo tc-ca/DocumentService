@@ -13,20 +13,19 @@ namespace DocumentService.Contexts
         private IConfiguration configuration;
 
 
-       // public DbSet<Document> Document { get; set; }
-        public DbSet<Correlation> CORRELATION { get; set; } //CORRELATION Table
-        public DbSet<DocumentInfo> DOCUMENT_INFO { get; set; } //DOCUMENT_INFO Table
+        /// <summary>
+        /// Gets or sets the correlation table
+        /// </summary>
+        public DbSet<Correlation> Correlation { get; set; } 
+        /// <summary>
+        /// Gets or sets the document info table
+        /// </summary>
+        public DbSet<DocumentInfo> DocumentInfo { get; set; }
         public DocumentContext(IConfiguration configuration)
         {
             this.configuration = configuration;
 
         }
-        
         protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseNpgsql(this.configuration.GetConnectionString("Postgsql"));
-
-       
-
-
-
     }
 }

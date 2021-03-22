@@ -5,8 +5,13 @@ namespace DocumentService.Contexts
 {
     public interface IDocumentContext
     {
-       // DbSet<Document> Document { get; set; }
-        DbSet<Correlation> CORRELATION { get; set; }
-        DbSet<DocumentInfo> DOCUMENT_INFO { get; set; }
+        /// <summary>
+        /// Gets or sets the correlation table
+        /// </summary>
+        DbSet<Correlation> Correlation { get; set; }
+        /// <summary>
+        /// Gets or sets the document info table
+        /// </summary>
+        DbSet<DocumentInfo> DocumentInfo { get; set; }
     }
 }

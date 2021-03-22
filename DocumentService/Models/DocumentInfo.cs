@@ -7,50 +7,115 @@ using System.Threading.Tasks;
 
 namespace DocumentService.Models
 {
-    /*Document_Info entity
-     * Columns:
-     * DESCRIPTION_TXT : STRING
-     * FILE_SIZE_NBR : INT
-     * LANGUAGE_TXT : STRING
-     * FILE_NAME_NM : STRING
-     * DOCUMENT_URL : STRING
-     * CORRELATION_ID : GUID
-     * DOCUMENT_TYPES : STRING, jsonb
-     * SUBMISSION_METHOD_CD : STRING
-     * FILE_TYPE_CD: STRING
-     * DATE_CREATED_DTE : DATETIME
-     * USER_CREATED_BY_ID : STRING
-     * DATE_LAST_UPDATED_DTE : DATETIME
-     * USER_LAST_UPDATED_BY_ID : STRING
-     * IS_DELETED_IND : BOOL
-     * DATE_DELETED_DTE : DATETIME
-     * DELETED_BY_ID : STRING
-     * DOCUMENT_ID : GUID
-     * Correlation : navigation property
-     */
+    [Table("DOCUMENT_INFO")]
     public class DocumentInfo
-    {   
-
+    {
         
-        public string DESCRIPTION_TXT { get; set; } //description of the file
-        public int FILE_SIZE_NBR { get; set; } //size of the file
-        public string LANGUAGE_TXT { get; set; } //language the file is in
-        public string FILE_NAME_NM { get; set; } //name of the file
-        public string DOCUMENT_URL { get; set; } //URL to the document
-        public Guid CORRELATION_ID { get; set; }//foreign key
-        [Column(TypeName = "jsonb")]
-        public string DOCUMENT_TYPES { get; set; } //types of documents, stored in a JSONB type in postgres
-        public string  SUBMISSION_METHOD_CD { get; set; } //How the file was submitted
-        public string FILE_TYPE_CD { get; set; } //file type
-        public DateTime DATE_CREATED_DTE { get; set; } //date the document was created
-        public string USER_CREATED_BY_ID { get; set; } //user who created the document
-        public DateTime DATE_LAST_UPDATED_DTE { get; set; } //date the file was modified
-        public string USER_LAST_UPDATED_BY_ID { get; set; } //user who last updated the document
-        public bool IS_DELETED_IND { get; set; } //flag to determine if file was removed or not (soft delete)
-        public DateTime DATE_DELETED_DTE { get; set; } //date the file was removed
-        public string DELETED_BY_ID { get; set; } //user who removed the file
+        /// <summary>
+        /// gets or sets the description of the file
+        /// </summary>
+        [Column("DESCRIPTION_TXT")]
+        public string Description { get; set; } 
+
+        /// <summary>
+        /// gets or sets the size of the file
+        /// </summary>
+        [Column("FILE_SIZE_NBR")]
+        public int FileSize { get; set; } 
+
+        /// <summary>
+        /// gets or sets the language the file is in
+        /// </summary>
+        [Column("LANGUAGE_TXT")]
+        public string Language { get; set; }
+
+        /// <summary>
+        /// gets or sets the name of the file
+        /// </summary>
+        [Column("FILE_NAME_NM")]
+        public string FileName { get; set; } 
+
+        /// <summary>
+        /// gets or sets the URL to the document
+        /// </summary>
+        [Column("DOCUMENT_URL")]
+        public string DocumentUrl { get; set; } 
+
+        /// <summary>
+        /// gets or sets the foreign key
+        /// </summary>
+        [Column("CORRELATION_ID")]
+        public Guid CorrelationId { get; set; }
+
+        /// <summary>
+        /// gets or sets types of documents, stored in a JSONB type in postgres
+        /// </summary>
+        [Column("DOCUMENT_TYPES", TypeName = "jsonb")]
+        public string DocumentTypes { get; set; } 
+        /// <summary>
+        /// gets or sets the information on how the file was submitted
+        /// </summary>
+        [Column("SUBMISSION_METHOD_CD")]
+        public string  SubmissionMethod { get; set; } 
+
+        /// <summary>
+        /// gets or sets the file type
+        /// </summary>
+        [Column("FILE_TYPE_CD")]
+        public string FileType { get; set; } 
+
+        /// <summary>
+        /// gets or sets the date the document was created
+        /// </summary>
+        [Column("DATE_CREATED_DTE")]
+        public DateTime DateCreated { get; set; } 
+
+        /// <summary>
+        /// gets or sets the user who created the document
+        /// </summary>
+        [Column("USER_CREATED_BY_ID")]
+        public string UserCreatedById { get; set; } 
+
+        /// <summary>
+        /// gets or sets the date the file was modified
+        /// </summary>
+        [Column("DATE_LAST_UPDATED_DTE")]
+        public DateTime DateLastUpdated { get; set; } 
+
+        /// <summary>
+        /// gets or sets the user who last updated the document
+        /// </summary>
+        [Column("USER_LAST_UPDATED_BY_ID")]
+        public string UserLastUpdatedById { get; set; } 
+
+        /// <summary>
+        /// gets or sets the flag to determine if file was removed or not (soft delete)
+        /// </summary>
+        [Column("IS_DELETED_IND")]
+        public bool IsDeleted { get; set; } 
+
+        /// <summary>
+        /// gets or sets the date the file was removed
+        /// </summary>
+        [Column("DATE_DELETED_DTE")]
+        public DateTime DateDeleted { get; set; } 
+
+        /// <summary>
+        /// gets or sets the user who removed the file
+        /// </summary>
+        [Column("DELETED_BY_ID")]
+        public string DeletedById { get; set; }
+
+        /// <summary>
+        /// gets or sets this table's primary key
+        /// </summary>
+        [Column("DOCUMENT_ID")]
         [Key]
-        public Guid DOCUMENT_ID { get; set; }//primary key
-        public Correlation Correlation { get; set; } //navigation property
+        public Guid DocumentId { get; set; }
+        
+        /// <summary>
+        /// gets or sets the correlation information
+        /// </summary>
+        public Correlation Correlation { get; set; }
     }
 }
