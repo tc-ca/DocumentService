@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DocumentService.Models
 {
+    //defines the Document info table
     [Table("DOCUMENT_INFO")]
     public class DocumentInfo
     {

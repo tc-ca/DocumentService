@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DocumentService.Models
 {
+    //defines the correlation Table
     [Table("CORRELATION")]
     public class Correlation
     {
