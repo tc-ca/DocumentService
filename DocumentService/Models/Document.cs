@@ -9,6 +9,7 @@ namespace DocumentService.Models
 {
     public class Document
     {
+        /*THIS FILE IS NO LONGER IN USE 
         /*
          * Primary key
          */

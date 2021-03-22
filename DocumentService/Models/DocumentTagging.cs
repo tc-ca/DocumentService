@@ -7,6 +7,7 @@ namespace DocumentService.Models
 {
     public class DocumentTagging
     {
+        //WIP
         public enum tags
         {
             

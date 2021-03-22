@@ -14,8 +14,8 @@ namespace DocumentService.Contexts
 
 
        // public DbSet<Document> Document { get; set; }
-        public DbSet<Correlation> CORRELATION { get; set; }
-        public DbSet<DocumentInfo> DOCUMENT_INFO { get; set; }
+        public DbSet<Correlation> CORRELATION { get; set; } //CORRELATION Table
+        public DbSet<DocumentInfo> DOCUMENT_INFO { get; set; } //DOCUMENT_INFO Table
         public DocumentContext(IConfiguration configuration)
         {
             this.configuration = configuration;
