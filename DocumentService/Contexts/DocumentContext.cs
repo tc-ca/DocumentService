@@ -14,7 +14,7 @@ namespace DocumentService.Contexts
 
 
         public DbSet<Document> Document { get; set; }
-        public DbSet<DocumentType> DocumentType { get; set; }
+        public DbSet<Correlation> Correlation { get; set; }
         public DbSet<DocumentInfo> DocumentInfo { get; set; }
         public DocumentContext(IConfiguration configuration)
         {
@@ -24,8 +24,12 @@ namespace DocumentService.Contexts
         
         protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseNpgsql(this.configuration.GetConnectionString("Postgsql"));
 
-      
-            
-        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DocumentInfo>().HasNoKey();
+        }
+
+
+
     }
 }

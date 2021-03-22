@@ -31,8 +31,8 @@ namespace DocumentService
         {
             services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
             services.AddSingleton<IDocumentsInitializer, DocumentsInitializer>();
-           // services.AddSingleton<IDocumentContext, DocumentContext>();
-           services.AddControllers();
+          
+            services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "DocumentService", Version = "v1" });

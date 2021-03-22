@@ -9,32 +9,24 @@ namespace DocumentService.Models
 {
     public class DocumentInfo
     {   
-        [Key]
-        public Guid DocumentInfoId{ get; set; }
-        
         public Guid DocumentId { get; set; }
-        
-        public Guid DocumentTypeId { get; set; }
-        [Required]
-        public string Description { get; set; }
-        [Required]
-        public int File_Size { get; set; }
-      
-      
-        [Required]
-        public string Language { get; set; }
-        [Required]
-        public string FileName { get; set; }
-        [Required]
-        public string DocumentURL { get; set; }
-        public DateTime DateCreated { get; set; }
-        public int UserCreatedById { get; set; }
-        public DateTime DateLastUpdated { get; set; }
-        public int UserLastUpdatedById { get; set; }
-       
-        public virtual Document Document { get; set; }
-       
-        public virtual DocumentType DocumentType { get; set; }
-
+        public string DescriptionTxt { get; set; }
+        public string FileNameNme { get; set; }
+        public string SubmissionMethodCd { get; set; }
+        public string FileTypeCd { get; set; }
+        public int FileSizeNbr { get; set; }
+        public string LanguageTxt { get; set; }
+        [Column(TypeName ="jsonb")]
+        public string DocumentTypes { get; set; }
+        public Guid CorrelationId { get; set; }
+        public DateTime DateCreatedDte { get; set; }
+        public string UserCreatedById { get; set; }
+        public DateTime DateLastUpdatedDte { get; set; }
+        public string UserLastUpdatedById { get; set; }
+        public bool IsDeletedInd { get; set; }
+        public DateTime DateDeletedDte { get; set; }
+        public string DeletedById { get; set; }
+        public Document Document { get; set; }
+        public Correlation Correlation { get; set; }
     }
 }
