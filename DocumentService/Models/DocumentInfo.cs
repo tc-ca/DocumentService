@@ -9,24 +9,26 @@ namespace DocumentService.Models
 {
     public class DocumentInfo
     {   
-        public Guid DocumentId { get; set; }
-        public string DescriptionTxt { get; set; }
-        public string FileNameNme { get; set; }
-        public string SubmissionMethodCd { get; set; }
-        public string FileTypeCd { get; set; }
-        public int FileSizeNbr { get; set; }
-        public string LanguageTxt { get; set; }
-        [Column(TypeName ="jsonb")]
-        public string DocumentTypes { get; set; }
-        public Guid CorrelationId { get; set; }
-        public DateTime DateCreatedDte { get; set; }
-        public string UserCreatedById { get; set; }
-        public DateTime DateLastUpdatedDte { get; set; }
-        public string UserLastUpdatedById { get; set; }
-        public bool IsDeletedInd { get; set; }
-        public DateTime DateDeletedDte { get; set; }
-        public string DeletedById { get; set; }
-        public Document Document { get; set; }
+        
+        public string DESCRIPTION_TXT { get; set; }
+        public int FILE_SIZE_NBR { get; set; }
+        public string LANGUAGE_TXT { get; set; }
+        public string FILE_NAME_NM { get; set; }
+        public string DOCUMENT_URL { get; set; }
+        public Guid CORRELATION_ID { get; set; }
+        [Column(TypeName = "jsonb")]
+        public string DOCUMENT_TYPES { get; set; }
+        public string  SUBMISSION_METHOD_CD { get; set; }
+        public string FILE_TYPE_CD { get; set; }
+        public DateTime DATE_CREATED_DTE { get; set; }
+        public string USER_CREATED_BY_ID { get; set; }
+        public DateTime DATE_LAST_UPDATED_DTE { get; set; }
+        public string USER_LAST_UPDATED_BY_ID { get; set; }
+        public bool IS_DELETED_IND { get; set; }
+        public DateTime DATE_DELETED_DTE { get; set; }
+        public string DELETED_BY_ID { get; set; }
+        [Key]
+        public Guid DOCUMENT_ID { get; set; }
         public Correlation Correlation { get; set; }
     }
 }
