@@ -1,7 +1,10 @@
+using DocumentService.Contexts;
+using DocumentService.TestData;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,7 +29,9 @@ namespace DocumentService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
+            services.AddSingleton<IDocumentsInitializer, DocumentsInitializer>();
+          
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -54,6 +59,10 @@ namespace DocumentService
             {
                 endpoints.MapControllers();
             });
+            var initializer = new DocumentsInitializer();
+            initializer.context = new DocumentContext(Configuration);
+
+            initializer.Seed();
         }
     }
 }
