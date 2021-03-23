@@ -5,6 +5,7 @@
     <UserSecretsId>cb258f15-f431-494d-b9bf-e5d96ee0bcd2</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
+    <Configurations>Debug;Release;Development</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
