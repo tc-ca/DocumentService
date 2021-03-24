@@ -37,7 +37,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UploadDocument(int CorrelationId, string UserName, string FileName, string? ShortDescription, string? SubmissionMethod, int? FileLanguage, string? FileType, List<string>? DocumentTypes, string Bytes)
         {
-            
+
             return Ok();
         }
 
@@ -45,16 +45,19 @@ namespace DocumentService.Controllers
         /// Retrieve all metadata for all specified documents. 
         /// </summary>
         /// <param name="CorrelationId">Correlation identifier of the operation.</param>
-        /// <param name="ListOfIds">List of identifiers of the uploaded documents.</param>
+        /// <param name="ListOfIds">List of identifiers of the uploaded documents. Should be like 1,2,3,4</param>
         /// <returns></returns>
         [HttpGet]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult GetAllSpecifiedDocuments(int CorrelationId, [FromBody] List<int> ListOfIds)
+        public IActionResult GetAllSpecifiedDocuments(int CorrelationId, string ListOfIds)
         {
+            // Note: We can't pass an array, so I added a string but will be comma seperated
 
-            return Ok(new { id = CorrelationId, list = ListOfIds });
+            var list = ListOfIds.Split(",").ToList().Select(int.Parse).ToList();
+
+            return Ok(new { CorrelationId, list });
 
         }
 
