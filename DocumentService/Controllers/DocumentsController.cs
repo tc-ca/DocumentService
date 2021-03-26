@@ -24,18 +24,20 @@ namespace DocumentService.Controllers
         /// <param name="CorrelationId">Correlation identifier of the operation.</param>
         /// <param name="UserName">Azure AD identifier of the user uploading the document.</param>
         /// <param name="FileName">File name of the document.</param>
+        /// <param name="FileSize">Size in bytes of the document.</param>
+        /// <param name="FileContentType">MIME content type of the document. We only accept the following values: [“application/pdf”, “image/jpeg”, “image/png”, “text/plain”, “application/msword”, “application/vnd.openxmlformats-officedocument.wordprocessingml.document”].</param>
         /// <param name="ShortDescription">Short description of the document.</param>
         /// <param name="SubmissionMethod">Indicates how the file was submitted to Transport Canada. (“FAX”, “MAIL”, “EMAIL”).</param>
         /// <param name="FileLanguage">Language of document being uploaded. (1) English, (2) French.</param>
-        /// <param name="FileType">Type of file being uploaded. (“PDF”) pdf file, (“IMG”) Image file, (“TXT”) text file.</param>
         /// <param name="DocumentTypes">Document type of the uploaded document. A document can have multiple types associated with it. The document type id is supplied by the client using the document service.</param>
+        /// <param name="CustomMetadata">Document metadata specific to the program using the service.</param>
         /// <param name="Bytes">Document being uploaded.</param>
         /// <returns></returns>
         [HttpPost]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UploadDocument(int CorrelationId, string UserName, string FileName, string? ShortDescription, string? SubmissionMethod, int? FileLanguage, string? FileType, List<string>? DocumentTypes, string Bytes)
+        public IActionResult UploadDocument(int CorrelationId, string UserName, string FileName, int FileSize, string FileContentType, string ShortDescription, string SubmissionMethod, int? FileLanguage, List<string>? DocumentTypes, string CustomMetadata,  string Bytes)
         {
 
             return Ok();
@@ -67,18 +69,19 @@ namespace DocumentService.Controllers
         /// <param name="CorrelationId">Correlation identifier of the operation.</param>
         /// <param name="UserName">Azure AD identifier of the user uploading the document.</param>
         /// <param name="FileName">File name of the document.</param>
+        /// <param name="FileContentType">MIME content type of the document. We only accept the following values: [“application/pdf”, “image/jpeg”, “image/png”, “text/plain”, “application/msword”, “application/vnd.openxmlformats-officedocument.wordprocessingml.document”].</param>
         /// <param name="ShortDescription">Short description of the document.</param>
-        /// <param name="SubmissionMethod">Indicates how the file was submitted to Transport Canada. (“FAX”, “MAIL”, “EMAIL”).</param>
+        /// <param name="SubmissionMethod">Indicates how the file was submitted to Transport Canada. (“FAX”, “MAIL”, “EMAIL”, "EMER").</param>
         /// <param name="FileLanguage">Language of document being uploaded. (1) English, (2) French.</param>
-        /// <param name="FileType">Type of file being uploaded. (“PDF”) pdf file, (“IMG”) Image file, (“TXT”) text file.</param>
         /// <param name="DocumentTypes">Document type of the uploaded document. A document can have multiple types associated with it. The document type id is supplied by the client using the document service.</param>
+        /// <param name="CustomMetadata">Document metadata specific to the program using the service.</param>
         /// <returns></returns>
         [HttpPut]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult UpdateMetadataForDocument(int CorrelationId, string UserName, string FileName, string? ShortDescription, string? SubmissionMethod, int? FileLanguage, string? FileType, List<string>? DocumentTypes)
+        public IActionResult UpdateMetadataForDocument(int CorrelationId, string UserName, string FileName, string FileContentType, string ShortDescription, string SubmissionMethod, int? FileLanguage, string DocumentTypes, string CustomMetadata)
         {
             return Ok();
         }
