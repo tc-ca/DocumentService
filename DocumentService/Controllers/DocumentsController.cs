@@ -46,20 +46,19 @@ namespace DocumentService.Controllers
         /// <summary>
         /// Retrieve all metadata for all specified documents. 
         /// </summary>
-        /// <param name="CorrelationId">Correlation identifier of the operation.</param>
         /// <param name="ListOfIds">List of identifiers of the uploaded documents. Should be like 1,2,3,4</param>
         /// <returns></returns>
         [HttpGet]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult GetAllSpecifiedDocuments(int CorrelationId, string ListOfIds)
+        public IActionResult GetAllSpecifiedDocuments(string ListOfIds)
         {
             // Note: We can't pass an array, so I added a string but will be comma seperated
 
             var list = ListOfIds.Split(",").ToList().Select(int.Parse).ToList();
 
-            return Ok(new { CorrelationId, list });
+            return Ok(new { list });
 
         }
 
@@ -89,7 +88,6 @@ namespace DocumentService.Controllers
         /// <summary>
         /// Retrieve a document by supplying its identifier.
         /// </summary>
-        /// <param name="CorrelationId">Correlation identifier of the operation.</param>
         /// <param name="Id">Identifier of the document being retrieved.</param>
         /// <returns>Document specificed</returns>
         [HttpGet]
@@ -97,9 +95,9 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetDocumentById(int CorrelationId, int Id)
+        public IActionResult GetDocumentById(int Id)
         {
-            return Ok(new { CorrelationId, Id });
+            return Ok(new { Id });
         }
 
         /// <summary>
@@ -115,7 +113,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult DeleteDocumentById(int CorrelationId, int Id)
         {
-            return Ok(new { CorrelationId, Id });
+            return Ok(new { Id });
         }
 
     }
