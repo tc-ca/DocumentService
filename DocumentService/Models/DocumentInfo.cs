@@ -48,7 +48,7 @@ namespace DocumentService.Models
         /// gets or sets types of documents, stored in a JSONB type in postgres
         /// </summary>
         [Column("DOCUMENT_TYPES", TypeName = "jsonb")]
-        public string DocumentTypes { get; set; } 
+        public DocumentTypes DocumentTypes { get; set; } 
 
         /// <summary>
         /// gets or sets the information on how the file was submitted

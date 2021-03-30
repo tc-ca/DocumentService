@@ -17,11 +17,35 @@ namespace DocumentService.TestData
 
         public void Seed()
         {
+            Guid id = Guid.NewGuid();
             //create test data here:   
-            context.Database.EnsureCreated(); 
-           
-            var correlation = new List<Correlation>();
-            var documentsinfo = new List<DocumentInfo>();
+            context.Database.EnsureCreated();
+
+            var correlation = new Correlation
+            {
+                CorrelationId = id,
+                DateCreated = DateTime.Now,
+                DateLastUpdated = DateTime.Now,
+                TransactionComplete = true,
+                UserCreatedById = "hat",
+                UserLastUpdatedById = "Billy"
+            };
+
+            var documentsinfo = new DocumentInfo
+            {
+                CorrelationId = id,
+                DateCreated = DateTime.Now,
+                Description = "HAtty hat",
+                FileName = "yomp",
+                DocumentTypes = new DocumentTypes { DocType = "Typedoc", DocumentTypesId = 1 },
+                IsDeleted = false
+
+            };
+
+
+            context.Add(correlation);
+            context.Add(documentsinfo);
+
             context.SaveChanges();
         }
     }
