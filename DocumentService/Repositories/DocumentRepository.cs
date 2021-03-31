@@ -20,7 +20,9 @@ namespace DocumentService.Repositories
 
         public async Task<int> UploadDocumentAsync(DocumentInfo documentInfo)
         {
-         
+         if(documentInfo == null) {
+                throw new NullReferenceException("DocumentInfo cannot be null");
+            }
             try
             {
 
@@ -33,16 +35,19 @@ namespace DocumentService.Repositories
                 throw;
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Document object if found</returns>
         public async Task<DocumentInfo> GetDocumentAsync(Guid id)
         {
             try
             {
-                IQueryable<DocumentInfo> query = from q in _context.DocumentInfo
-                                                 where q.DocumentId == id
-                                                 select q;
-                if (await query.AnyAsync())
+                DocumentInfo entity = await GetDocument(id);
+                if (entity != null)
                 {
-                    DocumentInfo entity = await query.FirstAsync();
+                   
                     return entity;
                 }
                 else
@@ -123,7 +128,7 @@ namespace DocumentService.Repositories
            var query = from q in _context.DocumentInfo
                                              where q.DocumentId == id && !q.IsDeleted
                                              select q;
-            return await query.FirstAsync();
+            return await query.FirstOrDefaultAsync();
             
         }
         }

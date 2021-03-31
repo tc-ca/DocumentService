@@ -27,7 +27,7 @@ namespace DocumentService.TestData
                 DateCreated = DateTime.Now,
                 DateLastUpdated = DateTime.Now,
                 TransactionComplete = true,
-                UserCreatedById = "hat",
+                UserCreatedById = "Jerememy",
                 UserLastUpdatedById = "Billy"
             };
 
@@ -35,8 +35,8 @@ namespace DocumentService.TestData
             {
                 CorrelationId = id,
                 DateCreated = DateTime.Now,
-                Description = "HAtty hat",
-                FileName = "yomp",
+                Description = "This is our test doc",
+                FileName = "TestDoc",
                 DocumentTypes = new DocumentTypes { DocType = "Typedoc", DocumentTypesId = 1 },
                 IsDeleted = false
 
