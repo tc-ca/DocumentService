@@ -10,12 +10,12 @@ using System.Linq;
 
 namespace DocumentService.Unit.Tests
 {
-    public class UnitTest1
+    public class DocumentServiceRepositoryTests
     {
         private readonly DocumentContext context;
         private readonly IConfiguration configuration;
         private readonly DocumentRepository documentRepository;
-        public UnitTest1()
+        public DocumentServiceRepositoryTests()
         {
             this.configuration = new ConfigurationBuilder().AddJsonFile("appsettings.test.json").Build();
             context = new DocumentContext(configuration);

@@ -1,4 +1,5 @@
 using DocumentService.Contexts;
+using DocumentService.Repositories;
 using DocumentService.TestData;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,7 +32,7 @@ namespace DocumentService
         {
             services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
             services.AddSingleton<IDocumentsInitializer, DocumentsInitializer>();
-          
+            services.AddScoped<IDocumentRepository, DocumentRepository>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
