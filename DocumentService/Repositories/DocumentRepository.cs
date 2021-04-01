@@ -33,7 +33,7 @@ namespace DocumentService.Repositories
                 int numberOfEntitiesUpdated = await this.context.SaveChangesAsync();
                 return numberOfEntitiesUpdated;
             }
-            catch (Exception)
+            catch (Exception exception)
             {
                 throw;
             }

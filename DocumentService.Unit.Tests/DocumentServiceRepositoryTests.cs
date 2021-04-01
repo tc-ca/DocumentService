@@ -1,12 +1,8 @@
-using DocumentService.Contexts;
 using DocumentService.Models;
 using DocumentService.Repositories;
-using DocumentService.TestData;
 using DocumentService.Unit.Tests.Services;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
-using System.Collections.Generic;
 using Xunit;
 
 namespace DocumentService.Unit.Tests
@@ -16,7 +12,7 @@ namespace DocumentService.Unit.Tests
     {
         private DatabaseFixture databaseFixture;
         private readonly DocumentRepository documentRepository;
-        
+
         public DocumentServiceRepositoryTests()
         {
             this.databaseFixture = new DatabaseFixture();
@@ -28,13 +24,35 @@ namespace DocumentService.Unit.Tests
         {
             // Arrange
             var documentInfoId = Guid.NewGuid();
-            DocumentInfo expectedResult = createTestEntry(documentInfoId);
+            DocumentInfo expectedResult = this.generateNewDocumentInfo(documentInfoId);
+            this.databaseFixture.InsertDocumentInfo(expectedResult);
 
             // Act 
             var result = documentRepository.GetDocumentAsync(documentInfoId).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
+        }
+
+        [Fact]
+        public void GetDocumentAsync_WhenIsDeleted_ReturnsNull()
+        {
+            // Arrange
+            var documentInfoId = new Guid("11223344-5566-7788-99AA-BBCCDDEEFF00");
+            var fileName = "Test Document";
+            var newDocumentInfo = new DocumentInfo()
+            {
+                DocumentId = documentInfoId,
+                FileName = fileName,
+                IsDeleted = true,
+            };
+            this.databaseFixture.InsertDocumentInfo(newDocumentInfo);
+
+            // Act 
+            var result = documentRepository.GetDocumentAsync(documentInfoId).Result;
+
+            // Assert
+            Assert.Null(result);
         }
 
         [Fact]
@@ -56,19 +74,11 @@ namespace DocumentService.Unit.Tests
             // Arrange
             var expectedResult = 1;
             var documentInfoId = Guid.NewGuid();
-            DocumentInfo docInfo = new DocumentInfo
-            {
-                DocumentId = documentInfoId,
-                DateCreated = DateTime.UtcNow,
-                Description = "Generic Description",
-                FileName = "Test Doc",
-                DocumentTypes = new DocumentTypes { DocType = "Test", DocumentTypesId = 0 },
-                IsDeleted = false
-            };
+            DocumentInfo documentInfo = this.generateNewDocumentInfo(documentInfoId);
 
             // Act
-            var result = documentRepository.UploadDocumentAsync(docInfo).Result;
-            
+            var result = this.documentRepository.UploadDocumentAsync(documentInfo).Result;
+
             // Assert
             Assert.Equal(expectedResult, result);
         }
@@ -77,7 +87,7 @@ namespace DocumentService.Unit.Tests
         public void UploadDocumentAsync_UploadFailed_ThrowsNullReferenceException()
         {
             // Assert
-            Assert.ThrowsAsync<NullReferenceException>(() => documentRepository.UploadDocumentAsync(null));    
+            Assert.ThrowsAsync<NullReferenceException>(() => documentRepository.UploadDocumentAsync(null));
         }
 
         [Fact]
@@ -85,11 +95,12 @@ namespace DocumentService.Unit.Tests
         {
             // Arrange
             var expectedResult = true;
-            var id = Guid.NewGuid();
-            var testDoc = createTestEntry(id);
+            var documentInfoId = Guid.NewGuid();
+            var testDocumentInfo = this.generateNewDocumentInfo(documentInfoId);
+            this.databaseFixture.InsertDocumentInfo(testDocumentInfo);
 
             // Act
-            var result = documentRepository.SetFileDeleted(testDoc.DocumentId, "Tester").Result;
+            var result = documentRepository.SetFileDeleted(testDocumentInfo.DocumentId, "Tester").Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -113,12 +124,13 @@ namespace DocumentService.Unit.Tests
         {
             // Arrange
             var expectedResult = true;
-            var documentId = Guid.NewGuid();
-            var docinfo = createTestEntry(documentId);
+            var documentInfoId = Guid.NewGuid();
+            var documentInfo = this.generateNewDocumentInfo(documentInfoId);
+            this.databaseFixture.InsertDocumentInfo(documentInfo);
 
             // Act
-            docinfo.FileName = "Our new file name";
-            var result = documentRepository.Update(docinfo).Result;
+            documentInfo.FileName = "Our new file name";
+            var result = documentRepository.Update(documentInfo).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -129,12 +141,12 @@ namespace DocumentService.Unit.Tests
             //Arrange
             var expectedResult = false;
             var documentInfo = new DocumentInfo
-            { 
+            {
                 DocumentId = Guid.Empty
             };
 
             // Act
-            var result = documentRepository.Update(documentInfo).Result;
+            var result = this.documentRepository.Update(documentInfo).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -144,9 +156,9 @@ namespace DocumentService.Unit.Tests
         public void GetDocumentsByIds_EntriesFound_ReturnsListOfEntries()
         {
             // Arrange
-            var testGuids = createMultipleGuids();
-            var expectedResult = createTestEntries(testGuids);
-            
+            var testGuids = this.createMultipleGuids();
+            var expectedResult = this.databaseFixture.CreateListOfDocumentInfos(testGuids);
+
             // Act
             var result = documentRepository.GetDocumentsByIds(testGuids);
             expectedResult = expectedResult.OrderBy(x => x.DocumentId);
@@ -160,12 +172,11 @@ namespace DocumentService.Unit.Tests
         public void GetDocumentsByIds_EntriesNotFound_ReturnsEmpty()
         {
             // Arrange
-            var testGuids = createMultipleGuids();
-            var expectedResult = testGuids.Length;
+            var testGuids = this.createMultipleGuids();
 
             // Act
             var result = documentRepository.GetDocumentsByIds(testGuids);
-            
+
             // Assert
             Assert.Empty(result);
         }
@@ -174,26 +185,25 @@ namespace DocumentService.Unit.Tests
         public void Filter_WhenUsingFileName_ReturnsDocumentInfo()
         {
             // Arrange
-            var documentId = Guid.NewGuid();
+            var documentId = new Guid("11113344-5566-7788-99AA-BBCCDDEEFF00");
             var fileName = "John Wick";
             var expectedResult = new DocumentInfo()
             {
                 DocumentId = documentId,
-                FileName = fileName
+                FileName = fileName,
             };
-            this.databaseFixture.Context.DocumentInfo.Add(expectedResult);
-            this.databaseFixture.Context.SaveChanges();
+            this.databaseFixture.InsertDocumentInfo(expectedResult);
 
             // Act
-            var result = this.documentRepository.Filter(x => x.FileName.Equals(fileName));
+            var result = this.documentRepository.Filter(x => x.FileName.Equals(fileName)).FirstOrDefault();
 
             // Assert
-            Assert.Equal(expectedResult, result.FirstOrDefault());
+            Assert.Equal(expectedResult, result);
         }
 
-        private DocumentInfo createTestEntry(Guid id)
+        private DocumentInfo generateNewDocumentInfo(Guid id)
         {
-            DocumentInfo docInfo = new DocumentInfo
+            DocumentInfo documentInfo = new DocumentInfo
             {
                 DocumentId = id,
                 DateCreated = DateTime.UtcNow,
@@ -202,46 +212,19 @@ namespace DocumentService.Unit.Tests
                 DocumentTypes = new DocumentTypes { DocType = "Test", DocumentTypesId = 0 },
                 IsDeleted = false
             };
-
-            this.databaseFixture.Context.DocumentInfo.Add(docInfo);
-            this.databaseFixture.Context.SaveChanges();
-            return docInfo;
+            return documentInfo;
         }
 
         private Guid[] createMultipleGuids()
         {
             var guids = new Guid[10];
 
-            for(int i = 0; i <guids.Length; i++)
+            for (int i = 0; i < guids.Length; i++)
             {
                 guids[i] = Guid.NewGuid();
             }
 
             return guids;
         }
-
-        private IEnumerable<DocumentInfo> createTestEntries(Guid[] ids)
-        {
-            List<DocumentInfo> list = new List<DocumentInfo>();
-            foreach (var id in ids)
-            {
-                DocumentInfo docInfo = new DocumentInfo
-                {
-                    DocumentId = id,
-                    DateCreated = DateTime.UtcNow,
-                    Description = "Generic Description",
-                    FileName = "Test Doc",
-                    DocumentTypes = new DocumentTypes { DocType = "Test", DocumentTypesId = 0 },
-                    IsDeleted = false
-                };
-
-                this.databaseFixture.Context.DocumentInfo.Add(docInfo);
-                list.Add(docInfo);
-            }
-
-            this.databaseFixture.Context.SaveChanges();
-            return list;
-        }
     }
-
 }
