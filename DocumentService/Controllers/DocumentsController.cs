@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DocumentService.Azure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,24 @@ namespace DocumentService.Controllers
     [ApiController]
     public class DocumentsController : ControllerBase
     {
+        private IAzureBlobService _azureBlobService;
 
-        public DocumentsController()
+        public DocumentsController(IAzureBlobService azureBlobService)
+        {
+            _azureBlobService = azureBlobService;
+        }
+
+        [HttpPost]
+        [Route("v1/documents/test")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult UploadDocumentTest(IFormFile file)
         {
 
+            var result = _azureBlobService.UploadFileAsync(file, "documents").GetAwaiter().GetResult();
+
+
+            return Ok(new { fileName = result.Name, url = result.Uri.AbsoluteUri  });
         }
 
         /// <summary>
@@ -37,7 +52,7 @@ namespace DocumentService.Controllers
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UploadDocument(int CorrelationId, string UserName, string FileName, int FileSize, string FileContentType, string ShortDescription, string SubmissionMethod, int? FileLanguage, List<string>? DocumentTypes, string CustomMetadata,  string Bytes)
+        public IActionResult UploadDocument(int CorrelationId, string UserName, string FileName, int FileSize, string FileContentType, string ShortDescription, string SubmissionMethod, int? FileLanguage, List<string>? DocumentTypes, string CustomMetadata, string Bytes)
         {
 
             return Ok();

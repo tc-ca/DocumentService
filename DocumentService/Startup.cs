@@ -49,7 +49,7 @@ namespace DocumentService
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                this.setupCodeFirstDevelopmentDatabase();
+                ///this.setupCodeFirstDevelopmentDatabase();
             }
 
             app.UseSwagger();

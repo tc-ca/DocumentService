@@ -27,35 +27,55 @@ namespace DocumentService.Azure
             }
         }
 
-        public async Task<BlobContentInfo> UploadFileAsync(IFormFile file, string container = null)
+        public async Task<BlobClient> UploadFileAsync(IFormFile file, string container = null)
         {
 
-            // Perhaps we can fail more gracefully then just throwing an exception
-            if (file == null)
+            try
             {
-                throw new ArgumentNullException(nameof(file));
+                // Perhaps we can fail more gracefully then just throwing an exception
+                if (file == null)
+                {
+                    throw new ArgumentNullException(nameof(file));
+                }
+
+                var blobName = UniqueFileName(file.FileName);
+
+                // Get a reference to the blob
+                BlobClient blobClient = GetBlobContainer(container).GetBlobClient(blobName);
+
+                using (var stream = file.OpenReadStream())
+                {
+                    // Upload the blob
+                    await blobClient.UploadAsync(stream, overwrite: false);
+
+                }
+
+                return blobClient;
+
+            }
+            catch (Exception e)
+            {
+
+                throw e;
             }
 
-            BlobContentInfo result = null;
-
-            var blobName = UniqueFileName(file.FileName);
-
-            using (var stream = file.OpenReadStream())
-            {
-
-                result = await GetBlobContainer(container).UploadBlobAsync(blobName, stream);
-
-            }
-
-            return result;
         }
 
         public BlobContainerClient GetBlobContainer(string container = null)
         {
             try
             {
-                // Create the container and return a container client object
-                containerClient = GetBlobClient().CreateBlobContainerAsync(container).GetAwaiter().GetResult().Value;
+
+                //Get a BlobContainerClient
+                var containerClient = GetBlobClient().GetBlobContainerClient(container);
+
+                //Check if the container exists or not, then determine to create it or not
+                bool isExist = containerClient.Exists();
+
+                if (!isExist)
+                {
+                    containerClient.Create();
+                }
 
                 return containerClient;
             }
@@ -74,12 +94,12 @@ namespace DocumentService.Azure
 
             string nameWithNoExt = Path.GetFileNameWithoutExtension(currentFileName);
 
-            return string.Format(CultureInfo.InvariantCulture, "{1}{2}", Guid.NewGuid().ToString(), ext);
+            return string.Format(CultureInfo.InvariantCulture, "{0}{1}", Guid.NewGuid().ToString(), ext);
         }
 
-        private BlobServiceClient GetBlobClient()
+        public BlobServiceClient GetBlobClient()
         {
-            // Create a BlobServiceClient object which will be used to create a container client
+            // Create a BlobServiceClient object which will be used to create / obtain a container client
             blobServiceClient = new BlobServiceClient(connectionString);
 
             return blobServiceClient;
