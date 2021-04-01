@@ -92,8 +92,6 @@ namespace DocumentService.Azure
         {
             string ext = Path.GetExtension(currentFileName);
 
-            string nameWithNoExt = Path.GetFileNameWithoutExtension(currentFileName);
-
             return string.Format(CultureInfo.InvariantCulture, "{0}{1}", Guid.NewGuid().ToString(), ext);
         }
 
