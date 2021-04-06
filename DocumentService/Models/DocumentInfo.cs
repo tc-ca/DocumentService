@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -42,13 +43,13 @@ namespace DocumentService.Models
         /// gets or sets the foreign key
         /// </summary>
         [Column("CORRELATION_ID")]
-        public Guid CorrelationId { get; set; }
+        public Guid? CorrelationId { get; set; }
 
         /// <summary>
         /// gets or sets types of documents, stored in a JSONB type in postgres
         /// </summary>
         [Column("DOCUMENT_TYPES", TypeName = "jsonb")]
-        public string DocumentTypes { get; set; } 
+        public DocumentTypes DocumentTypes { get; set; } 
 
         /// <summary>
         /// gets or sets the information on how the file was submitted
@@ -114,6 +115,7 @@ namespace DocumentService.Models
         /// <summary>
         /// gets or sets the correlation information
         /// </summary>
-        public Correlation Correlation { get; set; }
+        [ForeignKey("CorrelationId")]
+        public virtual Correlation Correlation { get; set; }
     }
 }
