@@ -1,4 +1,5 @@
 ﻿using DocumentService.Azure;
+using DocumentService.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -27,8 +28,7 @@ namespace DocumentService.Controllers
         public IActionResult UploadDocumentTest(IFormFile file)
         {
 
-            var result = _azureBlobService.UploadFileAsync(file, "documents").GetAwaiter().GetResult();
-
+            var result = _azureBlobService.UploadFileAsync(file, AzureBlobContainer.DocumentsContainer).GetAwaiter().GetResult();
 
             return Ok(new { fileName = result.Name, url = result.Uri.AbsoluteUri  });
         }

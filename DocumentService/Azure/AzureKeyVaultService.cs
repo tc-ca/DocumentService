@@ -59,7 +59,7 @@ namespace DocumentService.Azure
         {
             var kvUri = "https://kv-document-dev.vault.azure.net/";
 
-            return new SecretClient(new Uri(kvUri), new DefaultAzureCredential());
+            return new SecretClient(new Uri(this.dNs), new DefaultAzureCredential());
         }
     }
 }
