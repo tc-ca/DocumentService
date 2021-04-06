@@ -138,9 +138,7 @@ namespace DocumentService.Repositories
         /// <returns>Document found</returns>
         private async Task<DocumentInfo> GetDocument(Guid id)
         {
-            var query = from q in context.DocumentInfo
-                        where q.DocumentId == id && !q.IsDeleted
-                        select q;
+            var query = context.DocumentInfo.Where(x => x.DocumentId == id && !x.IsDeleted);
             return await query.FirstOrDefaultAsync();
 
         }

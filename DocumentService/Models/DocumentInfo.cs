@@ -7,7 +7,7 @@ namespace DocumentService.Models
 {
     //defines the Document info table
     [Table("DOCUMENT_INFO")]
-    public class DocumentInfo : IEquatable<DocumentInfo>
+    public class DocumentInfo
     {
         /// <summary>
         /// gets or sets the description of the file
@@ -117,33 +117,5 @@ namespace DocumentService.Models
         /// </summary>
         [ForeignKey("CorrelationId")]
         public virtual Correlation Correlation { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DocumentInfo);
-        }
-
-        public bool Equals(DocumentInfo other)
-        {
-            return other != null &&
-                   Description == other.Description &&
-                   FileSize == other.FileSize &&
-                   Language == other.Language &&
-                   FileName == other.FileName &&
-                   DocumentUrl == other.DocumentUrl &&
-                   CorrelationId.Equals(other.CorrelationId) &&
-                   EqualityComparer<DocumentTypes>.Default.Equals(DocumentTypes, other.DocumentTypes) &&
-                   SubmissionMethod == other.SubmissionMethod &&
-                   FileType == other.FileType &&
-                   DateCreated == other.DateCreated &&
-                   UserCreatedById == other.UserCreatedById &&
-                   DateLastUpdated == other.DateLastUpdated &&
-                   UserLastUpdatedById == other.UserLastUpdatedById &&
-                   IsDeleted == other.IsDeleted &&
-                   DateDeleted == other.DateDeleted &&
-                   DeletedById == other.DeletedById &&
-                   DocumentId.Equals(other.DocumentId) &&
-                   EqualityComparer<Correlation>.Default.Equals(Correlation, other.Correlation);
-        }
     }
 }
