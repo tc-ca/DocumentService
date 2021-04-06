@@ -1,3 +1,4 @@
+using DocumentService.Azure;
 using DocumentService.Contexts;
 using DocumentService.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -23,6 +24,8 @@ namespace DocumentService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
+            services.AddTransient<IKeyVaultService, AzureKeyVaultService>();
+            services.AddScoped<IAzureBlobService, AzureBlobService>();
             services.AddScoped<IDocumentRepository, DocumentRepository>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -37,7 +40,8 @@ namespace DocumentService
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                this.setupCodeFirstDevelopmentDatabase();
+
+                //this.setupCodeFirstDevelopmentDatabase();
             }
 
             app.UseSwagger();
