@@ -111,7 +111,7 @@ namespace DocumentService.Controllers
         /// <param name="Id">Identifier of the document being retrieved.</param>
         /// <returns>Document specificed</returns>
         [HttpGet]
-        [Route("v1/documents/{CorrelationId}/{Id}")]
+        [Route("v1/documents/{Id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -123,7 +123,6 @@ namespace DocumentService.Controllers
         /// <summary>
         /// Deletes the identified document.
         /// </summary>
-        /// <param name="CorrelationId">Correlation identifier of the operation. </param>
         /// <param name="Id">Identifier of the document being deleted.</param>
         /// <returns></returns>
         [HttpDelete]
@@ -131,7 +130,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult DeleteDocumentById(int CorrelationId, int Id)
+        public IActionResult DeleteDocumentById(int Id)
         {
             return Ok(new { Id });
         }

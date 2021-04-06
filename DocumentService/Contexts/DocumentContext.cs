@@ -12,15 +12,16 @@ namespace DocumentService.Contexts
     {
         private IConfiguration configuration;
 
-
         /// <summary>
         /// Gets or sets the correlation table
         /// </summary>
         public DbSet<Correlation> Correlation { get; set; } 
+
         /// <summary>
         /// Gets or sets the document info table
         /// </summary>
         public DbSet<DocumentInfo> DocumentInfo { get; set; }
+
         public DocumentContext(IConfiguration configuration)
         {
             this.configuration = configuration;

@@ -1,20 +1,13 @@
 using DocumentService.Azure;
 using DocumentService.Contexts;
-using DocumentService.TestData;
+using DocumentService.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DocumentService
 {
@@ -31,11 +24,9 @@ namespace DocumentService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
-            services.AddSingleton<IDocumentsInitializer, DocumentsInitializer>();
-
             services.AddTransient<IKeyVaultService, AzureKeyVaultService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();
-
+            services.AddScoped<IDocumentRepository, DocumentRepository>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -70,9 +61,8 @@ namespace DocumentService
 
         private void setupCodeFirstDevelopmentDatabase()
         {
-            var initializer = new DocumentsInitializer();
-            initializer.context = new DocumentContext(Configuration);
-            initializer.Seed();
+            var documentContext = new DocumentContext(this.Configuration);
+            documentContext.Database.EnsureCreated();
         }
     }
 }
