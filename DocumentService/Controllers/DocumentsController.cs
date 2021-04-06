@@ -1,7 +1,7 @@
 ﻿using DocumentService.Azure;
-using DocumentService.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +14,16 @@ namespace DocumentService.Controllers
     [ApiController]
     public class DocumentsController : ControllerBase
     {
-        private IAzureBlobService _azureBlobService;
+        private readonly IAzureBlobService azureBlobService;
 
-        public DocumentsController(IAzureBlobService azureBlobService)
+        private readonly IConfiguration configuration;
+
+
+        public DocumentsController(IAzureBlobService azureBlobService, IConfiguration configuration)
         {
-            _azureBlobService = azureBlobService;
+            this.azureBlobService = azureBlobService;
+
+            this.configuration = configuration;
         }
 
         [HttpPost]
@@ -27,8 +32,8 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UploadDocumentTest(IFormFile file)
         {
-
-            var result = _azureBlobService.UploadFileAsync(file, AzureBlobContainer.DocumentsContainer).GetAwaiter().GetResult();
+            
+            var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
 
             return Ok(new { fileName = result.Name, url = result.Uri.AbsoluteUri  });
         }

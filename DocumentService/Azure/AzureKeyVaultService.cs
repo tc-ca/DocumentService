@@ -35,29 +35,12 @@ namespace DocumentService.Azure
 
         }
 
-        ///// <summary>
-        ///// Get a list of secrets from the azure key vault.
-        ///// </summary>
-        ///// <returns>List of secrets.</returns>
-        //public IEnumerable<SecretItem> GetListOfSecrets()
-        //{
-        //    IEnumerable<SecretItem> secrets = new Page<SecretItem>();
-
-        //    using (var keyVaultClient = GetKeyVaultClient())
-        //    {
-        //        secrets = keyVaultClient.GetSecretsAsync(vaultBaseUrl: this.dNs).GetAwaiter().GetResult();
-        //    }
-
-        //    return secrets;
-        //}
-
         /// <summary>
         /// Get the client
         /// </summary>
         /// <returns>Secret client</returns>
         public SecretClient GetSecretClient()
         {
-            var kvUri = "https://kv-document-dev.vault.azure.net/";
 
             return new SecretClient(new Uri(this.dNs), new DefaultAzureCredential());
         }

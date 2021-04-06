@@ -55,8 +55,7 @@ namespace DocumentService.Azure
             }
             catch (Exception e)
             {
-
-                throw e;
+                return null;
             }
 
         }
