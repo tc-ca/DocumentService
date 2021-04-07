@@ -1,4 +1,5 @@
 ﻿using DocumentService.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -42,13 +43,13 @@ namespace DocumentService.Repositories
         /// </summary>
         /// <param name="documentInfo">Document object with updated data</param>
         /// <returns>True if successful</returns>
-        Task<bool> Update(DocumentInfo documentInfo);
+        Task<bool> Update(DocumentDTO documentDTO, Guid id, HttpContext httpContext);
 
         /// <summary>
         /// Updates the database with a new document
         /// </summary>
-        /// <param name="documentInfo">DocumentInfo object created in the controller</param>
+        /// <param name="documentDTO">Document DTO object created in the controller to populate the DocumentInfo entity</param>
         /// <returns>Number of entities added</returns>
-        Task<int> UploadDocumentAsync(DocumentInfo documentInfo);
+        Task<int> UploadDocumentAsync(DocumentDTO documentDTO, HttpContext httpContext);
     }
 }

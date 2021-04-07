@@ -117,7 +117,7 @@ namespace DocumentService.Models
         /// </summary>
         [ForeignKey("CorrelationId")]
         public virtual Correlation Correlation { get; set; }
-
+        
         public override bool Equals(object obj)
         {
             return Equals(obj as DocumentInfo);
