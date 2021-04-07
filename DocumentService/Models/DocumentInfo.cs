@@ -19,7 +19,7 @@ namespace DocumentService.Models
         /// gets or sets the size of the file
         /// </summary>
         [Column("FILE_SIZE_NBR")]
-        public int FileSize { get; set; } 
+        public long FileSize { get; set; } 
 
         /// <summary>
         /// gets or sets the language the file is in

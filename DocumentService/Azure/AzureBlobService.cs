@@ -38,6 +38,7 @@ namespace DocumentService.Azure
                     throw new ArgumentNullException(nameof(file));
                 }
 
+                /// var originalFileName = file.FileName;
                 var blobName = UniqueFileName(file.FileName);
 
                 // Get a reference to the blob

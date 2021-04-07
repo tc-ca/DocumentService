@@ -1,9 +1,12 @@
 ﻿using DocumentService.Azure;
+using DocumentService.Models;
+using DocumentService.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -14,28 +17,17 @@ namespace DocumentService.Controllers
     [ApiController]
     public class DocumentsController : ControllerBase
     {
+        private readonly IDocumentRepository documentRepository;
+
         private readonly IAzureBlobService azureBlobService;
 
         private readonly IConfiguration configuration;
 
-
-        public DocumentsController(IAzureBlobService azureBlobService, IConfiguration configuration)
+        public DocumentsController(IDocumentRepository documentRepository, IAzureBlobService azureBlobService, IConfiguration configuration)
         {
+            this.documentRepository = documentRepository;
             this.azureBlobService = azureBlobService;
-
             this.configuration = configuration;
-        }
-
-        [HttpPost]
-        [Route("v1/documents/test")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UploadDocumentTest(IFormFile file)
-        {
-            
-            var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
-
-            return Ok(new { fileName = result.Name, url = result.Uri.AbsoluteUri  });
         }
 
         /// <summary>
@@ -57,10 +49,27 @@ namespace DocumentService.Controllers
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UploadDocument(int CorrelationId, string UserName, string FileName, int FileSize, string FileContentType, string ShortDescription, string SubmissionMethod, int? FileLanguage, List<string>? DocumentTypes, string CustomMetadata, string Bytes)
+        public IActionResult UploadDocument(int correlationId, string userName, IFormFile file, int fileSize, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, List<string>? documentTypes, string customMetadata)
         {
+            var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
 
-            return Ok();
+            var documentInfo = new DocumentInfo()
+            {
+                UserCreatedById = userName,
+                DateCreated = DateTime.Now,
+                DocumentUrl = result.Uri.AbsoluteUri,
+                FileName = file.FileName,
+                FileSize = file.Length,
+                FileType = fileContentType,
+                Description = shortDescription,
+                SubmissionMethod = submissionMethod,
+                Language = fileLanguage,
+                // DocumentTypes = documentTypes,
+                // MetaData = customMetadata,
+            };
+
+            var uploadedDocumentId = this.documentRepository.UploadDocumentAsync(documentInfo).Result;
+            return Ok(new { documentId = uploadedDocumentId });
         }
 
         /// <summary>
@@ -72,14 +81,12 @@ namespace DocumentService.Controllers
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult GetAllSpecifiedDocuments(string ListOfIds)
+        public IActionResult GetAllSpecifiedDocuments(string idString)
         {
-            // Note: We can't pass an array, so I added a string but will be comma seperated
+            var listofIds = idString.Split(",").ToList().Select(Guid.Parse).ToArray<Guid>();
+            var documents = this.documentRepository.GetDocumentsByIds(listofIds);
 
-            var list = ListOfIds.Split(",").ToList().Select(int.Parse).ToList();
-
-            return Ok(new { list });
-
+            return Ok(new { documents });
         }
 
         /// <summary>
@@ -100,7 +107,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult UpdateMetadataForDocument(int CorrelationId, string UserName, string FileName, string FileContentType, string ShortDescription, string SubmissionMethod, int? FileLanguage, string DocumentTypes, string CustomMetadata)
+        public IActionResult UpdateMetadataForDocument(int correlationId, string userName, string fileName, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, string documentTypes, string customMetadata)
         {
             return Ok();
         }
@@ -115,9 +122,10 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetDocumentById(int Id)
+        public IActionResult GetDocumentById(Guid id)
         {
-            return Ok(new { Id });
+            var document = this.documentRepository.GetDocumentAsync(id);
+            return Ok(new { document });
         }
 
         /// <summary>
@@ -130,9 +138,10 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult DeleteDocumentById(int Id)
+        public IActionResult DeleteDocumentById(Guid id, string userName)
         {
-            return Ok(new { Id });
+            var isDeleted = this.documentRepository.SetFileDeleted(id, userName).Result;
+            return Ok(new { isDeleted });
         }
 
     }
