@@ -7,7 +7,7 @@ namespace DocumentService.Models
 {
     //defines the Document info table
     [Table("DOCUMENT_INFO")]
-    public class DocumentInfo : IEquatable<DocumentInfo>
+    public class DocumentInfo
     {
         /// <summary>
         /// gets or sets the description of the file
