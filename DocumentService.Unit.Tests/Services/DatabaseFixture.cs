@@ -44,7 +44,7 @@ namespace DocumentService.Unit.Tests.Services
                     DocumentSize = i,
                     Language = "EN",
                     RequesterId = $"Tester {i}",
-                    DocumentType = new DocumentTypes { DocType = $"Type {i}", DocumentTypesId = i}
+                    DocumentType = new DocumentTypes { DocumentType = $"Type {i}", DocumentTypesId = i}
                 });
             }
             this.Context.Correlation.Add(correlation);
@@ -65,7 +65,7 @@ namespace DocumentService.Unit.Tests.Services
                     DateCreated = DateTime.UtcNow,
                     Description = "Generic Description",
                     FileName = "Test Doc",
-                    DocumentTypes = new DocumentTypes { DocType = "Test", DocumentTypesId = 0 },
+                    DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
                     IsDeleted = false
                 };
 

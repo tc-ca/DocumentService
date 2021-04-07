@@ -81,7 +81,7 @@ namespace DocumentService.Unit.Tests
 
             var httpContext = new DefaultHttpContext();
             // Act
-            var result = this.documentRepository.UploadDocumentAsync(documentDTO, httpContext).Result;
+            var result = this.documentRepository.UploadDocumentAsync(documentDTO).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -92,7 +92,7 @@ namespace DocumentService.Unit.Tests
         {
             var httpContext = new DefaultHttpContext();
             // Assert
-            Assert.ThrowsAsync<NullReferenceException>(() => documentRepository.UploadDocumentAsync(null, httpContext));
+            Assert.ThrowsAsync<NullReferenceException>(() => documentRepository.UploadDocumentAsync(null));
         }
 
         [Fact]
@@ -136,7 +136,7 @@ namespace DocumentService.Unit.Tests
 
             // Act
             documentDTO.Documents[0].FileName = "Our new file name";
-            var result = documentRepository.Update(documentDTO, documentInfoId, httpContext).Result;
+            var result = documentRepository.Update(documentDTO, documentInfoId).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -150,7 +150,7 @@ namespace DocumentService.Unit.Tests
 
             var documentInfo = new DocumentDTO();
             // Act
-            var result = this.documentRepository.Update(documentInfo, Guid.Empty, httpContext).Result;
+            var result = this.documentRepository.Update(documentInfo, Guid.Empty).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -213,7 +213,7 @@ namespace DocumentService.Unit.Tests
                 DateCreated = DateTime.UtcNow,
                 Description = "Generic Description",
                 FileName = "Test Doc",
-                DocumentTypes = new DocumentTypes { DocType = "Test", DocumentTypesId = 0 },
+                DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
                 IsDeleted = false
             };
             return documentInfo;

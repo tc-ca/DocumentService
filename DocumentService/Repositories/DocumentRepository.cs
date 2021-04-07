@@ -28,17 +28,9 @@ namespace DocumentService.Repositories
 
             return await query.AnyAsync();
         }
-        public async Task<DocumentInfo> GetDocumentByCorrelationId(Guid id)
-        {
-            var query = from q in context.DocumentInfo
-                        where q.CorrelationId == id
-                        select q;
-
-            return await query.FirstOrDefaultAsync();
-        }
-
+        
         /// <inheritdoc/>
-        public async Task<int> UploadDocumentAsync(DocumentDTO documentDTO, HttpContext httpContext) 
+        public async Task<int> UploadDocumentAsync(DocumentDTO documentDTO) 
         {
             int numberOfEntitiesUpdated;
 
@@ -49,7 +41,7 @@ namespace DocumentService.Repositories
 
             try
             {
-                List<DocumentInfo> documentInfo = PopulateDocumentInfo(documentDTO, httpContext);
+                List<DocumentInfo> documentInfo = PopulateDocumentInfo(documentDTO);
 
                 return numberOfEntitiesUpdated = await SaveChanges(documentInfo);
             }
@@ -107,21 +99,21 @@ namespace DocumentService.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<bool> Update(DocumentDTO documentDTO, Guid id, HttpContext httpContext)
+        public async Task<bool> Update(DocumentDTO documentDTO, Guid id)
         {
             var updatedDocumentInfo = await this.GetDocument(id);
             try
             {
-                if (updatedDocumentInfo != null)
+                if (updatedDocumentInfo != null && documentDTO.Documents != null)
                 {
                     updatedDocumentInfo.UserLastUpdatedById = documentDTO.Documents[0].RequesterId;
                     updatedDocumentInfo.FileName = documentDTO.Documents[0].FileName;
                     updatedDocumentInfo.FileType = documentDTO.Documents[0].FileType;
                     updatedDocumentInfo.Description = documentDTO.Documents[0].Description;
-                    updatedDocumentInfo.SubmissionMethod = httpContext.Request.Method;
+                    updatedDocumentInfo.SubmissionMethod = "";
                     updatedDocumentInfo.Language = documentDTO.Documents[0].Language;
                     updatedDocumentInfo.DocumentTypes = documentDTO.Documents[0].DocumentType;
-                    updatedDocumentInfo.DateLastUpdated = GetTimeForNCR();
+                    updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
 
                     this.context.DocumentInfo.Update(updatedDocumentInfo);
                     return true;
@@ -162,29 +154,15 @@ namespace DocumentService.Repositories
             return await query.FirstOrDefaultAsync();
 
         }
-        private DateTime GetTimeForNCR()
-        {
-            try
-            {
-                DateTime timeUTC = DateTime.UtcNow;
-                TimeZoneInfo estZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
-                DateTime estTime = TimeZoneInfo.ConvertTimeFromUtc(timeUTC, estZone);
-                return estTime;
-            }
-            catch (TimeZoneNotFoundException)
-            {
-                throw;
-            }
-            
-        }
-        private List<DocumentInfo> PopulateDocumentInfo(DocumentDTO documentDTO, HttpContext httpContext)
+      
+        private List<DocumentInfo> PopulateDocumentInfo(DocumentDTO documentDTO)
         {
             List<DocumentInfo> documentInfos = new List<DocumentInfo>();
           
             foreach (var documents in documentDTO.Documents)
             {
                 DocumentInfo documentInfo = new DocumentInfo
-                { 
+                {
                     CorrelationId = documentDTO.CorrelationId,
                     FileName = documents.FileName,
                     FileSize = documents.DocumentSize,
@@ -193,9 +171,9 @@ namespace DocumentService.Repositories
                     // DocumentUrl = GetUrlFromBlob(DocumentObject)
                     Language = documents.Language,
                     UserCreatedById = documents.RequesterId,
-                    DateCreated = GetTimeForNCR(),
+                    DateCreated = DateTime.UtcNow,
                     IsDeleted = false,
-                    SubmissionMethod = httpContext.Request.Method
+                    SubmissionMethod = "method"
                 };
                
                 documentInfos.Add(documentInfo);

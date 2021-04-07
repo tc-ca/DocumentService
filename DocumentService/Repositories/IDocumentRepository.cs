@@ -43,13 +43,13 @@ namespace DocumentService.Repositories
         /// </summary>
         /// <param name="documentInfo">Document object with updated data</param>
         /// <returns>True if successful</returns>
-        Task<bool> Update(DocumentDTO documentDTO, Guid id, HttpContext httpContext);
+        Task<bool> Update(DocumentDTO documentDTO, Guid id);
 
         /// <summary>
         /// Updates the database with a new document
         /// </summary>
         /// <param name="documentDTO">Document DTO object created in the controller to populate the DocumentInfo entity</param>
         /// <returns>Number of entities added</returns>
-        Task<int> UploadDocumentAsync(DocumentDTO documentDTO, HttpContext httpContext);
+        Task<int> UploadDocumentAsync(DocumentDTO documentDTO);
     }
 }
