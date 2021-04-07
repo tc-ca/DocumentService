@@ -1,11 +1,8 @@
 using DocumentService.Models;
 using DocumentService.Repositories;
 using DocumentService.Unit.Tests.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
-using System.Net;
 using Xunit;
 
 namespace DocumentService.Unit.Tests
@@ -15,11 +12,11 @@ namespace DocumentService.Unit.Tests
     {
         private DatabaseFixture databaseFixture;
         private readonly DocumentRepository documentRepository;
+
         public DocumentServiceRepositoryTests()
         {
             this.databaseFixture = new DatabaseFixture();
             this.documentRepository = new DocumentRepository(this.databaseFixture.Context);
-           
         }
 
         [Fact]
@@ -70,18 +67,17 @@ namespace DocumentService.Unit.Tests
             // Assert
             Assert.Null(result);
         }
-        
+
         [Fact]
         public void UploadDocumentAsync_UploadSuccessful_ReturnsOne()
-        
         {
             // Arrange
-            var expectedResult = 5;
-            DocumentDTO documentDTO = this.databaseFixture.CreateDTOWithCorId(expectedResult);
+            var expectedResult = 1;
+            var documentInfoId = Guid.NewGuid();
+            DocumentInfo documentInfo = this.generateNewDocumentInfo(documentInfoId);
 
-            var httpContext = new DefaultHttpContext();
             // Act
-            var result = this.documentRepository.UploadDocumentAsync(documentDTO, httpContext).Result;
+            var result = this.documentRepository.UploadDocumentAsync(documentInfo).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -90,9 +86,8 @@ namespace DocumentService.Unit.Tests
         [Fact]
         public void UploadDocumentAsync_UploadFailed_ThrowsNullReferenceException()
         {
-            var httpContext = new DefaultHttpContext();
             // Assert
-            Assert.ThrowsAsync<NullReferenceException>(() => documentRepository.UploadDocumentAsync(null, httpContext));
+            Assert.ThrowsAsync<NullReferenceException>(() => documentRepository.UploadDocumentAsync(null));
         }
 
         [Fact]
@@ -130,13 +125,12 @@ namespace DocumentService.Unit.Tests
             // Arrange
             var expectedResult = true;
             var documentInfoId = Guid.NewGuid();
-            var documentDTO = this.databaseFixture.CreateDTOWithCorId(1);
-            this.databaseFixture.InsertDocumentDTO(documentDTO, documentInfoId);
-            HttpContext httpContext = new DefaultHttpContext();
+            var documentInfo = this.generateNewDocumentInfo(documentInfoId);
+            this.databaseFixture.InsertDocumentInfo(documentInfo);
 
             // Act
-            documentDTO.Documents[0].FileName = "Our new file name";
-            var result = documentRepository.Update(documentDTO, documentInfoId, httpContext).Result;
+            documentInfo.FileName = "Our new file name";
+            var result = documentRepository.Update(documentInfo).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -146,11 +140,13 @@ namespace DocumentService.Unit.Tests
         {
             //Arrange
             var expectedResult = false;
-            HttpContext httpContext = new DefaultHttpContext();
+            var documentInfo = new DocumentInfo
+            {
+                DocumentId = Guid.Empty
+            };
 
-            var documentInfo = new DocumentDTO();
             // Act
-            var result = this.documentRepository.Update(documentInfo, Guid.Empty, httpContext).Result;
+            var result = this.documentRepository.Update(documentInfo).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
