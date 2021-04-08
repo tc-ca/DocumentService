@@ -22,10 +22,7 @@ namespace DocumentService.Repositories
         
         public async Task<bool> GetCorrelationById(Guid id)
         {
-            var query = from q in context.Correlation
-                        where q.CorrelationId == id
-                        select q;
-
+            var query = context.Correlation.Where(x => x.CorrelationId == id);
             return await query.AnyAsync();
         }
         
@@ -104,7 +101,7 @@ namespace DocumentService.Repositories
             var updatedDocumentInfo = await this.GetDocument(id);
             try
             {
-                if (updatedDocumentInfo != null && documentDTO.Documents != null)
+                if (updatedDocumentInfo != null && documentDTO.Documents.First() != null)
                 {
                     updatedDocumentInfo.UserLastUpdatedById = documentDTO.Documents.First().RequesterId;
                     updatedDocumentInfo.FileName = documentDTO.Documents.First().FileName;

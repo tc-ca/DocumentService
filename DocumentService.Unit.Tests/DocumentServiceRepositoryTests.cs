@@ -19,7 +19,6 @@ namespace DocumentService.Unit.Tests
         {
             this.databaseFixture = new DatabaseFixture();
             this.documentRepository = new DocumentRepository(this.databaseFixture.Context);
-           
         }
 
         [Fact]
@@ -31,7 +30,7 @@ namespace DocumentService.Unit.Tests
             this.databaseFixture.InsertDocumentInfo(expectedResult);
 
             // Act 
-            var result = documentRepository.GetDocumentAsync(documentInfoId).Result;
+            var result = this.documentRepository.GetDocumentAsync(documentInfoId).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -52,7 +51,7 @@ namespace DocumentService.Unit.Tests
             this.databaseFixture.InsertDocumentInfo(newDocumentInfo);
 
             // Act 
-            var result = documentRepository.GetDocumentAsync(documentInfoId).Result;
+            var result = this.documentRepository.GetDocumentAsync(documentInfoId).Result;
 
             // Assert
             Assert.Null(result);
@@ -65,7 +64,7 @@ namespace DocumentService.Unit.Tests
             var documentInfoId = Guid.NewGuid();
 
             // Act
-            var result = documentRepository.GetDocumentAsync(documentInfoId).Result;
+            var result = this.documentRepository.GetDocumentAsync(documentInfoId).Result;
 
             // Assert
             Assert.Null(result);
@@ -73,7 +72,6 @@ namespace DocumentService.Unit.Tests
         
         [Fact]
         public void UploadDocumentAsync_UploadSuccessful_ReturnsOne()
-        
         {
             // Arrange
             var expectedResult = 1;
@@ -90,9 +88,8 @@ namespace DocumentService.Unit.Tests
         [Fact]
         public void UploadDocumentAsync_UploadFailed_ThrowsNullReferenceException()
         {
-            
             // Assert
-            Assert.ThrowsAsync<NullReferenceException>(() => documentRepository.UploadDocumentAsync(null));
+            Assert.ThrowsAsync<NullReferenceException>(() => this.documentRepository.UploadDocumentAsync(null));
         }
 
         [Fact]
@@ -105,7 +102,7 @@ namespace DocumentService.Unit.Tests
             this.databaseFixture.InsertDocumentInfo(testDocumentInfo);
 
             // Act
-            var result = documentRepository.SetFileDeleted(testDocumentInfo.DocumentId, "Tester").Result;
+            var result = this.documentRepository.SetFileDeleted(testDocumentInfo.DocumentId, "Tester").Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -118,7 +115,7 @@ namespace DocumentService.Unit.Tests
             var expectedResult = false;
 
             // Act
-            var result = documentRepository.SetFileDeleted(Guid.Empty, "Tester").Result;
+            var result = this.documentRepository.SetFileDeleted(Guid.Empty, "Tester").Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -135,7 +132,7 @@ namespace DocumentService.Unit.Tests
 
             // Act
             documentDTO.Documents.First().FileName = "Our new file name";
-            var result = documentRepository.Update(documentDTO, documentInfoId).Result;
+            var result = this.documentRepository.Update(documentDTO, documentInfoId).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -146,7 +143,6 @@ namespace DocumentService.Unit.Tests
             //Arrange
             var expectedResult = false;
            
-
             var documentInfo = new DocumentDTO();
             // Act
             var result = this.documentRepository.Update(documentInfo, Guid.Empty).Result;
@@ -163,7 +159,7 @@ namespace DocumentService.Unit.Tests
             var expectedResult = this.databaseFixture.CreateListOfDocumentInfos(testGuids);
 
             // Act
-            var result = documentRepository.GetDocumentsByIds(testGuids);
+            var result = this.documentRepository.GetDocumentsByIds(testGuids);
             expectedResult = expectedResult.OrderBy(x => x.DocumentId);
             result = result.OrderBy(x => x.DocumentId);
 
@@ -178,7 +174,7 @@ namespace DocumentService.Unit.Tests
             var testGuids = this.createMultipleGuids();
 
             // Act
-            var result = documentRepository.GetDocumentsByIds(testGuids);
+            var result = this.documentRepository.GetDocumentsByIds(testGuids);
 
             // Assert
             Assert.Empty(result);
