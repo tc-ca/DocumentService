@@ -9,6 +9,10 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.Text;
+using Microsoft.Extensions.Configuration;
+using Moq;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DocumentService.Unit.Tests.Controllers
@@ -72,9 +76,23 @@ namespace DocumentService.Unit.Tests.Controllers
         }
 
         [Fact]
-        public void DeleteDocumentById_True_WhenExists()
+        public void DeleteDocumentById_ReturnsId_WhenExists()
         {
+            // Arrange
+            var documentContext = new Mock<IDocumentContext>();
+            var documentRepository = new Mock<IDocumentRepository>();
+            var azureBlobService = new Mock<IAzureBlobService>();
+            var configuration = new Mock<IConfiguration>();
+            var guid = Guid.Empty;
+            var userName = "John Wick";
+            documentRepository.Setup(x => x.SetFileDeleted(guid, userName)).Returns(Task.FromResult(true));
+            var documentController = new DocumentsController(documentRepository.Object, azureBlobService.Object, configuration.Object);
 
+            // Act
+            var result = (JsonResult) documentController.DeleteDocumentById(guid, userName);
+            
+            // Assert
+            Assert.True((bool)result.Value);
         }
     }
 }

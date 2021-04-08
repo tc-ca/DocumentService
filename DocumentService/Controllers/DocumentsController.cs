@@ -141,7 +141,7 @@ namespace DocumentService.Controllers
         public IActionResult DeleteDocumentById(Guid id, string userName)
         {
             var isDeleted = this.documentRepository.SetFileDeleted(id, userName).Result;
-            return Ok(new { isDeleted });
+            return new JsonResult(isDeleted);
         }
 
     }
