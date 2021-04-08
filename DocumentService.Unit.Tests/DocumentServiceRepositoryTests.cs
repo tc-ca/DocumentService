@@ -76,10 +76,10 @@ namespace DocumentService.Unit.Tests
         
         {
             // Arrange
-            var expectedResult = 5;
+            var expectedResult = 1;
             DocumentDTO documentDTO = this.databaseFixture.CreateDTOWithCorId(expectedResult);
 
-            var httpContext = new DefaultHttpContext();
+            
             // Act
             var result = this.documentRepository.UploadDocumentAsync(documentDTO).Result;
 
@@ -90,7 +90,7 @@ namespace DocumentService.Unit.Tests
         [Fact]
         public void UploadDocumentAsync_UploadFailed_ThrowsNullReferenceException()
         {
-            var httpContext = new DefaultHttpContext();
+            
             // Assert
             Assert.ThrowsAsync<NullReferenceException>(() => documentRepository.UploadDocumentAsync(null));
         }
@@ -132,10 +132,9 @@ namespace DocumentService.Unit.Tests
             var documentInfoId = Guid.NewGuid();
             var documentDTO = this.databaseFixture.CreateDTOWithCorId(1);
             this.databaseFixture.InsertDocumentDTO(documentDTO, documentInfoId);
-            HttpContext httpContext = new DefaultHttpContext();
 
             // Act
-            documentDTO.Documents[0].FileName = "Our new file name";
+            documentDTO.Documents.First().FileName = "Our new file name";
             var result = documentRepository.Update(documentDTO, documentInfoId).Result;
 
             // Assert
@@ -146,7 +145,7 @@ namespace DocumentService.Unit.Tests
         {
             //Arrange
             var expectedResult = false;
-            HttpContext httpContext = new DefaultHttpContext();
+           
 
             var documentInfo = new DocumentDTO();
             // Act

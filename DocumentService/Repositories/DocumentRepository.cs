@@ -106,13 +106,13 @@ namespace DocumentService.Repositories
             {
                 if (updatedDocumentInfo != null && documentDTO.Documents != null)
                 {
-                    updatedDocumentInfo.UserLastUpdatedById = documentDTO.Documents[0].RequesterId;
-                    updatedDocumentInfo.FileName = documentDTO.Documents[0].FileName;
-                    updatedDocumentInfo.FileType = documentDTO.Documents[0].FileType;
-                    updatedDocumentInfo.Description = documentDTO.Documents[0].Description;
+                    updatedDocumentInfo.UserLastUpdatedById = documentDTO.Documents.First().RequesterId;
+                    updatedDocumentInfo.FileName = documentDTO.Documents.First().FileName;
+                    updatedDocumentInfo.FileType = documentDTO.Documents.First().FileType;
+                    updatedDocumentInfo.Description = documentDTO.Documents.First().Description;
                     updatedDocumentInfo.SubmissionMethod = "";
-                    updatedDocumentInfo.Language = documentDTO.Documents[0].Language;
-                    updatedDocumentInfo.DocumentTypes = documentDTO.Documents[0].DocumentType;
+                    updatedDocumentInfo.Language = documentDTO.Documents.First().Language;
+                    updatedDocumentInfo.DocumentTypes = documentDTO.Documents.First().DocumentType;
                     updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
 
                     this.context.DocumentInfo.Update(updatedDocumentInfo);
