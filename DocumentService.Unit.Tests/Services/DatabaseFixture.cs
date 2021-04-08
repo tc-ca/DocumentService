@@ -32,7 +32,7 @@ namespace DocumentService.Unit.Tests.Services
                     DateCreated = DateTime.UtcNow,
                     Description = "Generic Description",
                     FileName = "Test Doc",
-                    DocumentTypes = new DocumentTypes { DocType = "Test", DocumentTypesId = 0 },
+                    DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
                     IsDeleted = false
                 };
 
