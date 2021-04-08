@@ -19,7 +19,7 @@ namespace DocumentService.Azure
 
         private BlobContainerClient containerClient;
 
-        public AzureBlobService(IKeyVaultService azureKeyVaultService)
+        public AzureBlobService(IAzureKeyVaultService azureKeyVaultService)
         {
             if (azureKeyVaultService != null)
             {

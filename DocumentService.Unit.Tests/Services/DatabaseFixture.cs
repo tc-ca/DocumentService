@@ -1,4 +1,5 @@
-﻿using DocumentService.Contexts;
+﻿using DocumentService.Azure;
+using DocumentService.Contexts;
 using DocumentService.Models;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -17,7 +18,8 @@ namespace DocumentService.Unit.Tests.Services
         public DatabaseFixture()
         {
             this.configuration = new ConfigurationBuilder().AddJsonFile("appsettings.test.json").Build();
-            this.Context = new DocumentContext(this.configuration);
+            var azureKeyVault = new AzureKeyVaultService(configuration);
+            this.Context = new DocumentContext(this.configuration, azureKeyVault);
             this.Context.Database.EnsureCreated();
         }
 
@@ -32,7 +34,7 @@ namespace DocumentService.Unit.Tests.Services
                     DateCreated = DateTime.UtcNow,
                     Description = "Generic Description",
                     FileName = "Test Doc",
-                    DocumentTypes = new DocumentTypes { DocType = "Test", DocumentTypesId = 0 },
+                    DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
                     IsDeleted = false
                 };
 
