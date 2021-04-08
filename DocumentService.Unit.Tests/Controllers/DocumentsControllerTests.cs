@@ -13,6 +13,11 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using System;
 using System.Threading.Tasks;
+using DocumentService.Repositories;
+using Microsoft.Extensions.Configuration;
+using Moq;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DocumentService.Unit.Tests.Controllers
