@@ -20,7 +20,40 @@ namespace DocumentService.Unit.Tests.Services
             this.Context = new DocumentContext(this.configuration);
             this.Context.Database.EnsureCreated();
         }
+     
 
+        public DocumentDTO CreateDTOWithCorId(int count)
+        {
+            var id = Guid.NewGuid();
+            DocumentDTO documentDTO = new DocumentDTO();
+          
+            List<Document> documents = new List<Document>();
+            Correlation correlation = new Correlation
+            {
+                CorrelationId = id
+            };
+
+            for(int i = 0; i < count; i++)
+            {
+                documents.Add(new Document
+                {
+                    
+                    FileName = $"Test {i}",
+                    Description = $"Test Description {i}",
+                    DocumentImage = new byte[0],
+                    DocumentSize = i,
+                    Language = "EN",
+                    RequesterId = $"Tester {i}",
+                    DocumentType = new DocumentTypes { DocumentType = $"Type {i}", DocumentTypesId = i}
+                });
+            }
+            this.Context.Correlation.Add(correlation);
+            this.Context.SaveChanges();
+            documentDTO.CorrelationId = id;
+            documentDTO.Documents = documents;
+            
+            return documentDTO;
+        }
         public IEnumerable<DocumentInfo> CreateListOfDocumentInfos(Guid[] ids)
         {
             List<DocumentInfo> list = new List<DocumentInfo>();
@@ -32,7 +65,7 @@ namespace DocumentService.Unit.Tests.Services
                     DateCreated = DateTime.UtcNow,
                     Description = "Generic Description",
                     FileName = "Test Doc",
-                    DocumentTypes = new DocumentTypes { DocType = "Test", DocumentTypesId = 0 },
+                    DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
                     IsDeleted = false
                 };
 
@@ -46,10 +79,29 @@ namespace DocumentService.Unit.Tests.Services
 
         public void InsertDocumentInfo(DocumentInfo documentInfo)
         {
+            
             this.Context.DocumentInfo.Add(documentInfo);
             this.Context.SaveChanges();
         }
 
+        public void InsertDocumentDTO(DocumentDTO documentDTO, Guid id)
+        {
+            var documentInfo = CreateUpdatedDocumentInfo(documentDTO, id);
+            this.Context.DocumentInfo.Add(documentInfo);
+            this.Context.SaveChanges();
+        }
+        private DocumentInfo CreateUpdatedDocumentInfo(DocumentDTO documentDTO, Guid id)
+        {
+            var document = new DocumentInfo
+            {
+                DocumentId = id,
+                Description = documentDTO.Documents[0].Description,
+                DocumentTypes = documentDTO.Documents[0].DocumentType,
+                FileSize = documentDTO.Documents[0].DocumentSize,
+                Language = documentDTO.Documents[0].Language
+            };
+            return document;
+        }
         public void Dispose()
         {
             this.Context.Database.EnsureDeleted();
