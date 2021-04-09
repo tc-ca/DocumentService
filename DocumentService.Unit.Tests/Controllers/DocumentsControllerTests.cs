@@ -20,13 +20,14 @@ namespace DocumentService.Unit.Tests.Controllers
     [CollectionDefinition("Database collection")]
     public class DocumentsControllerTests : IClassFixture<DatabaseFixture>
     {
-
+        private DatabaseFixture databaseFixture;
         private readonly IConfiguration configuration;
 
         private readonly DatabaseFixture databaseFixture;
 
         public DocumentsControllerTests()
         {
+            this.databaseFixture = new DatabaseFixture();
             this.configuration = new ConfigurationBuilder().AddJsonFile("appsettings.test.json").Build();
 
             this.databaseFixture = new DatabaseFixture();
@@ -99,6 +100,33 @@ namespace DocumentService.Unit.Tests.Controllers
         [Fact]
         public void GetDocumentById_True_WhenIdExists()
         {
+            var documentContext = new Mock<IDocumentContext>();
+            var documentRepository = new Mock<IDocumentRepository>();
+            var azureBlobService = new Mock<IAzureBlobService>();
+            var configuration = new Mock<IConfiguration>();
+            var guid = Guid.NewGuid();
+            var documentController = new DocumentsController(documentRepository.Object, azureBlobService.Object, configuration.Object);
+
+            DocumentInfo documentInfo = new DocumentInfo
+            {
+                DocumentId = guid,
+                DateCreated = DateTime.UtcNow,
+                Description = "Generic Description",
+                FileName = "Test Doc",
+                DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
+                IsDeleted = false
+            };
+           // this.databaseFixture.InsertDocumentInfo(documentInfo);
+
+            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult(documentInfo));
+            // act
+            var response = documentController.GetDocumentById(guid);
+            var res = response as OkObjectResult;
+            dynamic result = res.Value;
+            var docInfo = (DocumentInfo)result.GetType().GetProperty("document").GetValue(result, null);
+
+            Assert.Equal(docInfo.FileName, documentInfo.FileName);
+
 
         }
 

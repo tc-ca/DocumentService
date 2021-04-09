@@ -124,7 +124,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetDocumentById(Guid id)
         {
-            var document = this.documentRepository.GetDocumentAsync(id);
+            var document = this.documentRepository.GetDocumentAsync(id).Result;
             return Ok(new { document });
         }
 
