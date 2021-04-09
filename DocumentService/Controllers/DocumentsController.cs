@@ -49,7 +49,7 @@ namespace DocumentService.Controllers
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UploadDocument(int correlationId, string userName, IFormFile file, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, List<string>? documentTypes, string customMetadata)
+        public IActionResult UploadDocument(int correlationId, string userName, IFormFile file, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, List<string> documentTypes, string customMetadata)
         {
             var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
 
@@ -86,7 +86,7 @@ namespace DocumentService.Controllers
             var listofIds = idString.Split(",").ToList().Select(Guid.Parse).ToArray<Guid>();
             var documents = this.documentRepository.GetDocumentsByIds(listofIds);
 
-            return Ok(new { documents });
+            return Ok(documents.ToList());
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetDocumentById(Guid id)
         {
-            var document = this.documentRepository.GetDocumentAsync(id);
+            var document = this.documentRepository.GetDocumentAsync(id).Result;
             return Ok(new { document });
         }
 
