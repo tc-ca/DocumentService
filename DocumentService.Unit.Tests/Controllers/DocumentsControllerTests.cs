@@ -20,14 +20,12 @@ namespace DocumentService.Unit.Tests.Controllers
     [CollectionDefinition("Database collection")]
     public class DocumentsControllerTests : IClassFixture<DatabaseFixture>
     {
-        private DatabaseFixture databaseFixture;
         private readonly IConfiguration configuration;
 
         private readonly DatabaseFixture databaseFixture;
 
         public DocumentsControllerTests()
         {
-            this.databaseFixture = new DatabaseFixture();
             this.configuration = new ConfigurationBuilder().AddJsonFile("appsettings.test.json").Build();
 
             this.databaseFixture = new DatabaseFixture();
