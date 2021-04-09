@@ -86,7 +86,7 @@ namespace DocumentService.Controllers
             var listofIds = idString.Split(",").ToList().Select(Guid.Parse).ToArray<Guid>();
             var documents = this.documentRepository.GetDocumentsByIds(listofIds);
 
-            return Ok(new { documents });
+            return Ok(documents.ToList());
         }
 
         /// <summary>

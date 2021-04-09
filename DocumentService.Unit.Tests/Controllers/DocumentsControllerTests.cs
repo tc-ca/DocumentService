@@ -8,17 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
-using System.Text;
-using Microsoft.Extensions.Configuration;
 using Moq;
-using System;
+using System.Linq;
 using System.Threading.Tasks;
-using DocumentService.Repositories;
-using Microsoft.Extensions.Configuration;
-using Moq;
-using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using Xunit;
+using DocumentService.Models;
 
 namespace DocumentService.Unit.Tests.Controllers
 {
@@ -28,17 +23,19 @@ namespace DocumentService.Unit.Tests.Controllers
 
         private readonly IConfiguration configuration;
 
+        private readonly DatabaseFixture databaseFixture;
+
         public DocumentsControllerTests()
         {
             this.configuration = new ConfigurationBuilder().AddJsonFile("appsettings.test.json").Build();
 
+            this.databaseFixture = new DatabaseFixture();
         }
 
         [Fact]
         public void UploadDocument_UploadsSuccessfully_WhenAllInformation()
         {
             // Arrange
-
             var azureKeyVault = new AzureKeyVaultService(configuration);
             var azureBlobService = new AzureBlobService(azureKeyVault);
             var documentContext = new DocumentContext(configuration, azureKeyVault);
@@ -71,6 +68,31 @@ namespace DocumentService.Unit.Tests.Controllers
         [Fact]
         public void GetAllSpecifiedDocuments_GetsAllSpecifiedDocuments_WhenIds()
         {
+            // Arrange
+            var azureKeyVault = new AzureKeyVaultService(configuration);
+            var azureBlobService = new AzureBlobService(azureKeyVault);
+            var documentContext = new DocumentContext(configuration, azureKeyVault);
+            var documentRepository = new DocumentRepository(documentContext);
+
+            // Act
+            var controller = new DocumentsController(documentRepository, azureBlobService, configuration);
+            List<Guid> guids = new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+            // Create the list of documents & save them into the database
+            databaseFixture.CreateListOfDocumentInfos(guids.ToArray());
+
+            var response = controller.GetAllSpecifiedDocuments(string.Join(",", guids));
+            var res = response as OkObjectResult;
+
+            // Assert
+            Assert.NotNull(res.Value);
+            var result = res.Value as List<DocumentInfo>;
+
+            Assert.Equal(guids.Count, result.Count);
+
+            for (int i = 0; i < result.Count; i++)
+            {
+                Assert.Equal(result[i].DocumentId.ToString(), guids[i].ToString());
+            }
 
         }
 
@@ -94,8 +116,8 @@ namespace DocumentService.Unit.Tests.Controllers
             var documentController = new DocumentsController(documentRepository.Object, azureBlobService.Object, configuration.Object);
 
             // Act
-            var result = (JsonResult) documentController.DeleteDocumentById(guid, userName);
-            
+            var result = (JsonResult)documentController.DeleteDocumentById(guid, userName);
+
             // Assert
             Assert.True((bool)result.Value);
         }
