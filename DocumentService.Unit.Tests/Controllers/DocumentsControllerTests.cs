@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Xunit;
 using DocumentService.Models;
+using System.Net;
 
 namespace DocumentService.Unit.Tests.Controllers
 {
@@ -98,6 +99,7 @@ namespace DocumentService.Unit.Tests.Controllers
         [Fact]
         public void GetDocumentById_True_WhenIdExists()
         {
+           // Arrange
             var documentContext = new Mock<IDocumentContext>();
             var documentRepository = new Mock<IDocumentRepository>();
             var azureBlobService = new Mock<IAzureBlobService>();
@@ -114,7 +116,7 @@ namespace DocumentService.Unit.Tests.Controllers
                 DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
                 IsDeleted = false
             };
-           // this.databaseFixture.InsertDocumentInfo(documentInfo);
+          
 
             documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult(documentInfo));
             // act
@@ -123,7 +125,34 @@ namespace DocumentService.Unit.Tests.Controllers
             dynamic result = res.Value;
             var docInfo = (DocumentInfo)result.GetType().GetProperty("document").GetValue(result, null);
 
+           // Assert
             Assert.Equal(docInfo.FileName, documentInfo.FileName);
+
+
+        }
+        [Fact]
+        public void GetDocumentById_WhenIdIsNotFound_ReturnsBadRequest()
+        {
+          // Arrange
+            var expected = (int)HttpStatusCode.BadRequest;
+            var documentContext = new Mock<IDocumentContext>();
+            var documentRepository = new Mock<IDocumentRepository>();
+            var azureBlobService = new Mock<IAzureBlobService>();
+            var configuration = new Mock<IConfiguration>();
+            var guid = Guid.Empty;
+
+            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult((DocumentInfo)null));
+            var documentController = new DocumentsController(documentRepository.Object, azureBlobService.Object, configuration.Object);
+            
+            // Act
+            var response = documentController.GetDocumentById(guid);
+
+            var result = response.GetType().GetProperty("StatusCode").GetValue(response).ToString();
+            
+
+            // Assert
+            Assert.Equal(expected.ToString(), result);
+
 
 
         }

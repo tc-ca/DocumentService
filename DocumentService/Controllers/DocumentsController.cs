@@ -125,7 +125,11 @@ namespace DocumentService.Controllers
         public IActionResult GetDocumentById(Guid id)
         {
             var document = this.documentRepository.GetDocumentAsync(id).Result;
-            return Ok(new { document });
+            if (document != null)
+            {
+                return Ok(new { document });
+            }
+            return BadRequest();
         }
 
         /// <summary>
