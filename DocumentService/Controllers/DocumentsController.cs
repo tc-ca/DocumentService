@@ -138,10 +138,15 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public JsonResult DeleteDocumentById(Guid id, string userName)
+        public IActionResult DeleteDocumentById(Guid id, string userName)
         {
             var isDeleted = this.documentRepository.SetFileDeleted(id, userName).Result;
-            return new JsonResult(isDeleted);
+            if (isDeleted)
+            {
+                return new JsonResult(isDeleted);
+            }
+
+            return new NotFoundResult();
         }
 
     }
