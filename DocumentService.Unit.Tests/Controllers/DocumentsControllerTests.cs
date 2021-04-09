@@ -151,5 +151,23 @@ namespace DocumentService.Unit.Tests.Controllers
             Assert.IsType<NotFoundResult>(result);
             Assert.Equal(expectedResult, ((NotFoundResult)result).StatusCode);
         }
+
+        [Fact]
+        public void DeleteDocumentById_ReturnsBadRequestResult_WhenExceptionThrown()
+        {
+            // Arrange
+            var guid = Guid.Empty;
+            var userName = "John Wick";
+            documentRepository.Setup(x => x.SetFileDeleted(guid, userName)).Throws<NullReferenceException>();
+            var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
+            var expectedResult = 400;
+
+            // Act
+            var result = documentController.DeleteDocumentById(guid, userName);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal(expectedResult, ((BadRequestObjectResult)result).StatusCode);
+        }
     }
 }
