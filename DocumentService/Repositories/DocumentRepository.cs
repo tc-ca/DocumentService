@@ -54,7 +54,6 @@ namespace DocumentService.Repositories
             try
             {
                 DocumentInfo documentInfo = await this.GetDocument(id);
-                List<Document> documents = new List<Document>();
                 if (documentInfo != null)
                 {
                     Document document = new Document
@@ -74,23 +73,14 @@ namespace DocumentService.Repositories
                         DateDeleted = documentInfo.DateDeleted,
                         DateLastUpdated = documentInfo.DateLastUpdated
                     };
-                    documents.Add(document);
-                }
-                else { return null; }
-              
-                DocumentDTO documentDTO = new DocumentDTO
-                {
-                    Documents = documents
-                };
+                    DocumentDTO documentDTO = new DocumentDTO
+                    {
+                        Documents = new List<Document> {  document }
+                    };
 
-                if (documentDTO != null)
-                {
                     return documentDTO;
                 }
-                else
-                {
-                    return null;
-                }
+                else { return null; }
             }
             catch (Exception)
             {
