@@ -128,10 +128,10 @@ namespace DocumentService.Unit.Tests.Controllers
             var response = documentController.GetDocumentById(guid);
             var res = response as OkObjectResult;
             dynamic result = res.Value;
-            var docInfo = (DocumentInfo)result.GetType().GetProperty("document").GetValue(result, null);
+            var docInfo = (DocumentDTO)result.GetType().GetProperty("document").GetValue(result, null);
 
             // Assert
-            Assert.Equal(docInfo.FileName, documentInfo.FileName);
+            Assert.Equal(docInfo.Documents.First().FileName, documentInfo.FileName);
 
 
         }
