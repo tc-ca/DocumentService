@@ -39,12 +39,7 @@ namespace DocumentService.Integration.Tests
         public void UploadDocument_UploadsSuccessfully_WhenAllInformation()
         {
             // Arrange
-            var azureKeyVault = new AzureKeyVaultService(configuration);
-            var azureBlobService = new AzureBlobService(azureKeyVault);
-            var documentContext = new DocumentContext(configuration, azureKeyVault);
-            var documentRepository = new DocumentRepository(documentContext);
-
-            var controller = new DocumentsController(documentRepository, azureBlobService, configuration);
+            var controller = new DocumentsController(this.documentRepository, this.azureBlobService, this.configuration);
 
             var ms = new MemoryStream();
             TextWriter tw = new StreamWriter(ms);
@@ -70,16 +65,11 @@ namespace DocumentService.Integration.Tests
         public void GetAllSpecifiedDocuments_GetsAllSpecifiedDocuments_WhenIds()
         {
             // Arrange
-            var azureKeyVault = new AzureKeyVaultService(configuration);
-            var azureBlobService = new AzureBlobService(azureKeyVault);
-            var documentContext = new DocumentContext(configuration, azureKeyVault);
-            var documentRepository = new DocumentRepository(documentContext);
+            var controller = new DocumentsController(this.documentRepository, this.azureBlobService, this.configuration);
+            List<Guid> guids = new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
 
             // Act
-            var controller = new DocumentsController(documentRepository, azureBlobService, configuration);
-            List<Guid> guids = new List<Guid> { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
             this.databaseFixture.CreateListOfDocumentInfos(guids.ToArray());
-
             var response = controller.GetAllSpecifiedDocuments(string.Join(",", guids));
             var res = response as OkObjectResult;
 

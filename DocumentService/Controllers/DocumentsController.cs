@@ -107,9 +107,28 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult UpdateMetadataForDocument(int correlationId, string userName, string fileName, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, string documentTypes, string customMetadata)
+        public IActionResult UpdateMetadataForDocument(Guid documentId, string userName, string fileName, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, string documentTypes)
         {
-            return Ok();
+            var documentInfo = new DocumentInfo()
+            {
+                DocumentId = documentId,
+                UserCreatedById = userName,
+                DateLastUpdated = DateTime.UtcNow,
+                FileName = fileName,
+                Description = shortDescription,
+                SubmissionMethod = submissionMethod,
+                Language = fileLanguage,
+            };
+
+            try
+            {
+                var isUpdated = this.documentRepository.Update(documentInfo).Result;
+                return new JsonResult(isUpdated);
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e);
+            }
         }
 
         /// <summary>
@@ -125,7 +144,11 @@ namespace DocumentService.Controllers
         public IActionResult GetDocumentById(Guid id)
         {
             var document = this.documentRepository.GetDocumentAsync(id).Result;
-            return Ok(new { document });
+            if (document != null)
+            {
+                return Ok(new { document });
+            }
+            return BadRequest();
         }
 
         /// <summary>
@@ -146,13 +169,15 @@ namespace DocumentService.Controllers
                 if (isDeleted)
                 {
                     return new JsonResult(isDeleted);
+                } else
+                {
+                    return new NotFoundResult();
                 }
-            } catch(Exception e)
+            } 
+            catch(Exception e)
             {
                 return new BadRequestObjectResult(e);
             }
-
-            return new NotFoundResult();
         }
 
     }
