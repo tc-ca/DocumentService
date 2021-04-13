@@ -99,7 +99,7 @@ namespace DocumentService.Unit.Tests.Controllers
         [Fact]
         public void GetDocumentById_True_WhenIdExists()
         {
-           // Arrange
+            // Arrange
             var documentContext = new Mock<IDocumentContext>();
             var documentRepository = new Mock<IDocumentRepository>();
             var azureBlobService = new Mock<IAzureBlobService>();
@@ -107,25 +107,30 @@ namespace DocumentService.Unit.Tests.Controllers
             var guid = Guid.NewGuid();
             var documentController = new DocumentsController(documentRepository.Object, azureBlobService.Object, configuration.Object);
 
-            DocumentInfo documentInfo = new DocumentInfo
+            Document documentInfo = new Document
             {
                 DocumentId = guid,
                 DateCreated = DateTime.UtcNow,
                 Description = "Generic Description",
                 FileName = "Test Doc",
-                DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
+                DocumentType = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
                 IsDeleted = false
             };
-          
 
-            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult(documentInfo));
+            var dto = new DocumentDTO
+            {
+                Documents = new List<Document> { documentInfo }
+            };
+
+
+            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult(dto));
             // act
             var response = documentController.GetDocumentById(guid);
             var res = response as OkObjectResult;
             dynamic result = res.Value;
             var docInfo = (DocumentInfo)result.GetType().GetProperty("document").GetValue(result, null);
 
-           // Assert
+            // Assert
             Assert.Equal(docInfo.FileName, documentInfo.FileName);
 
 
@@ -133,7 +138,7 @@ namespace DocumentService.Unit.Tests.Controllers
         [Fact]
         public void GetDocumentById_WhenIdIsNotFound_ReturnsBadRequest()
         {
-          // Arrange
+            // Arrange
             var expected = (int)HttpStatusCode.BadRequest;
             var documentContext = new Mock<IDocumentContext>();
             var documentRepository = new Mock<IDocumentRepository>();
@@ -141,14 +146,14 @@ namespace DocumentService.Unit.Tests.Controllers
             var configuration = new Mock<IConfiguration>();
             var guid = Guid.Empty;
 
-            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult((DocumentInfo)null));
+            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult((DocumentDTO)null));
             var documentController = new DocumentsController(documentRepository.Object, azureBlobService.Object, configuration.Object);
-            
+
             // Act
             var response = documentController.GetDocumentById(guid);
 
             var result = response.GetType().GetProperty("StatusCode").GetValue(response).ToString();
-            
+
 
             // Assert
             Assert.Equal(expected.ToString(), result);

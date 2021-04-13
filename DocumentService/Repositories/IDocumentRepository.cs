@@ -1,4 +1,5 @@
 ﻿using DocumentService.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -13,7 +14,7 @@ namespace DocumentService.Repositories
         /// </summary>
         /// <param name="id">Id of the document you would like to find</param>
         /// <returns>Document object if found</returns>
-        Task<DocumentInfo> GetDocumentAsync(Guid id);
+        Task<DocumentDTO> GetDocumentAsync(Guid id);
 
         /// <summary>
         /// Returns multiple documents based off a list of IDs
@@ -42,13 +43,13 @@ namespace DocumentService.Repositories
         /// </summary>
         /// <param name="documentInfo">Document object with updated data</param>
         /// <returns>True if successful</returns>
-        Task<bool> Update(DocumentInfo documentInfo);
+        Task<bool> Update(DocumentDTO documentDTO, Guid id);
 
         /// <summary>
         /// Updates the database with a new document
         /// </summary>
-        /// <param name="documentInfo">DocumentInfo object created in the controller</param>
+        /// <param name="documentDTO">Document DTO object created in the controller to populate the DocumentInfo entity</param>
         /// <returns>Number of entities added</returns>
-        Task<int> UploadDocumentAsync(DocumentInfo documentInfo);
+        Task<int> UploadDocumentAsync(DocumentDTO documentDTO);
     }
 }
