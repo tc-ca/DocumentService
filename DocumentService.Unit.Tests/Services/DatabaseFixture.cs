@@ -29,10 +29,7 @@ namespace DocumentService.Unit.Tests.Services
             DocumentDTO documentDTO = new DocumentDTO();
           
             List<Document> documents = new List<Document>();
-            Correlation correlation = new Correlation
-            {
-                CorrelationId = guid
-            };
+         
 
             for(int i = 0; i < count; i++)
             {
@@ -48,11 +45,11 @@ namespace DocumentService.Unit.Tests.Services
                     DocumentType = new DocumentTypes { DocumentType = $"Type {i}", DocumentTypesId = i}
                 });
             }
-            this.Context.Correlation.Add(correlation);
-            this.Context.SaveChanges();
-            documentDTO.CorrelationId = guid;
+          //  this.Context.Correlation.Add(correlation);
+           
+            documentDTO.CorrelationId = Guid.Empty;
             documentDTO.Documents = documents;
-            
+          
             return documentDTO;
         }
         public IEnumerable<DocumentInfo> CreateListOfDocumentInfos(Guid[] ids)

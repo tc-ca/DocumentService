@@ -76,6 +76,8 @@ namespace DocumentService.Repositories
                     };
                     documents.Add(document);
                 }
+                else { return null; }
+              
                 DocumentDTO documentDTO = new DocumentDTO
                 {
                     Documents = documents
@@ -187,7 +189,7 @@ namespace DocumentService.Repositories
             {
                 DocumentInfo documentInfo = new DocumentInfo
                 {
-                    CorrelationId = documentDTO.CorrelationId,
+                    //CorrelationId = documentDTO.CorrelationId,
                     FileName = documents.FileName,
                     FileSize = documents.DocumentSize,
                     DocumentTypes = documents.DocumentType,
