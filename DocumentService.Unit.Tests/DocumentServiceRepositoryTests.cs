@@ -56,10 +56,10 @@ namespace DocumentService.Unit.Tests
         }
 
         [Fact]
-        public void GetDocumentAsync_WhenNotExists_ReturnsDocumentInfo()
+        public void GetDocumentAsync_WhenNotExists_ReturnsNull()
         {
             // Arrange
-            var documentInfoId = Guid.NewGuid();
+            var documentInfoId = new Guid("11111111-1111-1111-1111-111111111110");
 
             // Act
             var result = documentRepository.GetDocumentAsync(documentInfoId).Result;
