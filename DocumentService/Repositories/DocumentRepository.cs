@@ -194,7 +194,7 @@ namespace DocumentService.Repositories
                     FileSize = documents.DocumentSize,
                     DocumentTypes = documents.DocumentType,
                     Description = documents.Description,
-                    // DocumentUrl = GetUrlFromBlob(DocumentObject)
+                    DocumentUrl = documents.DocumentUrl,
                     Language = documents.Language,
                     UserCreatedById = documents.RequesterId,
                     DateCreated = DateTime.UtcNow,
