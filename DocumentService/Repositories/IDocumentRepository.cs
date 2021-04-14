@@ -14,7 +14,7 @@ namespace DocumentService.Repositories
         /// </summary>
         /// <param name="id">Id of the document you would like to find</param>
         /// <returns>Document object if found</returns>
-        Task<DocumentInfo> GetDocumentAsync(Guid id);
+        Task<DocumentDTO> GetDocumentAsync(Guid id);
 
         /// <summary>
         /// Returns multiple documents based off a list of IDs

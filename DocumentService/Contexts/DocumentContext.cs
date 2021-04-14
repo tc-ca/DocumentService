@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using DocumentService.Models;
 using Microsoft.Extensions.Configuration;
+using DocumentService.Azure;
 
 namespace DocumentService.Contexts
 {
@@ -12,21 +13,28 @@ namespace DocumentService.Contexts
     {
         private IConfiguration configuration;
 
+        private readonly IAzureKeyVaultService azureKeyVaultService;
+
         /// <summary>
         /// Gets or sets the correlation table
         /// </summary>
-        public DbSet<Correlation> Correlation { get; set; } 
+        public DbSet<Correlation> Correlation { get; set; }
 
         /// <summary>
         /// Gets or sets the document info table
         /// </summary>
         public DbSet<DocumentInfo> DocumentInfo { get; set; }
 
-        public DocumentContext(IConfiguration configuration)
+        public DocumentContext(IConfiguration configuration, IAzureKeyVaultService azureKeyVaultService)
         {
+
             this.configuration = configuration;
 
+            this.azureKeyVaultService = azureKeyVaultService;
+
+            var db = this.azureKeyVaultService.GetSecretByName(configuration.GetSection("ConnectionStrings")["Postgsql"]);
+
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseNpgsql(this.configuration.GetConnectionString("Postgsql"));
+        protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseNpgsql(this.azureKeyVaultService.GetSecretByName(configuration.GetSection("ConnectionStrings")["Postgsql"]));
     }
 }

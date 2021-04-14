@@ -19,7 +19,7 @@ namespace DocumentService.Azure
 
         private BlobContainerClient containerClient;
 
-        public AzureBlobService(IKeyVaultService azureKeyVaultService)
+        public AzureBlobService(IAzureKeyVaultService azureKeyVaultService)
         {
             if (azureKeyVaultService != null)
             {
@@ -38,6 +38,7 @@ namespace DocumentService.Azure
                     throw new ArgumentNullException(nameof(file));
                 }
 
+                /// var originalFileName = file.FileName;
                 var blobName = UniqueFileName(file.FileName);
 
                 // Get a reference to the blob

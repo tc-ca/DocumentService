@@ -49,19 +49,38 @@ namespace DocumentService.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<DocumentInfo> GetDocumentAsync(Guid id)
+        public async Task<DocumentDTO> GetDocumentAsync(Guid id)
         {
             try
             {
                 DocumentInfo documentInfo = await this.GetDocument(id);
                 if (documentInfo != null)
                 {
-                    return documentInfo;
+                    Document document = new Document
+                    {
+                        DocumentId = documentInfo.DocumentId,
+                        FileName = documentInfo.FileName,
+                        DocumentType = documentInfo.DocumentTypes,
+                        DocumentSize = documentInfo.FileSize,
+                        Description = documentInfo.Description,
+                        FileType = documentInfo.FileType,
+                        Language = documentInfo.Language,
+                        UserCreatedById = documentInfo.UserCreatedById,
+                        UserLastUpdatedById = documentInfo.UserLastUpdatedById,
+                        RequesterId = documentInfo.UserCreatedById,
+                        DeletedById = documentInfo.DeletedById,
+                        DateCreated = documentInfo.DateCreated,
+                        DateDeleted = documentInfo.DateDeleted,
+                        DateLastUpdated = documentInfo.DateLastUpdated
+                    };
+                    DocumentDTO documentDTO = new DocumentDTO
+                    {
+                        Documents = new List<Document> {  document }
+                    };
+
+                    return documentDTO;
                 }
-                else
-                {
-                    return null;
-                }
+                else { return null; }
             }
             catch (Exception)
             {
@@ -160,12 +179,11 @@ namespace DocumentService.Repositories
             {
                 DocumentInfo documentInfo = new DocumentInfo
                 {
-                    CorrelationId = documentDTO.CorrelationId,
                     FileName = documents.FileName,
                     FileSize = documents.DocumentSize,
                     DocumentTypes = documents.DocumentType,
                     Description = documents.Description,
-                    // DocumentUrl = GetUrlFromBlob(DocumentObject)
+                    DocumentUrl = documents.DocumentUrl,
                     Language = documents.Language,
                     UserCreatedById = documents.RequesterId,
                     DateCreated = DateTime.UtcNow,

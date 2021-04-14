@@ -1,12 +1,10 @@
 ﻿namespace DocumentService.Azure
 {
-    using System.Collections.Generic;
-    //using Microsoft.Azure.KeyVault.Models;
 
     /// <summary>
     /// Defines a key vault service
     /// </summary>
-    public interface IKeyVaultService
+    public interface IAzureKeyVaultService
     {
         /// <summary>
         /// Gets the secret by name from the key vault.

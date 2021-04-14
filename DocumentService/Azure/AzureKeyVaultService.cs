@@ -8,7 +8,7 @@ namespace DocumentService.Azure
     /// <summary>
     ///  Represents the Azure key vault service.
     /// </summary>
-    public class AzureKeyVaultService : IKeyVaultService
+    public class AzureKeyVaultService : IAzureKeyVaultService
     {
         private string dNs;
 

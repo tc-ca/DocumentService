@@ -3,6 +3,7 @@ using DocumentService.Repositories;
 using DocumentService.Unit.Tests.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Net;
@@ -25,15 +26,30 @@ namespace DocumentService.Unit.Tests
         public void GetDocumentAsync_WhenExists_ReturnsDocumentInfo()
         {
             // Arrange
-            var documentInfoId = Guid.NewGuid();
-            DocumentInfo expectedResult = this.generateNewDocumentInfo(documentInfoId);
-            this.databaseFixture.InsertDocumentInfo(expectedResult);
+            var guid = Guid.NewGuid();
+            int count = 1;
+            var expectedResult = this.databaseFixture.CreateDocumentDTO(count, guid);
+            this.databaseFixture.InsertDocumentDTO(expectedResult, guid);
 
             // Act 
-            var result = this.documentRepository.GetDocumentAsync(documentInfoId).Result;
+            var result = this.documentRepository.GetDocumentAsync(guid).Result;
 
-            // Assert
-            Assert.Equal(expectedResult, result);
+            string jsonExcepted = JsonConvert.SerializeObject(expectedResult, Formatting.Indented);
+            string jsonResult = JsonConvert.SerializeObject(result, Formatting.Indented);
+
+            Assert.Equal(jsonExcepted, jsonResult);
+            // We do this as comparing the objects themselves doesn't work, but passes if tested differently
+            foreach (var value in expectedResult.Documents[0].GetType().GetProperties())
+            {
+
+                var exceptedValue = value.GetValue(expectedResult.Documents[0], null);
+
+                var resultValue = value.GetValue(result.Documents[0], null);
+
+                Assert.Equal(exceptedValue, resultValue);
+
+            }
+
         }
 
         [Fact]
@@ -69,15 +85,16 @@ namespace DocumentService.Unit.Tests
             // Assert
             Assert.Null(result);
         }
-        
+
         [Fact]
         public void UploadDocumentAsync_UploadSuccessful_ReturnsOne()
         {
             // Arrange
             var expectedResult = 1;
-            DocumentDTO documentDTO = this.databaseFixture.CreateDTOWithCorId(expectedResult);
+            var guid = Guid.NewGuid();
+            DocumentDTO documentDTO = this.databaseFixture.CreateDocumentDTO(expectedResult, guid);
 
-            
+
             // Act
             var result = this.documentRepository.UploadDocumentAsync(documentDTO).Result;
 
@@ -126,13 +143,13 @@ namespace DocumentService.Unit.Tests
         {
             // Arrange
             var expectedResult = true;
-            var documentInfoId = Guid.NewGuid();
-            var documentDTO = this.databaseFixture.CreateDTOWithCorId(1);
-            this.databaseFixture.InsertDocumentDTO(documentDTO, documentInfoId);
+            var guid = Guid.NewGuid();
+            var documentDTO = this.databaseFixture.CreateDocumentDTO(1, guid);
+            this.databaseFixture.InsertDocumentDTO(documentDTO, guid);
 
             // Act
             documentDTO.Documents.First().FileName = "Our new file name";
-            var result = this.documentRepository.Update(documentDTO, documentInfoId).Result;
+            var result = this.documentRepository.Update(documentDTO, guid).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -142,7 +159,7 @@ namespace DocumentService.Unit.Tests
         {
             //Arrange
             var expectedResult = false;
-           
+
             var documentInfo = new DocumentDTO();
             // Act
             var result = this.documentRepository.Update(documentInfo, Guid.Empty).Result;

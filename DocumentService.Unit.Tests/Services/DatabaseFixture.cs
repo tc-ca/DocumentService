@@ -1,4 +1,5 @@
-﻿using DocumentService.Contexts;
+﻿using DocumentService.Azure;
+using DocumentService.Contexts;
 using DocumentService.Models;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -17,41 +18,37 @@ namespace DocumentService.Unit.Tests.Services
         public DatabaseFixture()
         {
             this.configuration = new ConfigurationBuilder().AddJsonFile("appsettings.test.json").Build();
-            this.Context = new DocumentContext(this.configuration);
+            var azureKeyVault = new AzureKeyVaultService(configuration);
+            this.Context = new DocumentContext(this.configuration, azureKeyVault);
             this.Context.Database.EnsureCreated();
         }
      
 
-        public DocumentDTO CreateDTOWithCorId(int count)
+        public DocumentDTO CreateDocumentDTO(int count, Guid guid)
         {
-            var id = Guid.NewGuid();
             DocumentDTO documentDTO = new DocumentDTO();
           
             List<Document> documents = new List<Document>();
-            Correlation correlation = new Correlation
-            {
-                CorrelationId = id
-            };
+         
 
             for(int i = 0; i < count; i++)
             {
                 documents.Add(new Document
                 {
-                    
+                    DocumentId = guid,
                     FileName = $"Test {i}",
                     Description = $"Test Description {i}",
-                    DocumentImage = new byte[0],
                     DocumentSize = i,
                     Language = "EN",
                     RequesterId = $"Tester {i}",
+                    UserCreatedById = $"Tester {i}",
                     DocumentType = new DocumentTypes { DocumentType = $"Type {i}", DocumentTypesId = i}
                 });
             }
-            this.Context.Correlation.Add(correlation);
-            this.Context.SaveChanges();
-            documentDTO.CorrelationId = id;
+           
+            documentDTO.CorrelationId = Guid.Empty;
             documentDTO.Documents = documents;
-            
+          
             return documentDTO;
         }
         public IEnumerable<DocumentInfo> CreateListOfDocumentInfos(Guid[] ids)
@@ -90,11 +87,14 @@ namespace DocumentService.Unit.Tests.Services
             this.Context.DocumentInfo.Add(documentInfo);
             this.Context.SaveChanges();
         }
+
         private DocumentInfo CreateUpdatedDocumentInfo(DocumentDTO documentDTO, Guid id)
         {
             var document = new DocumentInfo
             {
                 DocumentId = id,
+                FileName = documentDTO.Documents[0].FileName,
+                UserCreatedById = documentDTO.Documents[0].UserCreatedById,
                 Description = documentDTO.Documents[0].Description,
                 DocumentTypes = documentDTO.Documents[0].DocumentType,
                 FileSize = documentDTO.Documents[0].DocumentSize,

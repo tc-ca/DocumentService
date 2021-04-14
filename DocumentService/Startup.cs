@@ -24,7 +24,9 @@ namespace DocumentService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
-            services.AddTransient<IKeyVaultService, AzureKeyVaultService>();
+
+
+            services.AddTransient<IAzureKeyVaultService, AzureKeyVaultService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();
             services.AddScoped<IDocumentRepository, DocumentRepository>();
             services.AddControllers();
@@ -40,10 +42,8 @@ namespace DocumentService
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
-                //this.setupCodeFirstDevelopmentDatabase();
             }
-
+            
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DocumentService v1"));
 
@@ -59,10 +59,5 @@ namespace DocumentService
             });
         }
 
-        private void setupCodeFirstDevelopmentDatabase()
-        {
-            var documentContext = new DocumentContext(this.Configuration);
-            documentContext.Database.EnsureCreated();
-        }
     }
 }
