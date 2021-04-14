@@ -179,7 +179,6 @@ namespace DocumentService.Repositories
             {
                 DocumentInfo documentInfo = new DocumentInfo
                 {
-                    //CorrelationId = documentDTO.CorrelationId,
                     FileName = documents.FileName,
                     FileSize = documents.DocumentSize,
                     DocumentTypes = documents.DocumentType,
