@@ -35,7 +35,7 @@ namespace DocumentService.Unit.Tests.Controllers
             var guid = Guid.NewGuid();
             var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
 
-            DocumentInfo documentInfo = new DocumentInfo
+            Document documentInfo = new Document
             {
                 DocumentId = guid,
                 DateCreated = DateTime.UtcNow,
@@ -44,16 +44,20 @@ namespace DocumentService.Unit.Tests.Controllers
                 DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
                 IsDeleted = false
             };
-            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult(documentInfo));
+              var dto = new DocumentDTO
+            {
+                Documents = new List<Document> { documentInfo }
+            };
+            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult(dto));
 
             // Act
             var response = documentController.GetDocumentById(guid);
             var res = response as OkObjectResult;
             dynamic result = res.Value;
-            var docInfo = (DocumentInfo)result.GetType().GetProperty("document").GetValue(result, null);
+            var docInfo = (DocumentDTO)result.GetType().GetProperty("document").GetValue(result, null);
 
            // Assert
-            Assert.Equal(docInfo.FileName, documentInfo.FileName);
+            Assert.Equal(docInfo.Documents.First().FileName, documentInfo.FileName);
         }
 
         [Fact]
