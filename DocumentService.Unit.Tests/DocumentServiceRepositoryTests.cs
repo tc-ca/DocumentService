@@ -161,9 +161,8 @@ namespace DocumentService.Unit.Tests
         public void Update_UpdateFailed_ReturnsEmptyDocumentUpdatedResultList()
         {
             //Arrange
-            var expectedResult = false;
-
             var documentInfo = new DocumentDTO();
+
             // Act
             var result = this.documentRepository.Update(documentInfo).Result;
 
