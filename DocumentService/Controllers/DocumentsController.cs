@@ -53,7 +53,8 @@ namespace DocumentService.Controllers
         {
             var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
 
-            var documentInfo = new DocumentInfo()
+
+            var document = new Document()
             {
                 UserCreatedById = userName,
                 DateCreated = DateTime.Now,
@@ -68,7 +69,12 @@ namespace DocumentService.Controllers
                 // MetaData = customMetadata,
             };
 
-            var uploadedDocumentId = this.documentRepository.UploadDocumentAsync(documentInfo).Result;
+            var dto = new DocumentDTO
+            {
+                Documents = new List<Document> { document }
+            };
+
+            var uploadedDocumentId = this.documentRepository.UploadDocumentAsync(dto).Result;
             return Ok(new { documentId = uploadedDocumentId });
         }
 
@@ -109,7 +115,7 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult UpdateMetadataForDocument(Guid documentId, string userName, string fileName, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, string documentTypes)
         {
-            var documentInfo = new DocumentInfo()
+            var document  = new Document()
             {
                 DocumentId = documentId,
                 UserCreatedById = userName,
@@ -119,10 +125,16 @@ namespace DocumentService.Controllers
                 SubmissionMethod = submissionMethod,
                 Language = fileLanguage,
             };
+            var documentList = new List<Document>();
+            documentList.Add(document);
+            var documentDTO = new DocumentDTO()
+            {
+                Documents = documentList
+            };
 
             try
             {
-                var isUpdated = this.documentRepository.Update(documentInfo).Result;
+                var isUpdated = this.documentRepository.Update(documentDTO).Result;
                 return new JsonResult(isUpdated);
             }
             catch (Exception e)

@@ -1,8 +1,12 @@
 using DocumentService.Models;
 using DocumentService.Repositories;
 using DocumentService.Unit.Tests.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
+using System.Net;
 using Xunit;
 
 namespace DocumentService.Unit.Tests
@@ -12,7 +16,6 @@ namespace DocumentService.Unit.Tests
     {
         private DatabaseFixture databaseFixture;
         private readonly DocumentRepository documentRepository;
-
         public DocumentServiceRepositoryTests()
         {
             this.databaseFixture = new DatabaseFixture();
@@ -23,15 +26,30 @@ namespace DocumentService.Unit.Tests
         public void GetDocumentAsync_WhenExists_ReturnsDocumentInfo()
         {
             // Arrange
-            var documentInfoId = Guid.NewGuid();
-            DocumentInfo expectedResult = this.generateNewDocumentInfo(documentInfoId);
-            this.databaseFixture.InsertDocumentInfo(expectedResult);
+            var guid = Guid.NewGuid();
+            int count = 1;
+            var expectedResult = this.databaseFixture.CreateDocumentDTO(count, guid);
+            this.databaseFixture.InsertDocumentDTO(expectedResult, guid);
 
             // Act 
-            var result = documentRepository.GetDocumentAsync(documentInfoId).Result;
+            var result = this.documentRepository.GetDocumentAsync(guid).Result;
 
-            // Assert
-            Assert.Equal(expectedResult, result);
+            string jsonExcepted = JsonConvert.SerializeObject(expectedResult, Formatting.Indented);
+            string jsonResult = JsonConvert.SerializeObject(result, Formatting.Indented);
+
+            Assert.Equal(jsonExcepted, jsonResult);
+            // We do this as comparing the objects themselves doesn't work, but passes if tested differently
+            foreach (var value in expectedResult.Documents[0].GetType().GetProperties())
+            {
+
+                var exceptedValue = value.GetValue(expectedResult.Documents[0], null);
+
+                var resultValue = value.GetValue(result.Documents[0], null);
+
+                Assert.Equal(exceptedValue, resultValue);
+
+            }
+
         }
 
         [Fact]
@@ -49,7 +67,7 @@ namespace DocumentService.Unit.Tests
             this.databaseFixture.InsertDocumentInfo(newDocumentInfo);
 
             // Act 
-            var result = documentRepository.GetDocumentAsync(documentInfoId).Result;
+            var result = this.documentRepository.GetDocumentAsync(documentInfoId).Result;
 
             // Assert
             Assert.Null(result);
@@ -62,7 +80,7 @@ namespace DocumentService.Unit.Tests
             var documentInfoId = new Guid("11111111-1111-1111-1111-111111111110");
 
             // Act
-            var result = documentRepository.GetDocumentAsync(documentInfoId).Result;
+            var result = this.documentRepository.GetDocumentAsync(documentInfoId).Result;
 
             // Assert
             Assert.Null(result);
@@ -73,11 +91,12 @@ namespace DocumentService.Unit.Tests
         {
             // Arrange
             var expectedResult = 1;
-            var documentInfoId = Guid.NewGuid();
-            DocumentInfo documentInfo = this.generateNewDocumentInfo(documentInfoId);
+            var guid = Guid.NewGuid();
+            DocumentDTO documentDTO = this.databaseFixture.CreateDocumentDTO(expectedResult, guid);
+
 
             // Act
-            var result = this.documentRepository.UploadDocumentAsync(documentInfo).Result;
+            var result = this.documentRepository.UploadDocumentAsync(documentDTO).Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -87,7 +106,7 @@ namespace DocumentService.Unit.Tests
         public void UploadDocumentAsync_UploadFailed_ThrowsNullReferenceException()
         {
             // Assert
-            Assert.ThrowsAsync<NullReferenceException>(() => documentRepository.UploadDocumentAsync(null));
+            Assert.ThrowsAsync<NullReferenceException>(() => this.documentRepository.UploadDocumentAsync(null));
         }
 
         [Fact]
@@ -100,7 +119,7 @@ namespace DocumentService.Unit.Tests
             this.databaseFixture.InsertDocumentInfo(testDocumentInfo);
 
             // Act
-            var result = documentRepository.SetFileDeleted(testDocumentInfo.DocumentId, "Tester").Result;
+            var result = this.documentRepository.SetFileDeleted(testDocumentInfo.DocumentId, "Tester").Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -113,7 +132,7 @@ namespace DocumentService.Unit.Tests
             var expectedResult = false;
 
             // Act
-            var result = documentRepository.SetFileDeleted(Guid.Empty, "Tester").Result;
+            var result = this.documentRepository.SetFileDeleted(Guid.Empty, "Tester").Result;
 
             // Assert
             Assert.Equal(expectedResult, result);
@@ -124,32 +143,32 @@ namespace DocumentService.Unit.Tests
         {
             // Arrange
             var expectedResult = true;
-            var documentInfoId = Guid.NewGuid();
-            var documentInfo = this.generateNewDocumentInfo(documentInfoId);
-            this.databaseFixture.InsertDocumentInfo(documentInfo);
+            var guid = Guid.NewGuid();
+            var documentDTO = this.databaseFixture.CreateDocumentDTO(1, guid);
+            this.databaseFixture.InsertDocumentDTO(documentDTO, guid);
 
             // Act
-            documentInfo.FileName = "Our new file name";
-            var result = documentRepository.Update(documentInfo).Result;
+            documentDTO.Documents.First().FileName = "Our new file name";
+            var resultList = this.documentRepository.Update(documentDTO).Result;
 
             // Assert
-            Assert.Equal(expectedResult, result);
+            foreach(var result in resultList)
+            {
+                Assert.Equal(expectedResult, result.IsUpdated);
+            }
         }
         [Fact]
-        public void Update_UpdateFailed_ReturnsFalse()
+        public void Update_UpdateFailed_ReturnsEmptyDocumentUpdatedResultList()
         {
             //Arrange
             var expectedResult = false;
-            var documentInfo = new DocumentInfo
-            {
-                DocumentId = Guid.Empty
-            };
 
+            var documentInfo = new DocumentDTO();
             // Act
             var result = this.documentRepository.Update(documentInfo).Result;
 
             // Assert
-            Assert.Equal(expectedResult, result);
+            Assert.Empty(result);
         }
 
         [Fact]
@@ -160,7 +179,7 @@ namespace DocumentService.Unit.Tests
             var expectedResult = this.databaseFixture.CreateListOfDocumentInfos(testGuids);
 
             // Act
-            var result = documentRepository.GetDocumentsByIds(testGuids);
+            var result = this.documentRepository.GetDocumentsByIds(testGuids);
             expectedResult = expectedResult.OrderBy(x => x.DocumentId);
             result = result.OrderBy(x => x.DocumentId);
 
@@ -175,7 +194,7 @@ namespace DocumentService.Unit.Tests
             var testGuids = this.createMultipleGuids();
 
             // Act
-            var result = documentRepository.GetDocumentsByIds(testGuids);
+            var result = this.documentRepository.GetDocumentsByIds(testGuids);
 
             // Assert
             Assert.Empty(result);

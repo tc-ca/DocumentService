@@ -10,6 +10,9 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 using System.Net;
+using System.Collections.Generic;
+using System.Linq;
+using DocumentService.Repositories.Entities;
 
 namespace DocumentService.Unit.Tests.Controllers
 {
@@ -41,7 +44,7 @@ namespace DocumentService.Unit.Tests.Controllers
                 DateCreated = DateTime.UtcNow,
                 Description = "Generic Description",
                 FileName = "Test Doc",
-                DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
+                DocumentType = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
                 IsDeleted = false
             };
               var dto = new DocumentDTO
@@ -54,16 +57,19 @@ namespace DocumentService.Unit.Tests.Controllers
             var response = documentController.GetDocumentById(guid);
             var res = response as OkObjectResult;
             dynamic result = res.Value;
-            var docInfo = (DocumentDTO)result.GetType().GetProperty("document").GetValue(result, null);
+            var documentDTO = (DocumentDTO)result.GetType().GetProperty("document").GetValue(result, null);
 
-           // Assert
-            Assert.Equal(docInfo.Documents.First().FileName, documentInfo.FileName);
+            // Assert
+            foreach (var document in documentDTO.Documents)
+            {
+                Assert.Equal(document.FileName, documentInfo.FileName);
+            }
         }
 
         [Fact]
         public void GetDocumentById_WhenIdIsNotFound_ReturnsBadRequest()
         {
-          // Arrange
+            // Arrange
             var expected = (int)HttpStatusCode.BadRequest;
             var documentContext = new Mock<IDocumentContext>();
             var documentRepository = new Mock<IDocumentRepository>();
@@ -71,14 +77,14 @@ namespace DocumentService.Unit.Tests.Controllers
             var configuration = new Mock<IConfiguration>();
             var guid = Guid.Empty;
 
-            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult((DocumentInfo)null));
+            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult((DocumentDTO)null));
             var documentController = new DocumentsController(documentRepository.Object, azureBlobService.Object, configuration.Object);
-            
+
             // Act
             var response = documentController.GetDocumentById(guid);
 
             var result = response.GetType().GetProperty("StatusCode").GetValue(response).ToString();
-            
+
 
             // Assert
             Assert.Equal(expected.ToString(), result);
@@ -140,15 +146,21 @@ namespace DocumentService.Unit.Tests.Controllers
         public void UpdateMetadataForDocument_ReturnsTrue_WhenUpdateSuccessful()
         {
             // Arrange
-            var documentInfo = new DocumentInfo();
-            documentRepository.Setup(x => x.Update(It.IsAny<DocumentInfo>())).Returns(Task.FromResult(true));
+            var documentInfo = new DocumentDTO();
+            var expectedResult = new List<DocumentUpdatedResult>();
+            expectedResult.Add(new DocumentUpdatedResult() { IsUpdated = true, DocumentId = Guid.Empty });
+            documentRepository.Setup(x => x.Update(It.IsAny<DocumentDTO>())).Returns(Task.FromResult(expectedResult.AsEnumerable()));
             var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
 
             // Act
-            var result = (JsonResult)documentController.UpdateMetadataForDocument(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            var unparsedResult = (JsonResult)documentController.UpdateMetadataForDocument(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            var parsedResult = ((IEnumerable<DocumentUpdatedResult>)unparsedResult.Value).ToList();
 
             // Assert
-            Assert.True((bool)result.Value);
+            foreach (var result in parsedResult)
+            {
+                Assert.True(result.IsUpdated);
+            }
         }
 
         [Fact]
@@ -156,14 +168,20 @@ namespace DocumentService.Unit.Tests.Controllers
         {
             // Arrange
             var documentInfo = new DocumentInfo();
-            documentRepository.Setup(x => x.Update(It.IsAny<DocumentInfo>())).Returns(Task.FromResult(false));
+            var expectedResult = new List<DocumentUpdatedResult>();
+            expectedResult.Add(new DocumentUpdatedResult() { IsUpdated = false, DocumentId = Guid.Empty });
+            documentRepository.Setup(x => x.Update(It.IsAny<DocumentDTO>())).Returns(Task.FromResult(expectedResult.AsEnumerable()));
             var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
 
             // Act
-            var result = (JsonResult)documentController.UpdateMetadataForDocument(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            var unparsedResult = (JsonResult)documentController.UpdateMetadataForDocument(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            var parsedResult = ((IEnumerable<DocumentUpdatedResult>)unparsedResult.Value).ToList();
 
             // Assert
-            Assert.False((bool)result.Value);
+            foreach (var result in parsedResult)
+            {
+                Assert.False(result.IsUpdated);
+            }
         }
 
         [Fact]
@@ -171,7 +189,7 @@ namespace DocumentService.Unit.Tests.Controllers
         {
             // Arrange
             var documentInfo = new DocumentInfo();
-            documentRepository.Setup(x => x.Update(It.IsAny<DocumentInfo>())).Throws<NullReferenceException>();
+            documentRepository.Setup(x => x.Update(It.IsAny<DocumentDTO>())).Throws<NullReferenceException>();
             var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
             var expectedResult = 400;
 

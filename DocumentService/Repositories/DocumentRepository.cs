@@ -1,5 +1,7 @@
 ﻿using DocumentService.Contexts;
 using DocumentService.Models;
+using DocumentService.Repositories.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -18,20 +20,28 @@ namespace DocumentService.Repositories
         {
             this.context = context;
         }
-
-        /// <inheritdoc/>
-        public async Task<int> UploadDocumentAsync(DocumentInfo documentInfo)
+        
+        public async Task<bool> GetCorrelationById(Guid id)
         {
-            if (documentInfo == null)
+            var query = context.Correlation.Where(x => x.CorrelationId == id);
+            return await query.AnyAsync();
+        }
+        
+        /// <inheritdoc/>
+        public async Task<int> UploadDocumentAsync(DocumentDTO documentDTO) 
+        {
+            int numberOfEntitiesUpdated;
+
+            if (documentDTO == null)
             {
                 throw new NullReferenceException("DocumentInfo cannot be null");
             }
 
             try
             {
-                context.DocumentInfo.Add(documentInfo);
-                int numberOfEntitiesUpdated = await this.context.SaveChangesAsync();
-                return numberOfEntitiesUpdated;
+                List<DocumentInfo> documentInfo = PopulateDocumentInfo(documentDTO);
+
+                return numberOfEntitiesUpdated = await SaveChanges(documentInfo);
             }
             catch (Exception exception)
             {
@@ -40,19 +50,38 @@ namespace DocumentService.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<DocumentInfo> GetDocumentAsync(Guid id)
+        public async Task<DocumentDTO> GetDocumentAsync(Guid id)
         {
             try
             {
                 DocumentInfo documentInfo = await this.GetDocument(id);
                 if (documentInfo != null)
                 {
-                    return documentInfo;
+                    Document document = new Document
+                    {
+                        DocumentId = documentInfo.DocumentId,
+                        FileName = documentInfo.FileName,
+                        DocumentType = documentInfo.DocumentTypes,
+                        DocumentSize = documentInfo.FileSize,
+                        Description = documentInfo.Description,
+                        FileType = documentInfo.FileType,
+                        Language = documentInfo.Language,
+                        UserCreatedById = documentInfo.UserCreatedById,
+                        UserLastUpdatedById = documentInfo.UserLastUpdatedById,
+                        RequesterId = documentInfo.UserCreatedById,
+                        DeletedById = documentInfo.DeletedById,
+                        DateCreated = documentInfo.DateCreated,
+                        DateDeleted = documentInfo.DateDeleted,
+                        DateLastUpdated = documentInfo.DateLastUpdated
+                    };
+                    DocumentDTO documentDTO = new DocumentDTO
+                    {
+                        Documents = new List<Document> {  document }
+                    };
+
+                    return documentDTO;
                 }
-                else
-                {
-                    return null;
-                }
+                else { return null; }
             }
             catch (Exception)
             {
@@ -87,29 +116,41 @@ namespace DocumentService.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<bool> Update(DocumentInfo documentInfo)
+        public async Task<IEnumerable<DocumentUpdatedResult>> Update(DocumentDTO documentDTO)
         {
-            var updatedDocumentInfo = await this.GetDocument(documentInfo.DocumentId);
+            var documentUpdatedResults = new List<DocumentUpdatedResult>();
             try
             {
-                if (updatedDocumentInfo != null)
+                foreach (var documentInfo in documentDTO.Documents)
                 {
-                    updatedDocumentInfo.UserLastUpdatedById = documentInfo.UserLastUpdatedById;
-                    updatedDocumentInfo.FileName = documentInfo.FileName;
-                    updatedDocumentInfo.FileType = documentInfo.FileType;
-                    updatedDocumentInfo.Description = documentInfo.Description;
-                    updatedDocumentInfo.SubmissionMethod = documentInfo.SubmissionMethod;
-                    updatedDocumentInfo.Language = documentInfo.Language;
-                    updatedDocumentInfo.DocumentTypes = documentInfo.DocumentTypes;
-                    updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
+                    var updatedDocumentInfo = await this.GetDocument(documentInfo.DocumentId);
+                    if (updatedDocumentInfo != null)
+                    {
+                        updatedDocumentInfo.UserLastUpdatedById = documentInfo.RequesterId;
+                        updatedDocumentInfo.FileName = documentInfo.FileName;
+                        updatedDocumentInfo.FileType = documentInfo.FileType;
+                        updatedDocumentInfo.Description = documentInfo.Description;
+                        updatedDocumentInfo.Language = documentInfo.Language;
+                        updatedDocumentInfo.DocumentTypes = documentInfo.DocumentType;
+                        updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
 
-                    this.context.DocumentInfo.Update(updatedDocumentInfo);
-                    return true;
+                        this.context.DocumentInfo.Update(updatedDocumentInfo);
+                        documentUpdatedResults.Add(new DocumentUpdatedResult()
+                        {
+                            IsUpdated = true,
+                            DocumentId = documentInfo.DocumentId,
+                        });
+                    }
+                    else
+                    {
+                        documentUpdatedResults.Add(new DocumentUpdatedResult()
+                        {
+                            IsUpdated = true,
+                            DocumentId = documentInfo.DocumentId,
+                        });
+                    }
                 }
-                else
-                {
-                    return false;
-                }
+                return documentUpdatedResults;
             }
             catch (Exception)
             {
@@ -141,6 +182,42 @@ namespace DocumentService.Repositories
             return await query.FirstOrDefaultAsync();
 
         }
+      
+        private List<DocumentInfo> PopulateDocumentInfo(DocumentDTO documentDTO)
+        {
+            List<DocumentInfo> documentInfos = new List<DocumentInfo>();
+          
+            foreach (var documents in documentDTO.Documents)
+            {
+                DocumentInfo documentInfo = new DocumentInfo
+                {
+                    FileName = documents.FileName,
+                    FileSize = documents.DocumentSize,
+                    DocumentTypes = documents.DocumentType,
+                    Description = documents.Description,
+                    DocumentUrl = documents.DocumentUrl,
+                    Language = documents.Language,
+                    UserCreatedById = documents.RequesterId,
+                    DateCreated = DateTime.UtcNow,
+                    IsDeleted = false,
+                    SubmissionMethod = "method"
+                };
+               
+                documentInfos.Add(documentInfo);
+            }
+            return documentInfos;
+        }
+        private async Task<int> SaveChanges(List<DocumentInfo> documentInfos)
+        {
+            int numberOfEntitiesUpdated;
+            foreach (var documents in documentInfos)
+            {
+                this.context.DocumentInfo.Add(documents);
+            }
+            return numberOfEntitiesUpdated = await this.context.SaveChangesAsync();
+
+        }
+            
     }
 }
 

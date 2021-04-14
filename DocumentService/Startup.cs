@@ -42,9 +42,8 @@ namespace DocumentService
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
             }
-            //this.setupCodeFirstDevelopmentDatabase();
+            
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DocumentService v1"));
 
@@ -59,12 +58,6 @@ namespace DocumentService
                 endpoints.MapControllers();
             });
         }
-
-        //private void setupCodeFirstDevelopmentDatabase()
-        //{
-        //    var documentContext = new DocumentContext(this.Configuration);
-        //    documentContext.Database.EnsureCreated();
-        //}
 
     }
 }
