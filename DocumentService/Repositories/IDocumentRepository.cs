@@ -1,4 +1,5 @@
 ﻿using DocumentService.Models;
+using DocumentService.Repositories.Entities;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -41,9 +42,9 @@ namespace DocumentService.Repositories
         /// <summary>
         /// Updates a document's metadata
         /// </summary>
-        /// <param name="documentInfo">Document object with updated data</param>
+        /// <param name="documentDTO">Document dto with updated data</param>
         /// <returns>True if successful</returns>
-        Task<bool> Update(DocumentDTO documentDTO, Guid id);
+        Task<IEnumerable<DocumentUpdatedResult>> Update(DocumentDTO documentDTO);
 
         /// <summary>
         /// Updates the database with a new document

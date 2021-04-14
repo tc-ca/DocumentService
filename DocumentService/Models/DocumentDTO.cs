@@ -9,5 +9,10 @@ namespace DocumentService.Models
     {
         public Guid CorrelationId { get; set; }
         public List<Document> Documents { get; set; }
+
+        public DocumentDTO()
+        {
+            this.Documents = new List<Document>();
+        }
     }
 }

@@ -113,9 +113,34 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult UpdateMetadataForDocument(int correlationId, string userName, string fileName, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, string documentTypes, string customMetadata)
+        public IActionResult UpdateMetadataForDocument(Guid documentId, string userName, string fileName, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, string documentTypes)
         {
-            return Ok();
+            var document  = new Document()
+            {
+                DocumentId = documentId,
+                UserCreatedById = userName,
+                DateLastUpdated = DateTime.UtcNow,
+                FileName = fileName,
+                Description = shortDescription,
+                SubmissionMethod = submissionMethod,
+                Language = fileLanguage,
+            };
+            var documentList = new List<Document>();
+            documentList.Add(document);
+            var documentDTO = new DocumentDTO()
+            {
+                Documents = documentList
+            };
+
+            try
+            {
+                var isUpdated = this.documentRepository.Update(documentDTO).Result;
+                return new JsonResult(isUpdated);
+            }
+            catch (Exception e)
+            {
+                return new BadRequestObjectResult(e);
+            }
         }
 
         /// <summary>
@@ -148,10 +173,23 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public JsonResult DeleteDocumentById(Guid id, string userName)
+        public IActionResult DeleteDocumentById(Guid id, string userName)
         {
-            var isDeleted = this.documentRepository.SetFileDeleted(id, userName).Result;
-            return new JsonResult(isDeleted);
+            try
+            {
+                var isDeleted = this.documentRepository.SetFileDeleted(id, userName).Result;
+                if (isDeleted)
+                {
+                    return new JsonResult(isDeleted);
+                } else
+                {
+                    return new NotFoundResult();
+                }
+            } 
+            catch(Exception e)
+            {
+                return new BadRequestObjectResult(e);
+            }
         }
 
     }

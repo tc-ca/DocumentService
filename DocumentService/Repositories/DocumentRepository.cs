@@ -1,5 +1,6 @@
 ﻿using DocumentService.Contexts;
 using DocumentService.Models;
+using DocumentService.Repositories.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -115,30 +116,41 @@ namespace DocumentService.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<bool> Update(DocumentDTO documentDTO, Guid id)
+        public async Task<IEnumerable<DocumentUpdatedResult>> Update(DocumentDTO documentDTO)
         {
-            var updatedDocumentInfo = await this.GetDocument(id);
+            var documentUpdatedResults = new List<DocumentUpdatedResult>();
             try
             {
-                if (updatedDocumentInfo != null && documentDTO.Documents.First() != null)
+                foreach (var documentInfo in documentDTO.Documents)
                 {
-                    updatedDocumentInfo.UserLastUpdatedById = documentDTO.Documents.First().RequesterId;
-                    updatedDocumentInfo.FileName = documentDTO.Documents.First().FileName;
-                    updatedDocumentInfo.FileType = documentDTO.Documents.First().FileType;
-                    updatedDocumentInfo.Description = documentDTO.Documents.First().Description;
-                    updatedDocumentInfo.SubmissionMethod = "";
-                    updatedDocumentInfo.Language = documentDTO.Documents.First().Language;
-                    updatedDocumentInfo.DocumentTypes = documentDTO.Documents.First().DocumentType;
-                    updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
+                    var updatedDocumentInfo = await this.GetDocument(documentInfo.DocumentId);
+                    if (updatedDocumentInfo != null)
+                    {
+                        updatedDocumentInfo.UserLastUpdatedById = documentInfo.RequesterId;
+                        updatedDocumentInfo.FileName = documentInfo.FileName;
+                        updatedDocumentInfo.FileType = documentInfo.FileType;
+                        updatedDocumentInfo.Description = documentInfo.Description;
+                        updatedDocumentInfo.Language = documentInfo.Language;
+                        updatedDocumentInfo.DocumentTypes = documentInfo.DocumentType;
+                        updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
 
-                    this.context.DocumentInfo.Update(updatedDocumentInfo);
-                    return true;
-
+                        this.context.DocumentInfo.Update(updatedDocumentInfo);
+                        documentUpdatedResults.Add(new DocumentUpdatedResult()
+                        {
+                            IsUpdated = true,
+                            DocumentId = documentInfo.DocumentId,
+                        });
+                    }
+                    else
+                    {
+                        documentUpdatedResults.Add(new DocumentUpdatedResult()
+                        {
+                            IsUpdated = true,
+                            DocumentId = documentInfo.DocumentId,
+                        });
+                    }
                 }
-                else
-                {
-                    return false;
-                }
+                return documentUpdatedResults;
             }
             catch (Exception)
             {

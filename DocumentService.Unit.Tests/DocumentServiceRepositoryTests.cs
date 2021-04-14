@@ -74,10 +74,10 @@ namespace DocumentService.Unit.Tests
         }
 
         [Fact]
-        public void GetDocumentAsync_WhenNotExists_ReturnsDocumentInfo()
+        public void GetDocumentAsync_WhenNotExists_ReturnsNull()
         {
             // Arrange
-            var documentInfoId = Guid.NewGuid();
+            var documentInfoId = new Guid("11111111-1111-1111-1111-111111111110");
 
             // Act
             var result = this.documentRepository.GetDocumentAsync(documentInfoId).Result;
@@ -149,23 +149,25 @@ namespace DocumentService.Unit.Tests
 
             // Act
             documentDTO.Documents.First().FileName = "Our new file name";
-            var result = this.documentRepository.Update(documentDTO, guid).Result;
+            var resultList = this.documentRepository.Update(documentDTO).Result;
 
             // Assert
-            Assert.Equal(expectedResult, result);
+            foreach(var result in resultList)
+            {
+                Assert.Equal(expectedResult, result.IsUpdated);
+            }
         }
         [Fact]
-        public void Update_UpdateFailed_ReturnsFalse()
+        public void Update_UpdateFailed_ReturnsEmptyDocumentUpdatedResultList()
         {
             //Arrange
-            var expectedResult = false;
-
             var documentInfo = new DocumentDTO();
+
             // Act
-            var result = this.documentRepository.Update(documentInfo, Guid.Empty).Result;
+            var result = this.documentRepository.Update(documentInfo).Result;
 
             // Assert
-            Assert.Equal(expectedResult, result);
+            Assert.Empty(result);
         }
 
         [Fact]
