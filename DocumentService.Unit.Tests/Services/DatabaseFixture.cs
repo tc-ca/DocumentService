@@ -24,7 +24,7 @@ namespace DocumentService.Unit.Tests.Services
         }
      
 
-        public DocumentDTO CreateDTOWithCorId(int count, Guid guid)
+        public DocumentDTO CreateDocumentDTO(int count, Guid guid)
         {
             DocumentDTO documentDTO = new DocumentDTO();
           
@@ -45,7 +45,6 @@ namespace DocumentService.Unit.Tests.Services
                     DocumentType = new DocumentTypes { DocumentType = $"Type {i}", DocumentTypesId = i}
                 });
             }
-          //  this.Context.Correlation.Add(correlation);
            
             documentDTO.CorrelationId = Guid.Empty;
             documentDTO.Documents = documents;

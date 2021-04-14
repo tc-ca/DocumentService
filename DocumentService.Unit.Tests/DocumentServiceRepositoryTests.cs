@@ -28,7 +28,7 @@ namespace DocumentService.Unit.Tests
             // Arrange
             var guid = Guid.NewGuid();
             int count = 1;
-            var expectedResult = this.databaseFixture.CreateDTOWithCorId(count, guid);
+            var expectedResult = this.databaseFixture.CreateDocumentDTO(count, guid);
             this.databaseFixture.InsertDocumentDTO(expectedResult, guid);
 
             // Act 
@@ -92,7 +92,7 @@ namespace DocumentService.Unit.Tests
             // Arrange
             var expectedResult = 1;
             var guid = Guid.NewGuid();
-            DocumentDTO documentDTO = this.databaseFixture.CreateDTOWithCorId(expectedResult, guid);
+            DocumentDTO documentDTO = this.databaseFixture.CreateDocumentDTO(expectedResult, guid);
 
 
             // Act
@@ -144,7 +144,7 @@ namespace DocumentService.Unit.Tests
             // Arrange
             var expectedResult = true;
             var guid = Guid.NewGuid();
-            var documentDTO = this.databaseFixture.CreateDTOWithCorId(1, guid);
+            var documentDTO = this.databaseFixture.CreateDocumentDTO(1, guid);
             this.databaseFixture.InsertDocumentDTO(documentDTO, guid);
 
             // Act
