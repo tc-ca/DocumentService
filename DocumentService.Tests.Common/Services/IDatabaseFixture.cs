@@ -1,10 +1,10 @@
-﻿using DocumentService.Models;
-using System;
-using System.Collections.Generic;
-using Xunit;
-
-namespace DocumentService.Unit.Tests.Services
+﻿namespace DocumentService.Tests.Common.Services
 {
+    using DocumentService.Models;
+    using System;
+    using System.Collections.Generic;
+    using Xunit;
+
     public interface IDatabaseFixture : IDisposable, ICollectionFixture<DatabaseFixture>
     {
         /// <summary>

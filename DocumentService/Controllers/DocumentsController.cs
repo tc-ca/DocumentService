@@ -53,7 +53,6 @@ namespace DocumentService.Controllers
         {
             var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
 
-
             var document = new Document()
             {
                 UserCreatedById = userName,

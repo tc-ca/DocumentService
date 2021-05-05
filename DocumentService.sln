@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentService", "Document
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentService.Unit.Tests", "DocumentService.Unit.Tests\DocumentService.Unit.Tests.csproj", "{6FBF130C-732A-4E0C-AA08-1D1919B2DFDF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentService.Integration.Tests", "DocumentService.Integration.Tests\DocumentService.Integration.Tests.csproj", "{3440415B-D8BD-44CD-AC95-C827D6D8A07D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentService.Tests.Common", "DocumentService.Tests.Common\DocumentService.Tests.Common.csproj", "{4CDA440A-BB64-46D0-B0B6-62667C2A047D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +30,18 @@ Global
 		{6FBF130C-732A-4E0C-AA08-1D1919B2DFDF}.Developpment|Any CPU.Build.0 = Debug|Any CPU
 		{6FBF130C-732A-4E0C-AA08-1D1919B2DFDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FBF130C-732A-4E0C-AA08-1D1919B2DFDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3440415B-D8BD-44CD-AC95-C827D6D8A07D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3440415B-D8BD-44CD-AC95-C827D6D8A07D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3440415B-D8BD-44CD-AC95-C827D6D8A07D}.Developpment|Any CPU.ActiveCfg = Debug|Any CPU
+		{3440415B-D8BD-44CD-AC95-C827D6D8A07D}.Developpment|Any CPU.Build.0 = Debug|Any CPU
+		{3440415B-D8BD-44CD-AC95-C827D6D8A07D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3440415B-D8BD-44CD-AC95-C827D6D8A07D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CDA440A-BB64-46D0-B0B6-62667C2A047D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CDA440A-BB64-46D0-B0B6-62667C2A047D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CDA440A-BB64-46D0-B0B6-62667C2A047D}.Developpment|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CDA440A-BB64-46D0-B0B6-62667C2A047D}.Developpment|Any CPU.Build.0 = Debug|Any CPU
+		{4CDA440A-BB64-46D0-B0B6-62667C2A047D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CDA440A-BB64-46D0-B0B6-62667C2A047D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

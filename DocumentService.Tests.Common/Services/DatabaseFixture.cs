@@ -1,13 +1,13 @@
-﻿using DocumentService.Azure;
-using DocumentService.Contexts;
-using DocumentService.Models;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using Xunit;
-
-namespace DocumentService.Unit.Tests.Services
+﻿namespace DocumentService.Tests.Common.Services
 {
+    using DocumentService.Azure;
+    using DocumentService.Contexts;
+    using DocumentService.Models;
+    using Microsoft.Extensions.Configuration;
+    using System;
+    using System.Collections.Generic;
+    using Xunit;
+
     [CollectionDefinition("Database collection")]
     public class DatabaseFixture : IDatabaseFixture
     {
@@ -17,7 +17,8 @@ namespace DocumentService.Unit.Tests.Services
 
         public DatabaseFixture()
         {
-            this.configuration = new ConfigurationBuilder().AddJsonFile("appsettings.test.json").Build();
+            var testConfigurationBuilder = new TestConfigurationBuilder();
+            this.configuration = testConfigurationBuilder.Build();
             var azureKeyVault = new AzureKeyVaultService(configuration);
             this.Context = new DocumentContext(this.configuration, azureKeyVault);
             this.Context.Database.EnsureCreated();

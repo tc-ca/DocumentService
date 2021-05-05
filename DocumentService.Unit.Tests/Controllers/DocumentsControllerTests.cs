@@ -1,21 +1,24 @@
-﻿using DocumentService.Azure;
-using DocumentService.Contexts;
-using DocumentService.Controllers;
-using DocumentService.Models;
-using DocumentService.Repositories;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Moq;
-using System;
-using System.Threading.Tasks;
-using Xunit;
-using System.Net;
-using System.Collections.Generic;
-using System.Linq;
-using DocumentService.Repositories.Entities;
-
-namespace DocumentService.Unit.Tests.Controllers
+﻿namespace DocumentService.Unit.Tests.Controllers
 {
+    using DocumentService.Azure;
+    using DocumentService.Contexts;
+    using DocumentService.Controllers;
+    using DocumentService.Models;
+    using DocumentService.Repositories;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
+    using Moq;
+    using System;
+    using System.Threading.Tasks;
+    using Xunit;
+    using System.Net;
+    using System.Collections.Generic;
+    using System.Linq;
+    using DocumentService.Repositories.Entities;
+    using Microsoft.AspNetCore.Http;
+    using System.IO;
+    using System.Text;
+
     public class DocumentsControllerTests 
     {
         private readonly Mock<IDocumentContext> documentContext;

@@ -1,16 +1,13 @@
-using DocumentService.Models;
-using DocumentService.Repositories;
-using DocumentService.Unit.Tests.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Net;
-using Xunit;
-
 namespace DocumentService.Unit.Tests
 {
+    using DocumentService.Models;
+    using DocumentService.Repositories;
+    using DocumentService.Tests.Common.Services;
+    using Newtonsoft.Json;
+    using System;
+    using System.Linq;
+    using Xunit;
+
     [CollectionDefinition("Database collection")]
     public class DocumentServiceRepositoryTests : IClassFixture<DatabaseFixture>
     {
@@ -22,7 +19,6 @@ namespace DocumentService.Unit.Tests
             this.documentRepository = new DocumentRepository(this.databaseFixture.Context);
         }
 
-        [Fact]
         public void GetDocumentAsync_WhenExists_ReturnsDocumentInfo()
         {
             // Arrange
