@@ -33,7 +33,6 @@ namespace DocumentService.Contexts
             this.azureKeyVaultService = azureKeyVaultService;
 
             var db = this.azureKeyVaultService.GetSecretByName(configuration.GetSection("ConnectionStrings")["Postgsql"]);
-
         }
         protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseNpgsql(this.azureKeyVaultService.GetSecretByName(configuration.GetSection("ConnectionStrings")["Postgsql"]));
     }

@@ -28,10 +28,8 @@ namespace DocumentService.Repositories
         }
         
         /// <inheritdoc/>
-        public async Task<int> UploadDocumentAsync(DocumentDTO documentDTO) 
+        public async Task<List<Guid>> UploadDocumentAsync(DocumentDTO documentDTO) 
         {
-            int numberOfEntitiesUpdated;
-
             if (documentDTO == null)
             {
                 throw new NullReferenceException("DocumentInfo cannot be null");
@@ -40,8 +38,9 @@ namespace DocumentService.Repositories
             try
             {
                 List<DocumentInfo> documentInfo = PopulateDocumentInfo(documentDTO);
-
-                return numberOfEntitiesUpdated = await SaveChanges(documentInfo);
+                var numberOfEntitiesUpdated = await SaveChanges(documentInfo);
+                List<Guid> ids = documentInfo.Select(x => x.DocumentId).ToList();
+                return ids;
             }
             catch (Exception exception)
             {

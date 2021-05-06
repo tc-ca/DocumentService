@@ -51,6 +51,6 @@ namespace DocumentService.Repositories
         /// </summary>
         /// <param name="documentDTO">Document DTO object created in the controller to populate the DocumentInfo entity</param>
         /// <returns>Number of entities added</returns>
-        Task<int> UploadDocumentAsync(DocumentDTO documentDTO);
+        Task<List<Guid>> UploadDocumentAsync(DocumentDTO documentDTO);
     }
 }

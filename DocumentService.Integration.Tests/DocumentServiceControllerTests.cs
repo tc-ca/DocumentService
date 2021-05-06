@@ -10,8 +10,11 @@ namespace DocumentService.Integration.Tests
     using Microsoft.AspNetCore.Http;
     using System.IO;
     using System.Text;
+    using Microsoft.AspNetCore.Mvc;
+    using System;
 
-    public class DocumentServiceControllerTests
+    [CollectionDefinition("Database collection")]
+    public class DocumentServiceControllerTests : IClassFixture<DatabaseFixture>
     {
         private DatabaseFixture databaseFixture;
 
@@ -40,17 +43,20 @@ namespace DocumentService.Integration.Tests
             var documentController = new DocumentsController(this.documentRepository, this.azureBlobService, this.configuration);
 
             // Act
-            IFormFile file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("dummy image")), 0, 10, "Data", "image.png")
+            IFormFile file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("dummy2 image")), 0, 10, "Data", "image.png")
             {
                 Headers = new HeaderDictionary(),
                 ContentType = "application/pdf"
             };
 
             // Act
-            var result = documentController.UploadDocument(1, "John Wick", file, string.Empty, "My Test file", "FAX", "EN", new List<string>(), string.Empty);
+            var response = documentController.UploadDocument(1, "John Wick", file, string.Empty, "My Test file", "FAX", "EN", new List<string>(), string.Empty);
+            var res = response as OkObjectResult;
+            dynamic result = res.Value;
+            var documentIds = (List<Guid>)result.GetType().GetProperty("uploadedDocumentIds").GetValue(result, null);
 
             // Assert
-            Assert.True(true);
+            Assert.NotEmpty(documentIds);
         }
     }
 }

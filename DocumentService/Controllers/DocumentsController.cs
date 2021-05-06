@@ -73,8 +73,8 @@ namespace DocumentService.Controllers
                 Documents = new List<Document> { document }
             };
 
-            var uploadedDocumentId = this.documentRepository.UploadDocumentAsync(dto).Result;
-            return Ok(new { documentId = uploadedDocumentId });
+            var uploadedDocumentIds = this.documentRepository.UploadDocumentAsync(dto).Result;
+            return Ok(new { uploadedDocumentIds });
         }
 
         /// <summary>
