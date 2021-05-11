@@ -2,6 +2,7 @@ namespace DocumentService.Integration.Tests
 {
     using DocumentService.Controllers;
     using DocumentService.Repositories;
+    using DocumentService.Extensions;
     using DocumentService.Azure;
     using DocumentService.Tests.Common.Services;
     using Microsoft.Extensions.Configuration;
@@ -10,8 +11,12 @@ namespace DocumentService.Integration.Tests
     using Microsoft.AspNetCore.Http;
     using System.IO;
     using System.Text;
+    using Microsoft.AspNetCore.Mvc;
+    using System;
+    using DocumentService.Models;
 
-    public class DocumentServiceControllerTests
+    [CollectionDefinition("Database collection")]
+    public class DocumentServiceControllerTests : IClassFixture<DatabaseFixture>
     {
         private DatabaseFixture databaseFixture;
 
@@ -34,23 +39,36 @@ namespace DocumentService.Integration.Tests
         }
 
         [Fact]
-        public void UploadDocument_SucessfullyUploads()
+        public async void UploadDocument_SucessfullyUploads()
         {
             // Arrange
             var documentController = new DocumentsController(this.documentRepository, this.azureBlobService, this.configuration);
-
-            // Act
-            IFormFile file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("dummy image")), 0, 10, "Data", "image.png")
+            IFormFile file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("dummy2 image")), 0, 10, "Data", "image.png")
             {
                 Headers = new HeaderDictionary(),
                 ContentType = "application/pdf"
             };
+            var uploadedDocumentDTO = new UploadedDocumentsDTO()
+            {
+                UserName = "John Wick",
+                FileName = file.FileName,
+                FileBytes = await file.GetBytes(),
+                FileContentType = string.Empty,
+                ShortDescription = "My test file",
+                SubmissionMethod = "FAX",
+                FileLanguage = "EN",
+                DocumentTypes = new List<string>(),
+                CustomMetadata = string.Empty
+            };
 
             // Act
-            var result = documentController.UploadDocument(1, "John Wick", file, string.Empty, "My Test file", "FAX", "EN", new List<string>(), string.Empty);
+            var response = documentController.UploadDocument(uploadedDocumentDTO);
+            var res = response as OkObjectResult;
+            dynamic result = res.Value;
+            var documentIds = (List<Guid>)result.GetType().GetProperty("uploadedDocumentIds").GetValue(result, null);
 
             // Assert
-            Assert.True(true);
+            Assert.NotEmpty(documentIds);
         }
     }
 }

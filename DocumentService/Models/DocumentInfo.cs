@@ -67,7 +67,7 @@ namespace DocumentService.Models
         /// gets or sets the date the document was created
         /// </summary>
         [Column("DATE_CREATED_DTE")]
-        public DateTime DateCreated { get; set; } 
+        public DateTime? DateCreated { get; set; } 
 
         /// <summary>
         /// gets or sets the user who created the document
@@ -79,7 +79,7 @@ namespace DocumentService.Models
         /// gets or sets the date the file was modified
         /// </summary>
         [Column("DATE_LAST_UPDATED_DTE")]
-        public DateTime DateLastUpdated { get; set; } 
+        public DateTime? DateLastUpdated { get; set; } 
 
         /// <summary>
         /// gets or sets the user who last updated the document
@@ -97,7 +97,7 @@ namespace DocumentService.Models
         /// gets or sets the date the file was removed
         /// </summary>
         [Column("DATE_DELETED_DTE")]
-        public DateTime DateDeleted { get; set; } 
+        public DateTime? DateDeleted { get; set; } 
 
         /// <summary>
         /// gets or sets the user who removed the file

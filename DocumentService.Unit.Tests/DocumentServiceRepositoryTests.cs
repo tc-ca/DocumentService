@@ -86,16 +86,14 @@ namespace DocumentService.Unit.Tests
         public void UploadDocumentAsync_UploadSuccessful_ReturnsOne()
         {
             // Arrange
-            var expectedResult = 1;
             var guid = Guid.NewGuid();
-            DocumentDTO documentDTO = this.databaseFixture.CreateDocumentDTO(expectedResult, guid);
-
+            DocumentDTO documentDTO = this.databaseFixture.CreateDocumentDTO(1, guid);
 
             // Act
             var result = this.documentRepository.UploadDocumentAsync(documentDTO).Result;
 
             // Assert
-            Assert.Equal(expectedResult, result);
+            Assert.NotEmpty(result);
         }
 
         [Fact]

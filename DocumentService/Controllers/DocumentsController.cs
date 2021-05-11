@@ -1,20 +1,18 @@
-﻿using DocumentService.Azure;
-using DocumentService.Models;
-using DocumentService.Repositories;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-
-namespace DocumentService.Controllers
+﻿namespace DocumentService.Controllers
 {
-    [Route("api/")]
+    using DocumentService.Azure;
+    using DocumentService.Models;
+    using DocumentService.Repositories;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Configuration;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+
     [ApiController]
+    [Route("api/")]
     public class DocumentsController : ControllerBase
     {
         private readonly IDocumentRepository documentRepository;
@@ -33,37 +31,31 @@ namespace DocumentService.Controllers
         /// <summary>
         /// Upload a document.
         /// </summary>
-        /// <param name="CorrelationId">Correlation identifier of the operation.</param>
-        /// <param name="UserName">Azure AD identifier of the user uploading the document.</param>
-        /// <param name="FileName">File name of the document.</param>
-        /// <param name="FileSize">Size in bytes of the document.</param>
-        /// <param name="FileContentType">MIME content type of the document. We only accept the following values: [“application/pdf”, “image/jpeg”, “image/png”, “text/plain”, “application/msword”, “application/vnd.openxmlformats-officedocument.wordprocessingml.document”].</param>
-        /// <param name="ShortDescription">Short description of the document.</param>
-        /// <param name="SubmissionMethod">Indicates how the file was submitted to Transport Canada. (“FAX”, “MAIL”, “EMAIL”).</param>
-        /// <param name="FileLanguage">Language of document being uploaded. (1) English, (2) French.</param>
-        /// <param name="DocumentTypes">Document type of the uploaded document. A document can have multiple types associated with it. The document type id is supplied by the client using the document service.</param>
-        /// <param name="CustomMetadata">Document metadata specific to the program using the service.</param>
-        /// <param name="Bytes">Document being uploaded.</param>
+        /// <param name="uploadedDocumentsDTO">The uploaded documents data transfer object.</param>
         /// <returns></returns>
         [HttpPost]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UploadDocument(int correlationId, string userName, IFormFile file, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, List<string> documentTypes, string customMetadata)
+        public IActionResult UploadDocument([FromBody]UploadedDocumentsDTO uploadedDocumentsDTO)
         {
+            // TODO: Create FormFile here
+            var stream = new MemoryStream(uploadedDocumentsDTO.FileBytes);
+            IFormFile file = new FormFile(stream, 0, uploadedDocumentsDTO.FileBytes.Length, uploadedDocumentsDTO.FileName, uploadedDocumentsDTO.FileName);
+
             var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
 
             var document = new Document()
             {
-                UserCreatedById = userName,
+                UserCreatedById = uploadedDocumentsDTO.UserName,
                 DateCreated = DateTime.Now,
                 DocumentUrl = result.Uri.AbsoluteUri,
-                FileName = file.FileName,
-                FileSize = file.Length,
-                FileType = fileContentType,
-                Description = shortDescription,
-                SubmissionMethod = submissionMethod,
-                Language = fileLanguage,
+                FileName = uploadedDocumentsDTO.FileName,
+                DocumentSize = uploadedDocumentsDTO.FileSize,
+                FileType = uploadedDocumentsDTO.FileContentType,
+                Description = uploadedDocumentsDTO.ShortDescription,
+                SubmissionMethod = uploadedDocumentsDTO.SubmissionMethod,
+                Language = uploadedDocumentsDTO.FileLanguage,
                 // DocumentTypes = documentTypes,
                 // MetaData = customMetadata,
             };
@@ -73,8 +65,8 @@ namespace DocumentService.Controllers
                 Documents = new List<Document> { document }
             };
 
-            var uploadedDocumentId = this.documentRepository.UploadDocumentAsync(dto).Result;
-            return Ok(new { documentId = uploadedDocumentId });
+            var uploadedDocumentIds = this.documentRepository.UploadDocumentAsync(dto).Result;
+            return Ok(new { uploadedDocumentIds });
         }
 
         /// <summary>
@@ -86,11 +78,9 @@ namespace DocumentService.Controllers
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult GetAllSpecifiedDocuments(string idString)
+        public IActionResult GetAllSpecifiedDocuments([FromQuery]List<Guid> documentGuid)
         {
-            var listofIds = idString.Split(",").ToList().Select(Guid.Parse).ToArray<Guid>();
-            var documents = this.documentRepository.GetDocumentsByIds(listofIds);
-
+            var documents = this.documentRepository.GetDocumentsByIds(documentGuid);
             return Ok(documents.ToList());
         }
 
@@ -148,7 +138,7 @@ namespace DocumentService.Controllers
         /// <param name="Id">Identifier of the document being retrieved.</param>
         /// <returns>Document specificed</returns>
         [HttpGet]
-        [Route("v1/documents/{Id}")]
+        [Route("v1/documents/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
