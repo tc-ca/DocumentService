@@ -25,7 +25,6 @@ namespace DocumentService
         {
             services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
 
-
             services.AddTransient<IAzureKeyVaultService, AzureKeyVaultService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();
             services.AddScoped<IDocumentRepository, DocumentRepository>();
@@ -58,6 +57,5 @@ namespace DocumentService
                 endpoints.MapControllers();
             });
         }
-
     }
 }

@@ -22,7 +22,7 @@ namespace DocumentService.Repositories
         /// </summary>
         /// <param name="ids">List of IDs to find</param>
         /// <returns>List of documents</returns>
-        IEnumerable<DocumentInfo> GetDocumentsByIds(Guid[] ids);
+        IEnumerable<DocumentInfo> GetDocumentsByIds(IEnumerable<Guid> ids);
 
         /// <summary>
         /// Returns a list of multiple <see cref="DocumentInfo"/> based on the predicate.

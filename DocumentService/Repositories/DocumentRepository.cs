@@ -63,6 +63,7 @@ namespace DocumentService.Repositories
                         DocumentType = documentInfo.DocumentTypes,
                         DocumentSize = documentInfo.FileSize,
                         Description = documentInfo.Description,
+                        SubmissionMethod  = documentInfo.SubmissionMethod,
                         FileType = documentInfo.FileType,
                         Language = documentInfo.Language,
                         UserCreatedById = documentInfo.UserCreatedById,
@@ -101,6 +102,7 @@ namespace DocumentService.Repositories
                     documentInfo.DeletedById = userId;
                     documentInfo.DateDeleted = DateTime.UtcNow;
                     this.context.DocumentInfo.Update(documentInfo);
+                    this.context.SaveChanges();
                     return true;
                 }
                 else
@@ -159,7 +161,7 @@ namespace DocumentService.Repositories
         }
 
         /// <inheritdoc/>
-        public IEnumerable<DocumentInfo> GetDocumentsByIds(Guid[] ids)
+        public IEnumerable<DocumentInfo> GetDocumentsByIds(IEnumerable<Guid> ids)
         {
             return this.Filter(x => ids.Contains(x.DocumentId));
         }
@@ -186,20 +188,22 @@ namespace DocumentService.Repositories
         {
             List<DocumentInfo> documentInfos = new List<DocumentInfo>();
           
-            foreach (var documents in documentDTO.Documents)
+            foreach (var document in documentDTO.Documents)
             {
+                var dateNow = DateTime.UtcNow;
                 DocumentInfo documentInfo = new DocumentInfo
                 {
-                    FileName = documents.FileName,
-                    FileSize = documents.DocumentSize,
-                    DocumentTypes = documents.DocumentType,
-                    Description = documents.Description,
-                    DocumentUrl = documents.DocumentUrl,
-                    Language = documents.Language,
-                    UserCreatedById = documents.RequesterId,
-                    DateCreated = DateTime.UtcNow,
+                    FileName = document.FileName,
+                    FileSize = document.DocumentSize,
+                    DocumentTypes = document.DocumentType,
+                    Description = document.Description,
+                    DocumentUrl = document.DocumentUrl,
+                    Language = document.Language,
+                    UserCreatedById = document.RequesterId,
+                    DateCreated = dateNow,
+                    DateLastUpdated = dateNow,
                     IsDeleted = false,
-                    SubmissionMethod = "method"
+                    SubmissionMethod = document.SubmissionMethod
                 };
                
                 documentInfos.Add(documentInfo);

@@ -18,9 +18,9 @@ namespace DocumentService.Models
         public string UserCreatedById { get; set; }
         public string UserLastUpdatedById { get; set; }
         public string DeletedById { get; set; }
-        public DateTime DateCreated { get; set; }
-        public DateTime DateDeleted { get; set; }
-        public DateTime DateLastUpdated { get; set; }
+        public DateTime? DateCreated { get; set; }
+        public DateTime? DateDeleted { get; set; }
+        public DateTime? DateLastUpdated { get; set; }
         public string DocumentUrl { get; internal set; }
         public long FileSize { get; internal set; }
         public string SubmissionMethod { get; internal set; }
