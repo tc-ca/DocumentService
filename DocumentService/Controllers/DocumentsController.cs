@@ -66,7 +66,7 @@
             };
 
             var uploadedDocumentIds = this.documentRepository.UploadDocumentAsync(dto).Result;
-            return Ok(new { uploadedDocumentIds });
+            return Ok(uploadedDocumentIds);
         }
 
         /// <summary>
