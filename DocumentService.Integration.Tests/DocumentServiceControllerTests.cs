@@ -62,10 +62,8 @@ namespace DocumentService.Integration.Tests
             };
 
             // Act
-            var response = documentController.UploadDocument(uploadedDocumentDTO);
-            var res = response as OkObjectResult;
-            dynamic result = res.Value;
-            var documentIds = (List<Guid>)result.GetType().GetProperty("uploadedDocumentIds").GetValue(result, null);
+            OkObjectResult response = (OkObjectResult)documentController.UploadDocument(uploadedDocumentDTO);
+            IEnumerable<Guid> documentIds = (List<Guid>)response.Value;
 
             // Assert
             Assert.NotEmpty(documentIds);
