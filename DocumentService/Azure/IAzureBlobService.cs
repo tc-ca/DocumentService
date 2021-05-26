@@ -16,6 +16,8 @@ namespace DocumentService.Azure
 
         BlobContainerClient GetBlobContainer(string container = null);
 
+        BlobItem GetBlob(string container, string fileUrl);
+
         Task<BlobClient> UploadFileAsync(IFormFile file, string container = null);
 
     }

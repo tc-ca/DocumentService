@@ -14,6 +14,7 @@ namespace DocumentService.Integration.Tests
     using Microsoft.AspNetCore.Mvc;
     using System;
     using DocumentService.Models;
+    using MimeTypes;
 
     [CollectionDefinition("Database collection")]
     public class DocumentServiceControllerTests : IClassFixture<DatabaseFixture>
@@ -36,18 +37,22 @@ namespace DocumentService.Integration.Tests
             this.azureBlobService = new AzureBlobService(azureKeyVaultService);
             this.databaseFixture = new DatabaseFixture();
             this.documentRepository = new DocumentRepository(this.databaseFixture.Context);
+
         }
 
         [Fact]
         public async void UploadDocument_SucessfullyUploads()
         {
+            var fileName = "dummy-text.txt";
             // Arrange
             var documentController = new DocumentsController(this.documentRepository, this.azureBlobService, this.configuration);
-            IFormFile file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("dummy2 image")), 0, 10, "Data", "image.png")
+            IFormFile file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("dummy2 image")), 0, 10, fileName, fileName)
             {
                 Headers = new HeaderDictionary(),
-                ContentType = "application/pdf"
+                ContentType = MimeTypeMap.GetMimeType(fileName)
             };
+
+            
             var uploadedDocumentDTO = new UploadedDocumentsDTO()
             {
                 UserName = "John Wick",
@@ -67,6 +72,28 @@ namespace DocumentService.Integration.Tests
 
             // Assert
             Assert.NotEmpty(documentIds);
+        }
+
+        [Fact]
+        public async void EnsureDocumentMatchesBlob_Success()
+        {
+            // Arrange
+            IFormFile file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("Text is cool")), 0, 10, "image.txt", "image.txt")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "text/plain"
+            };
+
+            var mimeType = MimeTypeMap.GetMimeType(file.FileName);
+            // Act
+            var result = await this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]);
+
+            var blob = this.azureBlobService.GetBlob(configuration.GetSection("BlobContainers")["Documents"], result.Uri.AbsoluteUri);
+
+            // Assert
+            Assert.NotNull(blob);
+            Assert.True(string.Compare(blob.Properties.ContentType, file.ContentType) == 0 &&
+                string.Compare(file.ContentType, mimeType) == 0);
         }
     }
 }

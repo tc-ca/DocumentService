@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.Http;
+using MimeTypes;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -44,10 +45,15 @@ namespace DocumentService.Azure
                 // Get a reference to the blob
                 BlobClient blobClient = GetBlobContainer(container).GetBlobClient(blobName);
 
+                var blobHttpHeader = new BlobHttpHeaders
+                {
+                    ContentType = MimeTypeMap.GetMimeType(file.FileName)
+                };
+
                 using (var stream = file.OpenReadStream())
                 {
                     // Upload the blob
-                    await blobClient.UploadAsync(stream, overwrite: false);
+                    var result = await blobClient.UploadAsync(stream, blobHttpHeader);
 
                 }
 
@@ -59,6 +65,28 @@ namespace DocumentService.Azure
                 return null;
             }
 
+        }
+
+        public BlobItem GetBlob(string container, string fileUrl)
+        {
+            try
+            {
+                string ext = Path.GetExtension(fileUrl);
+
+                Uri uri = new Uri(fileUrl);
+
+                string fileName = Path.GetFileName(uri.LocalPath);
+
+                var blobs = GetBlobContainer(container).GetBlobs();
+
+                var blob = blobs.Where(x => x.Name.Equals(fileName)).Single();
+
+                return blob;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
         public BlobContainerClient GetBlobContainer(string container = null)
@@ -86,7 +114,6 @@ namespace DocumentService.Azure
             }
 
         }
-
 
         private static string UniqueFileName(string currentFileName)
         {

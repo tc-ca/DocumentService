@@ -6,10 +6,12 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
+    using MimeTypes;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
 
     [ApiController]
     [Route("api/")]
@@ -29,6 +31,26 @@
         }
 
         /// <summary>
+        /// Use for testing purposes
+        /// </summary>
+        /// <param name="file">File to upload</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("v1/documents/test")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UploadDocumentAsync(IFormFile file)
+        {
+            var result = await this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]);
+
+            var blob = azureBlobService.GetBlob(configuration.GetSection("BlobContainers")["Documents"], result.Uri.AbsoluteUri);
+
+            var match = blob.Properties.ContentType == file.ContentType;
+
+            return Ok(new { result.Uri.AbsoluteUri, result, match });
+        }
+
+        /// <summary>
         /// Upload a document.
         /// </summary>
         /// <param name="uploadedDocumentsDTO">The uploaded documents data transfer object.</param>
@@ -37,11 +59,15 @@
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UploadDocument([FromBody]UploadedDocumentsDTO uploadedDocumentsDTO)
+        public IActionResult UploadDocument([FromBody] UploadedDocumentsDTO uploadedDocumentsDTO)
         {
-            // TODO: Create FormFile here
+            // Create FormFile here
             var stream = new MemoryStream(uploadedDocumentsDTO.FileBytes);
-            IFormFile file = new FormFile(stream, 0, uploadedDocumentsDTO.FileBytes.Length, uploadedDocumentsDTO.FileName, uploadedDocumentsDTO.FileName);
+            IFormFile file = new FormFile(stream, 0, uploadedDocumentsDTO.FileBytes.Length, uploadedDocumentsDTO.FileName, uploadedDocumentsDTO.FileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = MimeTypeMap.GetMimeType(uploadedDocumentsDTO.FileName)
+            };
 
             var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
 
@@ -78,7 +104,7 @@
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult GetAllSpecifiedDocuments([FromQuery]List<Guid> documentGuid)
+        public IActionResult GetAllSpecifiedDocuments([FromQuery] List<Guid> documentGuid)
         {
             var documents = this.documentRepository.GetDocumentsByIds(documentGuid);
             return Ok(documents.ToList());
@@ -104,7 +130,7 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult UpdateMetadataForDocument(Guid documentId, string userName, string fileName, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, string documentTypes)
         {
-            var document  = new Document()
+            var document = new Document()
             {
                 DocumentId = documentId,
                 UserCreatedById = userName,
@@ -170,12 +196,13 @@
                 if (isDeleted)
                 {
                     return new JsonResult(isDeleted);
-                } else
+                }
+                else
                 {
                     return new NotFoundResult();
                 }
-            } 
-            catch(Exception e)
+            }
+            catch (Exception e)
             {
                 return new BadRequestObjectResult(e);
             }
