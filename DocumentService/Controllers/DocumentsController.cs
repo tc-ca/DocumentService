@@ -45,9 +45,7 @@
 
             var blob = azureBlobService.GetBlob(configuration.GetSection("BlobContainers")["Documents"], result.Uri.AbsoluteUri);
 
-            var match = blob.Properties.ContentType == file.ContentType;
-
-            return Ok(new { result.Uri.AbsoluteUri, result, match });
+            return Ok(new { result.Uri.AbsoluteUri, result, blob });
         }
 
         /// <summary>
