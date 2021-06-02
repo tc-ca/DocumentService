@@ -111,8 +111,13 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult UpdateMetadataForDocument(Guid documentId, string userName, string fileName, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, string documentTypes)
         {
+            if(documentId == Guid.Empty)
+            {
+                return new BadRequestObjectResult("DocumentId is required for updating the document");
+            }
+
             DocumentTypes serializedDocumentTypes = null;
-            if (string.IsNullOrEmpty(documentTypes))
+            if (!string.IsNullOrEmpty(documentTypes))
             {
                 serializedDocumentTypes = JsonSerializer.Deserialize<DocumentTypes>(documentTypes);
             }
