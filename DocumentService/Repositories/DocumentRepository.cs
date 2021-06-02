@@ -134,6 +134,7 @@ namespace DocumentService.Repositories
                         updatedDocumentInfo.Language = documentInfo.Language;
                         updatedDocumentInfo.DocumentTypes = documentInfo.DocumentType;
                         updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
+                        updatedDocumentInfo.SubmissionMethod = documentInfo.SubmissionMethod;
 
                         this.context.DocumentInfo.Update(updatedDocumentInfo);
                         this.context.SaveChanges();
