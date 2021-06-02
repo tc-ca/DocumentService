@@ -127,14 +127,14 @@ namespace DocumentService.Repositories
                     var updatedDocumentInfo = await this.GetDocument(documentInfo.DocumentId);
                     if (updatedDocumentInfo != null)
                     {
-                        updatedDocumentInfo.UserLastUpdatedById = documentInfo.RequesterId;
-                        updatedDocumentInfo.FileName = documentInfo.FileName;
-                        updatedDocumentInfo.FileType = documentInfo.FileType;
-                        updatedDocumentInfo.Description = documentInfo.Description;
-                        updatedDocumentInfo.Language = documentInfo.Language;
-                        updatedDocumentInfo.DocumentTypes = documentInfo.DocumentType;
+                        updatedDocumentInfo.UserLastUpdatedById = string.IsNullOrEmpty(documentInfo.RequesterId) ? updatedDocumentInfo.UserLastUpdatedById : documentInfo.RequesterId;
+                        updatedDocumentInfo.FileName = string.IsNullOrEmpty(documentInfo.RequesterId) ? updatedDocumentInfo.FileName : documentInfo.FileName;
+                        updatedDocumentInfo.FileType = string.IsNullOrEmpty(documentInfo.FileType) ? updatedDocumentInfo.FileType : documentInfo.FileType;
+                        updatedDocumentInfo.Description = string.IsNullOrEmpty(documentInfo.Description) ? updatedDocumentInfo.Description : documentInfo.Description;
+                        updatedDocumentInfo.Language = string.IsNullOrEmpty(documentInfo.Language) ? updatedDocumentInfo.Language : documentInfo.Language;
+                        updatedDocumentInfo.DocumentTypes = documentInfo.DocumentType == null ? updatedDocumentInfo.DocumentTypes : documentInfo.DocumentType;
                         updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
-                        updatedDocumentInfo.SubmissionMethod = documentInfo.SubmissionMethod;
+                        updatedDocumentInfo.SubmissionMethod = string.IsNullOrEmpty(documentInfo.SubmissionMethod) ? updatedDocumentInfo.SubmissionMethod : documentInfo.SubmissionMethod;
 
                         this.context.DocumentInfo.Update(updatedDocumentInfo);
                         this.context.SaveChanges();

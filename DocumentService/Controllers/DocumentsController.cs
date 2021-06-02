@@ -11,6 +11,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text.Json;
     using System.Threading.Tasks;
 
     [ApiController]
@@ -28,24 +29,6 @@
             this.documentRepository = documentRepository;
             this.azureBlobService = azureBlobService;
             this.configuration = configuration;
-        }
-
-        /// <summary>
-        /// Use for testing purposes
-        /// </summary>
-        /// <param name="file">File to upload</param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("v1/documents/test")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UploadDocumentAsync(IFormFile file)
-        {
-            var result = await this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]);
-
-            var blob = azureBlobService.GetBlob(configuration.GetSection("BlobContainers")["Documents"], result.Uri.AbsoluteUri);
-
-            return Ok(new { result.Uri.AbsoluteUri, result, blob });
         }
 
         /// <summary>
@@ -128,6 +111,11 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult UpdateMetadataForDocument(Guid documentId, string userName, string fileName, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, string documentTypes)
         {
+            DocumentTypes serializedDocumentTypes = null;
+            if (string.IsNullOrEmpty(documentTypes))
+            {
+                serializedDocumentTypes = JsonSerializer.Deserialize<DocumentTypes>(documentTypes);
+            }
             var document = new Document()
             {
                 DocumentId = documentId,
@@ -137,6 +125,8 @@
                 Description = shortDescription,
                 SubmissionMethod = submissionMethod,
                 Language = fileLanguage,
+                FileType = fileContentType,
+                DocumentType = serializedDocumentTypes
             };
             var documentList = new List<Document>();
             documentList.Add(document);
