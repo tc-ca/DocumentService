@@ -136,6 +136,7 @@ namespace DocumentService.Repositories
                         updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
 
                         this.context.DocumentInfo.Update(updatedDocumentInfo);
+                        this.context.SaveChanges();
                         documentUpdatedResults.Add(new DocumentUpdatedResult()
                         {
                             IsUpdated = true,
