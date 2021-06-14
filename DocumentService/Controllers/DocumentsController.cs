@@ -158,7 +158,7 @@
             var document = this.documentRepository.GetDocumentAsync(id).Result;
             if (document != null)
             {
-                return Ok(new { document });
+                return Ok(document);
             }
             return BadRequest(string.Format("Couldn't find document with id: {0}", id));
         }
@@ -175,7 +175,7 @@
         public IActionResult GetAllSpecifiedDocuments([FromQuery] List<Guid> documentGuid)
         {
             var documents = this.documentRepository.GetDocumentsByIds(documentGuid);
-            return Ok(new { documents });
+            return Ok(documents);
         }
 
         /// <summary>

@@ -148,7 +148,7 @@ namespace DocumentService.Repositories
         {
             var documentDTO = new DocumentDTO();
 
-            var documentInfos = this.Filter(x => ids.Contains(x.DocumentId)).ToList();
+            var documentInfos = this.Filter(x => ids.Contains(x.DocumentId));
             foreach(var documentInfo in documentInfos)
             {
                 Document document = this.populateDocument(documentInfo);
@@ -161,7 +161,7 @@ namespace DocumentService.Repositories
         /// <inheritdoc/>
         public IEnumerable<DocumentInfo> Filter(Expression<Func<DocumentInfo, bool>> predicate)
         {
-            return context.DocumentInfo.Where(predicate).AsEnumerable<DocumentInfo>();
+            return context.DocumentInfo.Where(predicate);
         }
 
         private Document populateDocument(DocumentInfo documentInfo)
