@@ -175,6 +175,7 @@ namespace DocumentService.Repositories
                 Description = documentInfo.Description,
                 SubmissionMethod = documentInfo.SubmissionMethod,
                 FileType = documentInfo.FileType,
+                FileSize = documentInfo.FileSize,
                 Language = documentInfo.Language,
                 DocumentUrl = documentInfo.DocumentUrl,
                 UserCreatedById = documentInfo.UserCreatedById,
