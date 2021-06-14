@@ -29,7 +29,7 @@
         public string FileLanguage { get; set; }
 
         [JsonPropertyName("documentTypes")]
-        public List<string> DocumentTypes { get; set; }
+        public List<DocumentType> DocumentTypes { get; set; }
 
         [JsonPropertyName("customMetadata")]
         public string CustomMetadata { get; set; }

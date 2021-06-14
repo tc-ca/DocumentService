@@ -37,7 +37,6 @@ namespace DocumentService.Integration.Tests
             this.azureBlobService = new AzureBlobService(azureKeyVaultService);
             this.databaseFixture = new DatabaseFixture();
             this.documentRepository = new DocumentRepository(this.databaseFixture.Context);
-
         }
 
         [Fact]
@@ -51,7 +50,6 @@ namespace DocumentService.Integration.Tests
                 Headers = new HeaderDictionary(),
                 ContentType = MimeTypeMap.GetMimeType(fileName)
             };
-
             
             var uploadedDocumentDTO = new UploadedDocumentsDTO()
             {
@@ -62,7 +60,19 @@ namespace DocumentService.Integration.Tests
                 ShortDescription = "My test file",
                 SubmissionMethod = "FAX",
                 FileLanguage = "EN",
-                DocumentTypes = new List<string>(),
+                DocumentTypes = new List<DocumentType>()
+                {
+                    new DocumentType()
+                    {
+                        Id = "One",
+                        Description = "Description test"
+                    },
+                    new DocumentType()
+                    {
+                        Id = "Two",
+                        Description = "Description test two"
+                    }
+                },
                 CustomMetadata = string.Empty
             };
 

@@ -9,7 +9,7 @@ namespace DocumentService.Models
     {
         public Guid DocumentId { get; set; }
         public string FileName { get; set; }
-        public DocumentTypes DocumentType { get; set; }
+        public List<DocumentType> DocumentTypes { get; set; }
         public long DocumentSize { get; set; }
         public string Description { get; set; }
         public string FileType { get; set; }

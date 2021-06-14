@@ -15,9 +15,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using DocumentService.Repositories.Entities;
-    using Microsoft.AspNetCore.Http;
-    using System.IO;
-    using System.Text;
 
     public class DocumentsControllerTests 
     {
@@ -47,7 +44,7 @@
                 DateCreated = DateTime.UtcNow,
                 Description = "Generic Description",
                 FileName = "Test Doc",
-                DocumentType = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
+                DocumentTypes = new List<DocumentType> { new DocumentType { Description = "Test", Id = "0" } },
                 IsDeleted = false
             };
               var dto = new DocumentDTO
@@ -172,7 +169,7 @@
             // Arrange
             var documentInfo = new DocumentInfo();
             var expectedResult = new List<DocumentUpdatedResult>();
-            expectedResult.Add(new DocumentUpdatedResult() { IsUpdated = false, DocumentId = Guid.Empty });
+            expectedResult.Add(new DocumentUpdatedResult() { IsUpdated = false, DocumentId = Guid.NewGuid() });
             documentRepository.Setup(x => x.Update(It.IsAny<DocumentDTO>())).Returns(Task.FromResult(expectedResult.AsEnumerable()));
             var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
 

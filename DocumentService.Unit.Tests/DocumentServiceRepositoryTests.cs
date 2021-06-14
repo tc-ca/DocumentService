@@ -5,6 +5,7 @@ namespace DocumentService.Unit.Tests
     using DocumentService.Tests.Common.Services;
     using Newtonsoft.Json;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Xunit;
 
@@ -169,15 +170,15 @@ namespace DocumentService.Unit.Tests
         {
             // Arrange
             var testGuids = this.createMultipleGuids();
-            var expectedResult = this.databaseFixture.CreateListOfDocumentInfos(testGuids);
+            var expectedResult = this.databaseFixture.CreateListOfDocumentInfos(testGuids).Select(x => x.DocumentId);
 
             // Act
-            var result = this.documentRepository.GetDocumentsByIds(testGuids);
-            expectedResult = expectedResult.OrderBy(x => x.DocumentId);
-            result = result.OrderBy(x => x.DocumentId);
+            var result = this.documentRepository.GetDocumentsByIds(testGuids).Documents;
+            expectedResult = expectedResult.OrderBy(x => x);
+            var assertedResult = result.Select(x => x.DocumentId).OrderBy(x => x);
 
             // Assert
-            Assert.Equal(expectedResult, result);
+            Assert.Equal(expectedResult, assertedResult);
         }
 
         [Fact]
@@ -190,7 +191,7 @@ namespace DocumentService.Unit.Tests
             var result = this.documentRepository.GetDocumentsByIds(testGuids);
 
             // Assert
-            Assert.Empty(result);
+            Assert.NotNull(result);
         }
 
         [Fact]
@@ -221,7 +222,7 @@ namespace DocumentService.Unit.Tests
                 DateCreated = DateTime.UtcNow,
                 Description = "Generic Description",
                 FileName = "Test Doc",
-                DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
+                DocumentTypes = new List<DocumentType> { new DocumentType() { Description = "Test", Id = "0" } },
                 IsDeleted = false
             };
             return documentInfo;

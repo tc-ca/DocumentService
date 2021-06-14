@@ -1,7 +1,6 @@
 ﻿using DocumentService.Contexts;
 using DocumentService.Models;
 using DocumentService.Repositories.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,7 +13,6 @@ namespace DocumentService.Repositories
     public class DocumentRepository : IDocumentRepository
     {
         private readonly DocumentContext context;
-
 
         public DocumentRepository(DocumentContext context)
         {
@@ -56,24 +54,7 @@ namespace DocumentService.Repositories
                 DocumentInfo documentInfo = await this.GetDocument(id);
                 if (documentInfo != null)
                 {
-                    Document document = new Document
-                    {
-                        DocumentId = documentInfo.DocumentId,
-                        FileName = documentInfo.FileName,
-                        DocumentType = documentInfo.DocumentTypes,
-                        DocumentSize = documentInfo.FileSize,
-                        Description = documentInfo.Description,
-                        SubmissionMethod  = documentInfo.SubmissionMethod,
-                        FileType = documentInfo.FileType,
-                        Language = documentInfo.Language,
-                        UserCreatedById = documentInfo.UserCreatedById,
-                        UserLastUpdatedById = documentInfo.UserLastUpdatedById,
-                        RequesterId = documentInfo.UserCreatedById,
-                        DeletedById = documentInfo.DeletedById,
-                        DateCreated = documentInfo.DateCreated,
-                        DateDeleted = documentInfo.DateDeleted,
-                        DateLastUpdated = documentInfo.DateLastUpdated
-                    };
+                    Document document = this.populateDocument(documentInfo);
                     DocumentDTO documentDTO = new DocumentDTO
                     {
                         Documents = new List<Document> {  document }
@@ -132,7 +113,7 @@ namespace DocumentService.Repositories
                         updatedDocumentInfo.FileType = string.IsNullOrEmpty(documentInfo.FileType) ? updatedDocumentInfo.FileType : documentInfo.FileType;
                         updatedDocumentInfo.Description = string.IsNullOrEmpty(documentInfo.Description) ? updatedDocumentInfo.Description : documentInfo.Description;
                         updatedDocumentInfo.Language = string.IsNullOrEmpty(documentInfo.Language) ? updatedDocumentInfo.Language : documentInfo.Language;
-                        updatedDocumentInfo.DocumentTypes = documentInfo.DocumentType == null ? updatedDocumentInfo.DocumentTypes : documentInfo.DocumentType;
+                        updatedDocumentInfo.DocumentTypes = documentInfo.DocumentTypes == null ? updatedDocumentInfo.DocumentTypes : documentInfo.DocumentTypes;
                         updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
                         updatedDocumentInfo.SubmissionMethod = string.IsNullOrEmpty(documentInfo.SubmissionMethod) ? updatedDocumentInfo.SubmissionMethod : documentInfo.SubmissionMethod;
 
@@ -163,15 +144,47 @@ namespace DocumentService.Repositories
         }
 
         /// <inheritdoc/>
-        public IEnumerable<DocumentInfo> GetDocumentsByIds(IEnumerable<Guid> ids)
+        public DocumentDTO GetDocumentsByIds(IEnumerable<Guid> ids)
         {
-            return this.Filter(x => ids.Contains(x.DocumentId));
+            var documentDTO = new DocumentDTO();
+
+            var documentInfos = this.Filter(x => ids.Contains(x.DocumentId)).ToList();
+            foreach(var documentInfo in documentInfos)
+            {
+                Document document = this.populateDocument(documentInfo);
+                documentDTO.Documents.Add(document);
+            }
+
+            return documentDTO;
         }
 
         /// <inheritdoc/>
         public IEnumerable<DocumentInfo> Filter(Expression<Func<DocumentInfo, bool>> predicate)
         {
             return context.DocumentInfo.Where(predicate).AsEnumerable<DocumentInfo>();
+        }
+
+        private Document populateDocument(DocumentInfo documentInfo)
+        {
+            return new Document()
+            {
+                DocumentId = documentInfo.DocumentId,
+                FileName = documentInfo.FileName,
+                DocumentTypes = documentInfo.DocumentTypes,
+                DocumentSize = documentInfo.FileSize,
+                Description = documentInfo.Description,
+                SubmissionMethod = documentInfo.SubmissionMethod,
+                FileType = documentInfo.FileType,
+                Language = documentInfo.Language,
+                DocumentUrl = documentInfo.DocumentUrl,
+                UserCreatedById = documentInfo.UserCreatedById,
+                UserLastUpdatedById = documentInfo.UserLastUpdatedById,
+                RequesterId = documentInfo.UserCreatedById,
+                DeletedById = documentInfo.DeletedById,
+                DateCreated = documentInfo.DateCreated,
+                DateDeleted = documentInfo.DateDeleted,
+                DateLastUpdated = documentInfo.DateLastUpdated
+            };
         }
 
         /// <summary>
@@ -197,7 +210,7 @@ namespace DocumentService.Repositories
                 {
                     FileName = document.FileName,
                     FileSize = document.DocumentSize,
-                    DocumentTypes = document.DocumentType,
+                    DocumentTypes = document.DocumentTypes,
                     Description = document.Description,
                     DocumentUrl = document.DocumentUrl,
                     Language = document.Language,
@@ -205,7 +218,7 @@ namespace DocumentService.Repositories
                     DateCreated = dateNow,
                     DateLastUpdated = dateNow,
                     IsDeleted = false,
-                    SubmissionMethod = document.SubmissionMethod
+                    SubmissionMethod = document.SubmissionMethod,
                 };
                
                 documentInfos.Add(documentInfo);
