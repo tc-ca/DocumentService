@@ -12,7 +12,6 @@
     using System.IO;
     using System.Linq;
     using System.Text.Json;
-    using System.Threading.Tasks;
 
     [ApiController]
     [Route("api/")]
@@ -44,27 +43,35 @@
         {
             // Create FormFile here
             var stream = new MemoryStream(uploadedDocumentsDTO.FileBytes);
+            string documentUrl = string.Empty;
             IFormFile file = new FormFile(stream, 0, uploadedDocumentsDTO.FileBytes.Length, uploadedDocumentsDTO.FileName, uploadedDocumentsDTO.FileName)
             {
                 Headers = new HeaderDictionary(),
                 ContentType = MimeTypeMap.GetMimeType(uploadedDocumentsDTO.FileName)
             };
 
-            var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
+            try
+            {
+                var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
+                documentUrl = result.Uri.AbsoluteUri;
+            }  catch(Exception e)
+            {
+                return BadRequest(e);
+            }
 
             var document = new Document()
             {
                 UserCreatedById = uploadedDocumentsDTO.UserName,
                 DateCreated = DateTime.Now,
-                DocumentUrl = result.Uri.AbsoluteUri,
+                DocumentUrl = documentUrl,
                 FileName = uploadedDocumentsDTO.FileName,
                 DocumentSize = uploadedDocumentsDTO.FileSize,
                 FileType = uploadedDocumentsDTO.FileContentType,
                 Description = uploadedDocumentsDTO.ShortDescription,
                 SubmissionMethod = uploadedDocumentsDTO.SubmissionMethod,
                 Language = uploadedDocumentsDTO.FileLanguage,
-                // DocumentTypes = documentTypes,
-                // MetaData = customMetadata,
+                DocumentTypes = uploadedDocumentsDTO.DocumentTypes,
+                // MetaData = uploadedDocumentsDTO.CustomMetadata,
             };
 
             var dto = new DocumentDTO
@@ -74,21 +81,6 @@
 
             var uploadedDocumentIds = this.documentRepository.UploadDocumentAsync(dto).Result;
             return Ok(uploadedDocumentIds);
-        }
-
-        /// <summary>
-        /// Retrieve all metadata for all specified documents. 
-        /// </summary>
-        /// <param name="ListOfIds">List of identifiers of the uploaded documents. Should be like 1,2,3,4</param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("v1/documents")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult GetAllSpecifiedDocuments([FromQuery] List<Guid> documentGuid)
-        {
-            var documents = this.documentRepository.GetDocumentsByIds(documentGuid);
-            return Ok(documents.ToList());
         }
 
         /// <summary>
@@ -116,10 +108,10 @@
                 return new BadRequestObjectResult("DocumentId is required for updating the document");
             }
 
-            DocumentTypes serializedDocumentTypes = null;
+            List<DocumentType> serializedDocumentTypes = null;
             if (!string.IsNullOrEmpty(documentTypes))
             {
-                serializedDocumentTypes = JsonSerializer.Deserialize<DocumentTypes>(documentTypes);
+                serializedDocumentTypes = JsonSerializer.Deserialize<List<DocumentType>>(documentTypes);
             }
             var document = new Document()
             {
@@ -131,7 +123,7 @@
                 SubmissionMethod = submissionMethod,
                 Language = fileLanguage,
                 FileType = fileContentType,
-                DocumentType = serializedDocumentTypes
+                DocumentTypes = serializedDocumentTypes
             };
             var documentList = new List<Document>();
             documentList.Add(document);
@@ -168,7 +160,22 @@
             {
                 return Ok(new { document });
             }
-            return BadRequest();
+            return BadRequest(string.Format("Couldn't find document with id: {0}", id));
+        }
+
+        /// <summary>
+        /// Retrieve all metadata for all specified documents. 
+        /// </summary>
+        /// <param name="ListOfIds">List of identifiers of the uploaded documents. Should be like 1,2,3,4</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("v1/documents")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult GetAllSpecifiedDocuments([FromQuery] List<Guid> documentGuid)
+        {
+            var documents = this.documentRepository.GetDocumentsByIds(documentGuid);
+            return Ok(new { documents });
         }
 
         /// <summary>

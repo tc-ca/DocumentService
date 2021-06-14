@@ -49,7 +49,7 @@ namespace DocumentService.Models
         /// gets or sets types of documents, stored in a JSONB type in postgres
         /// </summary>
         [Column("DOCUMENT_TYPES", TypeName = "jsonb")]
-        public DocumentTypes DocumentTypes { get; set; } 
+        public List<DocumentType> DocumentTypes { get; set; } 
 
         /// <summary>
         /// gets or sets the information on how the file was submitted
@@ -132,7 +132,7 @@ namespace DocumentService.Models
                    FileName == other.FileName &&
                    DocumentUrl == other.DocumentUrl &&
                    CorrelationId.Equals(other.CorrelationId) &&
-                   EqualityComparer<DocumentTypes>.Default.Equals(DocumentTypes, other.DocumentTypes) &&
+                   EqualityComparer<List<DocumentType>>.Default.Equals(DocumentTypes, other.DocumentTypes) &&
                    SubmissionMethod == other.SubmissionMethod &&
                    FileType == other.FileType &&
                    DateCreated == other.DateCreated &&

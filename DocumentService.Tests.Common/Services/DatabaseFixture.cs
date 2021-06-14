@@ -43,7 +43,7 @@
                     Language = "EN",
                     RequesterId = $"Tester {i}",
                     UserCreatedById = $"Tester {i}",
-                    DocumentType = new DocumentTypes { DocumentType = $"Type {i}", DocumentTypesId = i}
+                    DocumentTypes = new List<DocumentType> {  new DocumentType { Description = $"Type {i}", Id = i.ToString() } }
                 });
             }
            
@@ -63,7 +63,7 @@
                     DateCreated = DateTime.UtcNow,
                     Description = "Generic Description",
                     FileName = "Test Doc",
-                    DocumentTypes = new DocumentTypes { DocumentType = "Test", DocumentTypesId = 0 },
+                    DocumentTypes = new List<DocumentType> { new DocumentType { Description = "Test", Id = "0" } },
                     IsDeleted = false
                 };
 
@@ -97,7 +97,7 @@
                 FileName = documentDTO.Documents[0].FileName,
                 UserCreatedById = documentDTO.Documents[0].UserCreatedById,
                 Description = documentDTO.Documents[0].Description,
-                DocumentTypes = documentDTO.Documents[0].DocumentType,
+                DocumentTypes = documentDTO.Documents[0].DocumentTypes,
                 FileSize = documentDTO.Documents[0].DocumentSize,
                 Language = documentDTO.Documents[0].Language
             };

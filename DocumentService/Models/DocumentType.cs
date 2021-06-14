@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace DocumentService.Models
 {
-    public class DocumentTypes
+    public class DocumentType
     {
-        public int DocumentTypesId { get; set; }
-        public string DocumentType { get; set; }
+        public string Id { get; set; }
+        public string Description { get; set; }
     }
 }
