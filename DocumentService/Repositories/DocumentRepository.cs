@@ -128,7 +128,7 @@ namespace DocumentService.Repositories
                     if (updatedDocumentInfo != null)
                     {
                         updatedDocumentInfo.UserLastUpdatedById = string.IsNullOrEmpty(documentInfo.RequesterId) ? updatedDocumentInfo.UserLastUpdatedById : documentInfo.RequesterId;
-                        updatedDocumentInfo.FileName = string.IsNullOrEmpty(documentInfo.RequesterId) ? updatedDocumentInfo.FileName : documentInfo.FileName;
+                        updatedDocumentInfo.FileName = string.IsNullOrEmpty(documentInfo.FileName) ? updatedDocumentInfo.FileName : documentInfo.FileName;
                         updatedDocumentInfo.FileType = string.IsNullOrEmpty(documentInfo.FileType) ? updatedDocumentInfo.FileType : documentInfo.FileType;
                         updatedDocumentInfo.Description = string.IsNullOrEmpty(documentInfo.Description) ? updatedDocumentInfo.Description : documentInfo.Description;
                         updatedDocumentInfo.Language = string.IsNullOrEmpty(documentInfo.Language) ? updatedDocumentInfo.Language : documentInfo.Language;
