@@ -12,7 +12,6 @@ namespace DocumentService.Integration.Tests
     using System.IO;
     using System.Text;
     using Microsoft.AspNetCore.Mvc;
-    using System;
     using DocumentService.Models;
     using MimeTypes;
     using DocumentService.ServiceModels;
