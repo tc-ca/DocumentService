@@ -33,6 +33,7 @@ namespace DocumentService.Repositories
                 DocumentInfo documentInfo = PopulateDocumentInfo(document);
                 this.context.DocumentInfo.Add(documentInfo);
                 await this.context.SaveChangesAsync();
+                document.DocumentId = documentInfo.DocumentId;
                 return document;
             }
             catch (Exception exception)
