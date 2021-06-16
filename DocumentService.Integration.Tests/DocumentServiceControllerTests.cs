@@ -12,9 +12,9 @@ namespace DocumentService.Integration.Tests
     using System.IO;
     using System.Text;
     using Microsoft.AspNetCore.Mvc;
-    using System;
     using DocumentService.Models;
     using MimeTypes;
+    using DocumentService.ServiceModels;
 
     [CollectionDefinition("Database collection")]
     public class DocumentServiceControllerTests : IClassFixture<DatabaseFixture>
@@ -78,10 +78,10 @@ namespace DocumentService.Integration.Tests
 
             // Act
             OkObjectResult response = (OkObjectResult)documentController.UploadDocument(uploadedDocumentDTO);
-            IEnumerable<Guid> documentIds = (List<Guid>)response.Value;
+            Document document = (Document)response.Value;
 
             // Assert
-            Assert.NotEmpty(documentIds);
+            Assert.NotNull(document);
         }
 
         [Fact]

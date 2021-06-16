@@ -1,13 +1,13 @@
-﻿using DocumentService.Models;
-using DocumentService.Repositories.Entities;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-
-namespace DocumentService.Repositories
+﻿namespace DocumentService.Repositories
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
+    using System.Threading.Tasks;
+    using DocumentService.Models;
+    using DocumentService.Repositories.Entities;
+    using DocumentService.ServiceModels;
+
     public interface IDocumentRepository
     {
         /// <summary>
@@ -15,14 +15,14 @@ namespace DocumentService.Repositories
         /// </summary>
         /// <param name="id">Id of the document you would like to find</param>
         /// <returns>Document object if found</returns>
-        Task<DocumentDTO> GetDocumentAsync(Guid id);
+        Task<Document> GetDocumentAsync(Guid id);
 
         /// <summary>
         /// Returns multiple documents based off a list of IDs
         /// </summary>
         /// <param name="ids">List of IDs to find</param>
         /// <returns>List of documents</returns>
-        DocumentDTO GetDocumentsByIds(IEnumerable<Guid> ids);
+        IEnumerable<Document> GetDocumentsByIds(IEnumerable<Guid> ids);
 
         /// <summary>
         /// Returns a list of multiple <see cref="DocumentInfo"/> based on the predicate.
@@ -44,13 +44,13 @@ namespace DocumentService.Repositories
         /// </summary>
         /// <param name="documentDTO">Document dto with updated data</param>
         /// <returns>True if successful</returns>
-        Task<IEnumerable<DocumentUpdatedResult>> Update(DocumentDTO documentDTO);
+        Task<Document> Update(Document document);
 
         /// <summary>
         /// Updates the database with a new document
         /// </summary>
         /// <param name="documentDTO">Document DTO object created in the controller to populate the DocumentInfo entity</param>
         /// <returns>Number of entities added</returns>
-        Task<List<Guid>> UploadDocumentAsync(DocumentDTO documentDTO);
+        Task<Document> UploadDocumentAsync(Document document);
     }
 }

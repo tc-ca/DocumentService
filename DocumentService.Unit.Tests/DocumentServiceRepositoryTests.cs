@@ -2,6 +2,7 @@ namespace DocumentService.Unit.Tests
 {
     using DocumentService.Models;
     using DocumentService.Repositories;
+    using DocumentService.ServiceModels;
     using DocumentService.Tests.Common.Services;
     using Newtonsoft.Json;
     using System;
@@ -25,8 +26,8 @@ namespace DocumentService.Unit.Tests
             // Arrange
             var guid = Guid.NewGuid();
             int count = 1;
-            var expectedResult = this.databaseFixture.CreateDocumentDTO(count, guid);
-            this.databaseFixture.InsertDocumentDTO(expectedResult, guid);
+            var expectedResult = this.databaseFixture.CreateDocument(count, guid).First();
+            this.databaseFixture.InsertDocument(expectedResult, guid);
 
             // Act 
             var result = this.documentRepository.GetDocumentAsync(guid).Result;
@@ -36,17 +37,13 @@ namespace DocumentService.Unit.Tests
 
             Assert.Equal(jsonExcepted, jsonResult);
             // We do this as comparing the objects themselves doesn't work, but passes if tested differently
-            foreach (var value in expectedResult.Documents[0].GetType().GetProperties())
+            foreach (var value in expectedResult.GetType().GetProperties())
             {
-
-                var exceptedValue = value.GetValue(expectedResult.Documents[0], null);
-
-                var resultValue = value.GetValue(result.Documents[0], null);
+                var exceptedValue = value.GetValue(expectedResult, null);
+                var resultValue = value.GetValue(result, null);
 
                 Assert.Equal(exceptedValue, resultValue);
-
             }
-
         }
 
         [Fact]
@@ -88,13 +85,13 @@ namespace DocumentService.Unit.Tests
         {
             // Arrange
             var guid = Guid.NewGuid();
-            DocumentDTO documentDTO = this.databaseFixture.CreateDocumentDTO(1, guid);
+            var document = this.databaseFixture.CreateDocument(1, guid).First();
 
             // Act
-            var result = this.documentRepository.UploadDocumentAsync(documentDTO).Result;
+            var result = this.documentRepository.UploadDocumentAsync(document).Result;
 
             // Assert
-            Assert.NotEmpty(result);
+            Assert.NotNull(result);
         }
 
         [Fact]
@@ -137,32 +134,28 @@ namespace DocumentService.Unit.Tests
         public void Update_UpdateSuccessful_ReturnsTrue()
         {
             // Arrange
-            var expectedResult = true;
             var guid = Guid.NewGuid();
-            var documentDTO = this.databaseFixture.CreateDocumentDTO(1, guid);
-            this.databaseFixture.InsertDocumentDTO(documentDTO, guid);
+            var document = this.databaseFixture.CreateDocument(1, guid).First();
+            this.databaseFixture.InsertDocument(document, guid);
 
             // Act
-            documentDTO.Documents.First().FileName = "Our new file name";
-            var resultList = this.documentRepository.Update(documentDTO).Result;
+            document.FileName = "Our new file name";
+            var result = this.documentRepository.Update(document).Result;
 
             // Assert
-            foreach(var result in resultList)
-            {
-                Assert.Equal(expectedResult, result.IsUpdated);
-            }
+            Assert.Equal(document, result);
         }
         [Fact]
         public void Update_UpdateFailed_ReturnsEmptyDocumentUpdatedResultList()
         {
             //Arrange
-            var documentInfo = new DocumentDTO();
+            var expectedResult = new Document();
 
             // Act
-            var result = this.documentRepository.Update(documentInfo).Result;
+            var result = this.documentRepository.Update(expectedResult).Result;
 
             // Assert
-            Assert.Empty(result);
+            Assert.Equal(expectedResult, result);
         }
 
         [Fact]
@@ -173,7 +166,7 @@ namespace DocumentService.Unit.Tests
             var expectedResult = this.databaseFixture.CreateListOfDocumentInfos(testGuids).Select(x => x.DocumentId);
 
             // Act
-            var result = this.documentRepository.GetDocumentsByIds(testGuids).Documents;
+            var result = this.documentRepository.GetDocumentsByIds(testGuids);
             expectedResult = expectedResult.OrderBy(x => x);
             var assertedResult = result.Select(x => x.DocumentId).OrderBy(x => x);
 
