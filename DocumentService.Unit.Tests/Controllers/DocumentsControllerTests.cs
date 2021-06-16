@@ -15,6 +15,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using DocumentService.Repositories.Entities;
+    using DocumentService.ServiceModels;
 
     public class DocumentsControllerTests 
     {
@@ -47,11 +48,7 @@
                 DocumentTypes = new List<DocumentType> { new DocumentType { Description = "Test", Id = "0" } },
                 IsDeleted = false
             };
-              var dto = new DocumentDTO
-            {
-                Documents = new List<Document> { documentInfo }
-            };
-            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult(dto));
+            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult(documentInfo));
 
             // Act
             var response = documentController.GetDocumentById(guid);
@@ -77,7 +74,7 @@
             var configuration = new Mock<IConfiguration>();
             var guid = Guid.Empty;
 
-            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult((DocumentDTO)null));
+            documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult((Document)null));
             var documentController = new DocumentsController(documentRepository.Object, azureBlobService.Object, configuration.Object);
 
             // Act
@@ -146,14 +143,13 @@
         public void UpdateMetadataForDocument_ReturnsTrue_WhenUpdateSuccessful()
         {
             // Arrange
-            var documentInfo = new DocumentDTO();
-            var expectedResult = new List<DocumentUpdatedResult>();
-            expectedResult.Add(new DocumentUpdatedResult() { IsUpdated = true, DocumentId = Guid.Empty });
-            documentRepository.Setup(x => x.Update(It.IsAny<DocumentDTO>())).Returns(Task.FromResult(expectedResult.AsEnumerable()));
+            var expectedResult = new Document();
+            documentRepository.Setup(x => x.Update(It.IsAny<Document>())).Returns(Task.FromResult(expectedResult));
             var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
+            var updateMetaDataDTO = new UpdateMetaDataDTO();
 
             // Act
-            var unparsedResult = (JsonResult)documentController.UpdateMetadataForDocument(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            var unparsedResult = (JsonResult)documentController.UpdateMetadataForDocument(updateMetaDataDTO);
             var parsedResult = ((IEnumerable<DocumentUpdatedResult>)unparsedResult.Value).ToList();
 
             // Assert
@@ -168,13 +164,13 @@
         {
             // Arrange
             var documentInfo = new DocumentInfo();
-            var expectedResult = new List<DocumentUpdatedResult>();
-            expectedResult.Add(new DocumentUpdatedResult() { IsUpdated = false, DocumentId = Guid.NewGuid() });
-            documentRepository.Setup(x => x.Update(It.IsAny<DocumentDTO>())).Returns(Task.FromResult(expectedResult.AsEnumerable()));
+            var expectedResult = new Document();
+            documentRepository.Setup(x => x.Update(It.IsAny<Document>())).Returns(Task.FromResult(expectedResult));
             var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
+            var updateMetaDataDTO = new UpdateMetaDataDTO();
 
             // Act
-            var unparsedResult = (JsonResult)documentController.UpdateMetadataForDocument(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            var unparsedResult = (JsonResult)documentController.UpdateMetadataForDocument(updateMetaDataDTO);
             var parsedResult = ((IEnumerable<DocumentUpdatedResult>)unparsedResult.Value).ToList();
 
             // Assert
@@ -189,12 +185,13 @@
         {
             // Arrange
             var documentInfo = new DocumentInfo();
-            documentRepository.Setup(x => x.Update(It.IsAny<DocumentDTO>())).Throws<NullReferenceException>();
+            documentRepository.Setup(x => x.Update(It.IsAny<Document>())).Throws<NullReferenceException>();
             var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
             var expectedResult = 400;
+            var updateMetaDataDTO = new UpdateMetaDataDTO();
 
             // Act
-            var result = documentController.UpdateMetadataForDocument(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+            var result = documentController.UpdateMetadataForDocument(updateMetaDataDTO);
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result);

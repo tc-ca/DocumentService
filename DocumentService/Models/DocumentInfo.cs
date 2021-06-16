@@ -111,39 +111,5 @@ namespace DocumentService.Models
         [Column("DOCUMENT_ID")]
         [Key]
         public Guid DocumentId { get; set; }
-        
-        /// <summary>
-        /// gets or sets the correlation information
-        /// </summary>
-        [ForeignKey("CorrelationId")]
-        public virtual Correlation Correlation { get; set; }
-        
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DocumentInfo);
-        }
-
-        public bool Equals(DocumentInfo other)
-        {
-            return other != null &&
-                   Description == other.Description &&
-                   FileSize == other.FileSize &&
-                   Language == other.Language &&
-                   FileName == other.FileName &&
-                   DocumentUrl == other.DocumentUrl &&
-                   CorrelationId.Equals(other.CorrelationId) &&
-                   EqualityComparer<List<DocumentType>>.Default.Equals(DocumentTypes, other.DocumentTypes) &&
-                   SubmissionMethod == other.SubmissionMethod &&
-                   FileType == other.FileType &&
-                   DateCreated == other.DateCreated &&
-                   UserCreatedById == other.UserCreatedById &&
-                   DateLastUpdated == other.DateLastUpdated &&
-                   UserLastUpdatedById == other.UserLastUpdatedById &&
-                   IsDeleted == other.IsDeleted &&
-                   DateDeleted == other.DateDeleted &&
-                   DeletedById == other.DeletedById &&
-                   DocumentId.Equals(other.DocumentId) &&
-                   EqualityComparer<Correlation>.Default.Equals(Correlation, other.Correlation);
-        }
     }
 }

@@ -3,6 +3,7 @@
     using DocumentService.Azure;
     using DocumentService.Models;
     using DocumentService.Repositories;
+    using DocumentService.ServiceModels;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
@@ -10,17 +11,14 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Text.Json;
 
     [ApiController]
     [Route("api/")]
-    public class DocumentsController : ControllerBase
+    public class DocumentsController : ControllerBase, IDocumentsController
     {
         private readonly IDocumentRepository documentRepository;
-
         private readonly IAzureBlobService azureBlobService;
-
         private readonly IConfiguration configuration;
 
         public DocumentsController(IDocumentRepository documentRepository, IAzureBlobService azureBlobService, IConfiguration configuration)
@@ -54,33 +52,15 @@
             {
                 var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
                 documentUrl = result.Uri.AbsoluteUri;
-            }  catch(Exception e)
+            }  
+            catch(Exception e)
             {
                 return BadRequest(e);
             }
 
-            var document = new Document()
-            {
-                UserCreatedById = uploadedDocumentsDTO.UserName,
-                DateCreated = DateTime.Now,
-                DocumentUrl = documentUrl,
-                FileName = uploadedDocumentsDTO.FileName,
-                DocumentSize = uploadedDocumentsDTO.FileSize,
-                FileType = uploadedDocumentsDTO.FileContentType,
-                Description = uploadedDocumentsDTO.ShortDescription,
-                SubmissionMethod = uploadedDocumentsDTO.SubmissionMethod,
-                Language = uploadedDocumentsDTO.FileLanguage,
-                DocumentTypes = uploadedDocumentsDTO.DocumentTypes,
-                // MetaData = uploadedDocumentsDTO.CustomMetadata,
-            };
-
-            var dto = new DocumentDTO
-            {
-                Documents = new List<Document> { document }
-            };
-
-            var uploadedDocumentIds = this.documentRepository.UploadDocumentAsync(dto).Result;
-            return Ok(uploadedDocumentIds);
+            var document = this.populateDocumentFromUploadedDocumentsDTO(uploadedDocumentsDTO, documentUrl);
+            var uploadedDocument = this.documentRepository.UploadDocumentAsync(document).Result;
+            return Ok(uploadedDocument);
         }
 
         /// <summary>
@@ -101,40 +81,28 @@
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult UpdateMetadataForDocument(Guid documentId, string userName, string fileName, string fileContentType, string shortDescription, string submissionMethod, string fileLanguage, string documentTypes)
+        public IActionResult UpdateMetadataForDocument([FromBody] UpdateMetaDataDTO updateMetaDataDTO)
         {
-            if(documentId == Guid.Empty)
+            if(updateMetaDataDTO.DocumentId == Guid.Empty)
             {
                 return new BadRequestObjectResult("DocumentId is required for updating the document");
             }
 
-            List<DocumentType> serializedDocumentTypes = null;
-            if (!string.IsNullOrEmpty(documentTypes))
-            {
-                serializedDocumentTypes = JsonSerializer.Deserialize<List<DocumentType>>(documentTypes);
-            }
             var document = new Document()
             {
-                DocumentId = documentId,
-                UserCreatedById = userName,
+                DocumentId = updateMetaDataDTO.DocumentId,
+                UserLastUpdatedById = updateMetaDataDTO.UserName,
                 DateLastUpdated = DateTime.UtcNow,
-                FileName = fileName,
-                Description = shortDescription,
-                SubmissionMethod = submissionMethod,
-                Language = fileLanguage,
-                FileType = fileContentType,
-                DocumentTypes = serializedDocumentTypes
-            };
-            var documentList = new List<Document>();
-            documentList.Add(document);
-            var documentDTO = new DocumentDTO()
-            {
-                Documents = documentList
+                FileName = updateMetaDataDTO.FileName,
+                Description = updateMetaDataDTO.Description,
+                SubmissionMethod = updateMetaDataDTO.Description,
+                Language = updateMetaDataDTO.FileLanguage,
+                DocumentTypes = updateMetaDataDTO.DocumentTypes
             };
 
             try
             {
-                var isUpdated = this.documentRepository.Update(documentDTO).Result;
+                var isUpdated = this.documentRepository.Update(document).Result;
                 return new JsonResult(isUpdated);
             }
             catch (Exception e)
@@ -207,6 +175,21 @@
                 return new BadRequestObjectResult(e);
             }
         }
-
+        private Document populateDocumentFromUploadedDocumentsDTO(UploadedDocumentsDTO uploadedDocumentsDTO, string documentUrl)
+        {
+            return new Document()
+            {
+                UserCreatedById = uploadedDocumentsDTO.UserName,
+                DateCreated = DateTime.Now,
+                DocumentUrl = documentUrl,
+                FileName = uploadedDocumentsDTO.FileName,
+                FileSize = uploadedDocumentsDTO.FileSize,
+                FileType = uploadedDocumentsDTO.FileContentType,
+                Description = uploadedDocumentsDTO.ShortDescription,
+                SubmissionMethod = uploadedDocumentsDTO.SubmissionMethod,
+                Language = uploadedDocumentsDTO.FileLanguage,
+                DocumentTypes = uploadedDocumentsDTO.DocumentTypes,
+            };
+        }
     }
 }

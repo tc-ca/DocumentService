@@ -1,6 +1,7 @@
 ﻿using DocumentService.Contexts;
 using DocumentService.Models;
 using DocumentService.Repositories.Entities;
+using DocumentService.ServiceModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,26 +20,20 @@ namespace DocumentService.Repositories
             this.context = context;
         }
         
-        public async Task<bool> GetCorrelationById(Guid id)
-        {
-            var query = context.Correlation.Where(x => x.CorrelationId == id);
-            return await query.AnyAsync();
-        }
-        
         /// <inheritdoc/>
-        public async Task<List<Guid>> UploadDocumentAsync(DocumentDTO documentDTO) 
+        public async Task<Document> UploadDocumentAsync(Document document) 
         {
-            if (documentDTO == null)
+            if (document == null)
             {
                 throw new NullReferenceException("DocumentInfo cannot be null");
             }
 
             try
             {
-                List<DocumentInfo> documentInfo = PopulateDocumentInfo(documentDTO);
-                var numberOfEntitiesUpdated = await SaveChanges(documentInfo);
-                List<Guid> ids = documentInfo.Select(x => x.DocumentId).ToList();
-                return ids;
+                DocumentInfo documentInfo = PopulateDocumentInfo(document);
+                this.context.DocumentInfo.Add(documentInfo);
+                await this.context.SaveChangesAsync();
+                return document;
             }
             catch (Exception exception)
             {
@@ -47,20 +42,14 @@ namespace DocumentService.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<DocumentDTO> GetDocumentAsync(Guid id)
+        public async Task<Document> GetDocumentAsync(Guid id)
         {
             try
             {
                 DocumentInfo documentInfo = await this.GetDocument(id);
                 if (documentInfo != null)
                 {
-                    Document document = this.populateDocument(documentInfo);
-                    DocumentDTO documentDTO = new DocumentDTO
-                    {
-                        Documents = new List<Document> {  document }
-                    };
-
-                    return documentDTO;
+                    return this.populateDocument(documentInfo);
                 }
                 else { return null; }
             }
@@ -98,64 +87,47 @@ namespace DocumentService.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<DocumentUpdatedResult>> Update(DocumentDTO documentDTO)
+        public async Task<Document> Update(Document document)
         {
             var documentUpdatedResults = new List<DocumentUpdatedResult>();
             try
             {
-                foreach (var documentInfo in documentDTO.Documents)
+                var updatedDocumentInfo = await this.GetDocument(document.DocumentId);
+                if (updatedDocumentInfo != null)
                 {
-                    var updatedDocumentInfo = await this.GetDocument(documentInfo.DocumentId);
-                    if (updatedDocumentInfo != null)
-                    {
-                        updatedDocumentInfo.UserLastUpdatedById = string.IsNullOrEmpty(documentInfo.RequesterId) ? updatedDocumentInfo.UserLastUpdatedById : documentInfo.RequesterId;
-                        updatedDocumentInfo.FileName = string.IsNullOrEmpty(documentInfo.RequesterId) ? updatedDocumentInfo.FileName : documentInfo.FileName;
-                        updatedDocumentInfo.FileType = string.IsNullOrEmpty(documentInfo.FileType) ? updatedDocumentInfo.FileType : documentInfo.FileType;
-                        updatedDocumentInfo.Description = string.IsNullOrEmpty(documentInfo.Description) ? updatedDocumentInfo.Description : documentInfo.Description;
-                        updatedDocumentInfo.Language = string.IsNullOrEmpty(documentInfo.Language) ? updatedDocumentInfo.Language : documentInfo.Language;
-                        updatedDocumentInfo.DocumentTypes = documentInfo.DocumentTypes == null ? updatedDocumentInfo.DocumentTypes : documentInfo.DocumentTypes;
-                        updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
-                        updatedDocumentInfo.SubmissionMethod = string.IsNullOrEmpty(documentInfo.SubmissionMethod) ? updatedDocumentInfo.SubmissionMethod : documentInfo.SubmissionMethod;
+                    updatedDocumentInfo.UserLastUpdatedById = string.IsNullOrEmpty(document.RequesterId) ? updatedDocumentInfo.UserLastUpdatedById : document.RequesterId;
+                    updatedDocumentInfo.FileName = string.IsNullOrEmpty(document.RequesterId) ? updatedDocumentInfo.FileName : document.FileName;
+                    updatedDocumentInfo.Description = string.IsNullOrEmpty(document.Description) ? updatedDocumentInfo.Description : document.Description;
+                    updatedDocumentInfo.Language = string.IsNullOrEmpty(document.Language) ? updatedDocumentInfo.Language : document.Language;
+                    updatedDocumentInfo.DocumentTypes = document.DocumentTypes == null ? updatedDocumentInfo.DocumentTypes : document.DocumentTypes;
+                    updatedDocumentInfo.DateLastUpdated = DateTime.UtcNow;
+                    updatedDocumentInfo.SubmissionMethod = string.IsNullOrEmpty(document.SubmissionMethod) ? updatedDocumentInfo.SubmissionMethod : document.SubmissionMethod;
 
-                        this.context.DocumentInfo.Update(updatedDocumentInfo);
-                        this.context.SaveChanges();
-                        documentUpdatedResults.Add(new DocumentUpdatedResult()
-                        {
-                            IsUpdated = true,
-                            DocumentId = documentInfo.DocumentId,
-                        });
-                    }
-                    else
-                    {
-                        documentUpdatedResults.Add(new DocumentUpdatedResult()
-                        {
-                            IsUpdated = true,
-                            DocumentId = documentInfo.DocumentId,
-                        });
-                    }
+                    this.context.DocumentInfo.Update(updatedDocumentInfo);
+                    this.context.SaveChanges();
                 }
-                return documentUpdatedResults;
+                
+                return document;
             }
             catch (Exception)
             {
                 throw;
             }
-
         }
 
         /// <inheritdoc/>
-        public DocumentDTO GetDocumentsByIds(IEnumerable<Guid> ids)
+        public IEnumerable<Document> GetDocumentsByIds(IEnumerable<Guid> ids)
         {
-            var documentDTO = new DocumentDTO();
+            var documents = new List<Document>();
 
             var documentInfos = this.Filter(x => ids.Contains(x.DocumentId));
             foreach(var documentInfo in documentInfos)
             {
                 Document document = this.populateDocument(documentInfo);
-                documentDTO.Documents.Add(document);
+                documents.Add(document);
             }
 
-            return documentDTO;
+            return documents;
         }
 
         /// <inheritdoc/>
@@ -171,11 +143,10 @@ namespace DocumentService.Repositories
                 DocumentId = documentInfo.DocumentId,
                 FileName = documentInfo.FileName,
                 DocumentTypes = documentInfo.DocumentTypes,
-                DocumentSize = documentInfo.FileSize,
+                FileSize = documentInfo.FileSize,
                 Description = documentInfo.Description,
                 SubmissionMethod = documentInfo.SubmissionMethod,
                 FileType = documentInfo.FileType,
-                FileSize = documentInfo.FileSize,
                 Language = documentInfo.Language,
                 DocumentUrl = documentInfo.DocumentUrl,
                 UserCreatedById = documentInfo.UserCreatedById,
@@ -200,43 +171,26 @@ namespace DocumentService.Repositories
 
         }
       
-        private List<DocumentInfo> PopulateDocumentInfo(DocumentDTO documentDTO)
+        private DocumentInfo PopulateDocumentInfo(Document document)
         {
-            List<DocumentInfo> documentInfos = new List<DocumentInfo>();
-          
-            foreach (var document in documentDTO.Documents)
+            var dateNow = DateTime.UtcNow;
+            DocumentInfo documentInfo = new DocumentInfo
             {
-                var dateNow = DateTime.UtcNow;
-                DocumentInfo documentInfo = new DocumentInfo
-                {
-                    FileName = document.FileName,
-                    FileSize = document.DocumentSize,
-                    DocumentTypes = document.DocumentTypes,
-                    Description = document.Description,
-                    DocumentUrl = document.DocumentUrl,
-                    Language = document.Language,
-                    UserCreatedById = document.RequesterId,
-                    DateCreated = dateNow,
-                    DateLastUpdated = dateNow,
-                    IsDeleted = false,
-                    SubmissionMethod = document.SubmissionMethod,
-                };
-               
-                documentInfos.Add(documentInfo);
-            }
-            return documentInfos;
-        }
-        private async Task<int> SaveChanges(List<DocumentInfo> documentInfos)
-        {
-            int numberOfEntitiesUpdated;
-            foreach (var documents in documentInfos)
-            {
-                this.context.DocumentInfo.Add(documents);
-            }
-            return numberOfEntitiesUpdated = await this.context.SaveChangesAsync();
+                FileName = document.FileName,
+                FileSize = document.FileSize,
+                DocumentTypes = document.DocumentTypes,
+                Description = document.Description,
+                DocumentUrl = document.DocumentUrl,
+                Language = document.Language,
+                UserCreatedById = document.RequesterId,
+                DateCreated = dateNow,
+                DateLastUpdated = dateNow,
+                IsDeleted = false,
+                SubmissionMethod = document.SubmissionMethod,
+            };
 
-        }
-            
+            return documentInfo;
+        }            
     }
 }
 

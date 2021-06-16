@@ -3,6 +3,7 @@
     using DocumentService.Azure;
     using DocumentService.Contexts;
     using DocumentService.Models;
+    using DocumentService.ServiceModels;
     using Microsoft.Extensions.Configuration;
     using System;
     using System.Collections.Generic;
@@ -25,12 +26,9 @@
         }
      
 
-        public DocumentDTO CreateDocumentDTO(int count, Guid guid)
+        public List<Document> CreateDocument(int count, Guid guid)
         {
-            DocumentDTO documentDTO = new DocumentDTO();
-          
             List<Document> documents = new List<Document>();
-         
 
             for(int i = 0; i < count; i++)
             {
@@ -39,18 +37,15 @@
                     DocumentId = guid,
                     FileName = $"Test {i}",
                     Description = $"Test Description {i}",
-                    DocumentSize = i,
+                    FileSize = i,
                     Language = "EN",
                     RequesterId = $"Tester {i}",
                     UserCreatedById = $"Tester {i}",
                     DocumentTypes = new List<DocumentType> {  new DocumentType { Description = $"Type {i}", Id = i.ToString() } }
                 });
             }
-           
-            documentDTO.CorrelationId = Guid.Empty;
-            documentDTO.Documents = documents;
           
-            return documentDTO;
+            return documents;
         }
         public IEnumerable<DocumentInfo> CreateListOfDocumentInfos(Guid[] ids)
         {
@@ -82,26 +77,26 @@
             this.Context.SaveChanges();
         }
 
-        public void InsertDocumentDTO(DocumentDTO documentDTO, Guid id)
+        public void InsertDocument(Document document, Guid id)
         {
-            var documentInfo = CreateUpdatedDocumentInfo(documentDTO, id);
+            var documentInfo = CreateUpdatedDocumentInfo(document, id);
             this.Context.DocumentInfo.Add(documentInfo);
             this.Context.SaveChanges();
         }
 
-        private DocumentInfo CreateUpdatedDocumentInfo(DocumentDTO documentDTO, Guid id)
+        private DocumentInfo CreateUpdatedDocumentInfo(Document document, Guid id)
         {
-            var document = new DocumentInfo
+            var documentInfo = new DocumentInfo
             {
                 DocumentId = id,
-                FileName = documentDTO.Documents[0].FileName,
-                UserCreatedById = documentDTO.Documents[0].UserCreatedById,
-                Description = documentDTO.Documents[0].Description,
-                DocumentTypes = documentDTO.Documents[0].DocumentTypes,
-                FileSize = documentDTO.Documents[0].DocumentSize,
-                Language = documentDTO.Documents[0].Language
+                FileName = document.FileName,
+                UserCreatedById = document.UserCreatedById,
+                Description = document.Description,
+                DocumentTypes = document.DocumentTypes,
+                FileSize = document.FileSize,
+                Language = document.Language
             };
-            return document;
+            return documentInfo;
         }
         public void Dispose()
         {

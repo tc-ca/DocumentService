@@ -16,11 +16,6 @@ namespace DocumentService.Contexts
         private readonly IAzureKeyVaultService azureKeyVaultService;
 
         /// <summary>
-        /// Gets or sets the correlation table
-        /// </summary>
-        public DbSet<Correlation> Correlation { get; set; }
-
-        /// <summary>
         /// Gets or sets the document info table
         /// </summary>
         public DbSet<DocumentInfo> DocumentInfo { get; set; }
