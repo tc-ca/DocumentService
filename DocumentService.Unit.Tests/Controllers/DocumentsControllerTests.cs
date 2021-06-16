@@ -51,16 +51,11 @@
             documentRepository.Setup(x => x.GetDocumentAsync(guid)).Returns(Task.FromResult(documentInfo));
 
             // Act
-            var response = documentController.GetDocumentById(guid);
-            var res = response as OkObjectResult;
-            dynamic result = res.Value;
-            var documentDTO = (DocumentDTO)result.GetType().GetProperty("document").GetValue(result, null);
+            var response = (OkObjectResult)documentController.GetDocumentById(guid);
+            var document = (Document)response.Value;
 
             // Assert
-            foreach (var document in documentDTO.Documents)
-            {
-                Assert.Equal(document.FileName, documentInfo.FileName);
-            }
+            Assert.Equal(document.FileName, documentInfo.FileName);
         }
 
         [Fact]
@@ -146,17 +141,17 @@
             var expectedResult = new Document();
             documentRepository.Setup(x => x.Update(It.IsAny<Document>())).Returns(Task.FromResult(expectedResult));
             var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
-            var updateMetaDataDTO = new UpdateMetaDataDTO();
+            var updateMetaDataDTO = new UpdateMetaDataDTO()
+            {
+                DocumentId = new Guid("11111111-1111-1111-1111-111111111111")
+            };
 
             // Act
             var unparsedResult = (JsonResult)documentController.UpdateMetadataForDocument(updateMetaDataDTO);
-            var parsedResult = ((IEnumerable<DocumentUpdatedResult>)unparsedResult.Value).ToList();
+            var parsedResult = (Document)unparsedResult.Value;
 
             // Assert
-            foreach (var result in parsedResult)
-            {
-                Assert.True(result.IsUpdated);
-            }
+            Assert.NotNull(parsedResult);
         }
 
         [Fact]
@@ -167,17 +162,17 @@
             var expectedResult = new Document();
             documentRepository.Setup(x => x.Update(It.IsAny<Document>())).Returns(Task.FromResult(expectedResult));
             var documentController = new DocumentsController(this.documentRepository.Object, this.azureBlobService.Object, this.configuration.Object);
-            var updateMetaDataDTO = new UpdateMetaDataDTO();
+            var updateMetaDataDTO = new UpdateMetaDataDTO()
+            {
+                DocumentId = new Guid("11111111-1111-1111-1111-111111111111")
+            };
 
             // Act
             var unparsedResult = (JsonResult)documentController.UpdateMetadataForDocument(updateMetaDataDTO);
-            var parsedResult = ((IEnumerable<DocumentUpdatedResult>)unparsedResult.Value).ToList();
+            var parsedResult = (Document)unparsedResult.Value;
 
             // Assert
-            foreach (var result in parsedResult)
-            {
-                Assert.False(result.IsUpdated);
-            }
+            Assert.NotNull(parsedResult);
         }
 
         [Fact]

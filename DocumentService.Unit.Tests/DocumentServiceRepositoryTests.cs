@@ -149,13 +149,13 @@ namespace DocumentService.Unit.Tests
         public void Update_UpdateFailed_ReturnsEmptyDocumentUpdatedResultList()
         {
             //Arrange
-            var document = new Document();
+            var expectedResult = new Document();
 
             // Act
-            var result = this.documentRepository.Update(document).Result;
+            var result = this.documentRepository.Update(expectedResult).Result;
 
             // Assert
-            Assert.Null(result);
+            Assert.Equal(expectedResult, result);
         }
 
         [Fact]
