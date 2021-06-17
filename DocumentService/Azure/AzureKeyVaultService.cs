@@ -1,16 +1,17 @@
-﻿using System;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
-using Microsoft.Extensions.Configuration;
-
-namespace DocumentService.Azure
+﻿namespace DocumentService.Azure
 {
+    using System.Collections.Generic;
+    using Microsoft.Azure.KeyVault;
+    using Microsoft.Azure.KeyVault.Models;
+    using Microsoft.Azure.Services.AppAuthentication;
+    using Microsoft.Extensions.Configuration;
+
     /// <summary>
     ///  Represents the Azure key vault service.
     /// </summary>
-    public class AzureKeyVaultService : IAzureKeyVaultService
+    public class AzureKeyVaultService : IKeyVaultService
     {
-        private string dNs;
+        private string domainNameServer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureKeyVaultService"/> class.
@@ -18,7 +19,7 @@ namespace DocumentService.Azure
         /// <param name="dNS">DNS for the key vault.</param>
         public AzureKeyVaultService(IConfiguration configuration)
         {
-            this.dNs = configuration.GetSection("AzureKeyVaultSettings")["KeyVaultServiceEndpoint"];
+            this.domainNameServer = configuration.GetSection("AzureKeyVaultSettings")["KeyVaultServiceEndpoint"];
         }
 
         /// <summary>
@@ -28,21 +29,41 @@ namespace DocumentService.Azure
         /// <returns>Secret value.</returns>
         public string GetSecretByName(string secretName)
         {
+            using (var keyVaultClient = GetKeyVaultClient())
+            {
+                var sercret = keyVaultClient.GetSecretAsync(vaultBaseUrl: this.domainNameServer, secretName: secretName).GetAwaiter().GetResult();
 
-            var secret = GetSecretClient().GetSecretAsync(secretName).GetAwaiter().GetResult().Value;
-            
-            return secret.Value;
-
+                return sercret.Value;
+            }
         }
 
         /// <summary>
-        /// Get the client
+        /// Get a list of secrets from the azure key vault.
         /// </summary>
-        /// <returns>Secret client</returns>
-        public SecretClient GetSecretClient()
+        /// <returns>List of secrets.</returns>
+        public IEnumerable<SecretItem> GetListOfSecrets()
         {
+            IEnumerable<SecretItem> secrets = new Page<SecretItem>();
 
-            return new SecretClient(new Uri(this.dNs), new DefaultAzureCredential());
+            using (var keyVaultClient = GetKeyVaultClient())
+            {
+                secrets = keyVaultClient.GetSecretsAsync(vaultBaseUrl: this.domainNameServer).GetAwaiter().GetResult();
+            }
+
+            return secrets;
+        }
+
+        /// <summary>
+        /// Get the key vault client.
+        /// </summary>
+        /// <returns>Key vault client.</returns>
+        private static KeyVaultClient GetKeyVaultClient()
+        {
+            var azureServiceTokenProvider = new AzureServiceTokenProvider();
+            var keyVaultClient = new KeyVaultClient(
+                        new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+
+            return keyVaultClient;
         }
     }
 }

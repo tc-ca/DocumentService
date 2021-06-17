@@ -11,7 +11,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Text.Json;
 
     [ApiController]
     [Route("api/")]
@@ -174,6 +173,18 @@
             {
                 return new BadRequestObjectResult(e);
             }
+        }
+
+        [HttpGet]
+        [Route("v1/documents/downloadlink/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetFileByDocumentId(Guid id)
+        {
+            var document = this.documentRepository.GetDocumentAsync(id).Result;
+            var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8)).Result;
+            return Ok(azureDownloadLink);
         }
         private Document populateDocumentFromUploadedDocumentsDTO(UploadedDocumentsDTO uploadedDocumentsDTO, string documentUrl)
         {

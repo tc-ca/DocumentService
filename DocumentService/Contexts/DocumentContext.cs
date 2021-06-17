@@ -13,14 +13,14 @@ namespace DocumentService.Contexts
     {
         private IConfiguration configuration;
 
-        private readonly IAzureKeyVaultService azureKeyVaultService;
+        private readonly IKeyVaultService azureKeyVaultService;
 
         /// <summary>
         /// Gets or sets the document info table
         /// </summary>
         public DbSet<DocumentInfo> DocumentInfo { get; set; }
 
-        public DocumentContext(IConfiguration configuration, IAzureKeyVaultService azureKeyVaultService)
+        public DocumentContext(IConfiguration configuration, IKeyVaultService azureKeyVaultService)
         {
 
             this.configuration = configuration;

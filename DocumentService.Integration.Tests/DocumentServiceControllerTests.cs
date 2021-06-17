@@ -33,8 +33,9 @@ namespace DocumentService.Integration.Tests
             this.configuration = testConfigurationBuilder.Build();
 
             var azureKeyVaultService = new AzureKeyVaultService(this.configuration);
+            var azureBlobConnectionFactory = new AzureBlobConnectionFactory(azureKeyVaultService);
 
-            this.azureBlobService = new AzureBlobService(azureKeyVaultService);
+            this.azureBlobService = new AzureBlobService(azureBlobConnectionFactory);
             this.databaseFixture = new DatabaseFixture();
             this.documentRepository = new DocumentRepository(this.databaseFixture.Context);
         }
@@ -82,28 +83,6 @@ namespace DocumentService.Integration.Tests
 
             // Assert
             Assert.NotNull(document);
-        }
-
-        [Fact]
-        public async void EnsureDocumentMatchesBlob_Success()
-        {
-            // Arrange
-            IFormFile file = new FormFile(new MemoryStream(Encoding.UTF8.GetBytes("Text is cool")), 0, 10, "image.txt", "image.txt")
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = "text/plain"
-            };
-
-            var mimeType = MimeTypeMap.GetMimeType(file.FileName);
-            // Act
-            var result = await this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]);
-
-            var blob = this.azureBlobService.GetBlob(configuration.GetSection("BlobContainers")["Documents"], result.Uri.AbsoluteUri);
-
-            // Assert
-            Assert.NotNull(blob);
-            Assert.True(string.Compare(blob.Properties.ContentType, file.ContentType) == 0 &&
-                string.Compare(file.ContentType, mimeType) == 0);
         }
     }
 }

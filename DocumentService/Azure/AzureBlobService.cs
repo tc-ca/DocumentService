@@ -1,133 +1,88 @@
-﻿using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using Microsoft.AspNetCore.Http;
-using MimeTypes;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace DocumentService.Azure
+﻿namespace DocumentService.Azure
 {
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Azure.Storage.Blob;
+    using System;
+    using System.Globalization;
+    using System.IO;
+    using System.Threading.Tasks;
+
+    /// <summary>
+    /// Represents the Azure blob service.
+    /// </summary>
     public class AzureBlobService : IAzureBlobService
     {
+        private readonly IAzureBlobConnectionFactory azureBlobConnectionFactory;
 
-        private readonly string connectionString;
-
-        private BlobServiceClient blobServiceClient;
-
-        private BlobContainerClient containerClient;
-
-        public AzureBlobService(IAzureKeyVaultService azureKeyVaultService)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AzureBlobService"/> class.
+        /// </summary>
+        /// <param name="azureBlobConnectionFactory">The Azure blob connection factory.</param>
+        public AzureBlobService(IAzureBlobConnectionFactory azureBlobConnectionFactory)
         {
-            if (azureKeyVaultService != null)
-            {
-                this.connectionString = azureKeyVaultService.GetSecretByName("BlobStorage");
-            }
+            this.azureBlobConnectionFactory = azureBlobConnectionFactory;
         }
 
-        public async Task<BlobClient> UploadFileAsync(IFormFile file, string container = null)
+        /// <inheritdoc/>
+        public async Task<CloudBlockBlob> UploadFileAsync(IFormFile file, string container = null)
         {
-
-            try
+            // Perhaps we can fail more gracefully then just throwing an exception
+            if (file == null)
             {
-                // Perhaps we can fail more gracefully then just throwing an exception
-                if (file == null)
-                {
-                    throw new ArgumentNullException(nameof(file));
-                }
-
-                /// var originalFileName = file.FileName;
-                var blobName = UniqueFileName(file.FileName);
-
-                // Get a reference to the blob
-                BlobClient blobClient = GetBlobContainer(container).GetBlobClient(blobName);
-
-                var blobHttpHeader = new BlobHttpHeaders
-                {
-                    ContentType = MimeTypeMap.GetMimeType(file.FileName)
-                };
-
-                using (var stream = file.OpenReadStream())
-                {
-                    // Upload the blob
-                    var result = await blobClient.UploadAsync(stream, blobHttpHeader);
-
-                }
-
-                return blobClient;
-
-            }
-            catch (Exception e)
-            {
-                return null;
+                throw new ArgumentNullException(nameof(file));
             }
 
+            var blobContainer = await this.azureBlobConnectionFactory.GetBlobContainer().ConfigureAwait(false);
+
+            var blobName = AzureBlobService.UniqueFileName(file.FileName);
+
+            // Create the blob to hold the data
+            var blob = blobContainer.GetBlockBlobReference(blobName);
+
+            // Send the file to the cloud storage
+            using (var stream = file.OpenReadStream())
+            {
+                await blob.UploadFromStreamAsync(stream).ConfigureAwait(false);
+            }
+
+            return blob;
         }
 
-        public BlobItem GetBlob(string container, string fileUrl)
+        public async Task<string> GetDownloadLinkAsync(string container, string fileUrl, DateTime expiryTime)
         {
-            try
+            string ext = Path.GetExtension(fileUrl);
+            Uri uri = new Uri(fileUrl);
+
+            string fileName = Path.GetFileName(uri.LocalPath);
+
+            var blobContainer = await azureBlobConnectionFactory.GetBlobContainer(container).ConfigureAwait(false);
+
+            var blob = blobContainer.GetBlockBlobReference(fileName);
+
+            //Create an ad-hoc Shared Access Policy with read permissions which will expire
+            SharedAccessBlobPolicy policy = new SharedAccessBlobPolicy()
             {
-                string ext = Path.GetExtension(fileUrl);
+                Permissions = SharedAccessBlobPermissions.Read,
+                SharedAccessExpiryTime = expiryTime,
+            };
 
-                Uri uri = new Uri(fileUrl);
-
-                string fileName = Path.GetFileName(uri.LocalPath);
-
-                var blobs = GetBlobContainer(container).GetBlobs();
-
-                var blob = blobs.Where(x => x.Name.Equals(fileName)).Single();
-
-                return blob;
-            }
-            catch (Exception e)
+            //Set content-disposition header for force download
+            SharedAccessBlobHeaders headers = new SharedAccessBlobHeaders()
             {
-                return null;
-            }
-        }
+                ContentDisposition = string.Format("attachment;filename=\"{0}\"", fileName),
+            };
 
-        public BlobContainerClient GetBlobContainer(string container = null)
-        {
-            try
-            {
-
-                //Get a BlobContainerClient
-                var containerClient = GetBlobClient().GetBlobContainerClient(container);
-
-                //Check if the container exists or not, then determine to create it or not
-                bool isExist = containerClient.Exists();
-
-                if (!isExist)
-                {
-                    containerClient.Create();
-                }
-
-                return containerClient;
-            }
-            catch (Exception e)
-            {
-
-                throw;
-            }
-
+            var sasToken = blob.GetSharedAccessSignature(policy, headers);
+            return blob.Uri.AbsoluteUri + sasToken;
         }
 
         private static string UniqueFileName(string currentFileName)
         {
             string ext = Path.GetExtension(currentFileName);
 
-            return string.Format(CultureInfo.InvariantCulture, "{0}{1}", Guid.NewGuid().ToString(), ext);
-        }
+            string nameWithNoExt = Path.GetFileNameWithoutExtension(currentFileName);
 
-        public BlobServiceClient GetBlobClient()
-        {
-            // Create a BlobServiceClient object which will be used to create / obtain a container client
-            blobServiceClient = new BlobServiceClient(connectionString);
-
-            return blobServiceClient;
+            return string.Format(CultureInfo.InvariantCulture, "{0}_{1}{2}", nameWithNoExt, DateTime.UtcNow.Ticks, ext);
         }
     }
 }
