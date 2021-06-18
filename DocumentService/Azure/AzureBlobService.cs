@@ -48,7 +48,7 @@
             return blob;
         }
 
-        public async Task<string> GetDownloadLinkAsync(string container, string fileUrl, DateTime expiryTime)
+        public async Task<string> GetDownloadLinkAsync(string container, string fileUrl, DateTime expiryTime, bool isViewLink)
         {
             string ext = Path.GetExtension(fileUrl);
             Uri uri = new Uri(fileUrl);
@@ -67,9 +67,14 @@
             };
 
             //Set content-disposition header for force download
+            var viewLink = "inline";
+            if(!isViewLink)
+            {
+                viewLink = "attachment";
+            }
             SharedAccessBlobHeaders headers = new SharedAccessBlobHeaders()
             {
-                ContentDisposition = string.Format("attachment;filename=\"{0}\"", fileName),
+                ContentDisposition = string.Format("{0};filename=\"{1}\"", viewLink, fileName),
             };
 
             var sasToken = blob.GetSharedAccessSignature(policy, headers);

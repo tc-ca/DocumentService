@@ -25,6 +25,6 @@
         /// <param name="fileUrl">File url in blob storage</param>
         /// <param name="expiryTime">The token used to access the file for read only (download)</param>
         /// <returns></returns>
-        Task<string> GetDownloadLinkAsync(string container, string fileUrl, DateTime expiryTime);
+        Task<string> GetDownloadLinkAsync(string container, string fileUrl, DateTime expiryTime, bool isViewLink);
     }
 }

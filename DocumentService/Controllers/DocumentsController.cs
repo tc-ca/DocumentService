@@ -183,7 +183,19 @@
         public IActionResult GetFileByDocumentId(Guid id)
         {
             var document = this.documentRepository.GetDocumentAsync(id).Result;
-            var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8)).Result;
+            var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8), false).Result;
+            return Ok(azureDownloadLink);
+        }
+
+        [HttpGet]
+        [Route("v1/documents/viewlink/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetFileViewLinkByDocumentId(Guid id)
+        {
+            var document = this.documentRepository.GetDocumentAsync(id).Result;
+            var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8), true).Result;
             return Ok(azureDownloadLink);
         }
         private Document populateDocumentFromUploadedDocumentsDTO(UploadedDocumentsDTO uploadedDocumentsDTO, string documentUrl)
