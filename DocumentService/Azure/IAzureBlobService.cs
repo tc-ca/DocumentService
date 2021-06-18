@@ -1,7 +1,7 @@
 ﻿namespace DocumentService.Azure
 {
+    using global::Azure.Storage.Blobs;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.Azure.Storage.Blob;
     using System;
     using System.Threading.Tasks;
 
@@ -16,7 +16,7 @@
         /// <param name="file">The file to upload.</param>
         /// <param name="container">The container to connect to..</param>
         /// <returns>The uploaded blob.</returns>
-        Task<CloudBlockBlob> UploadFileAsync(IFormFile file, string container = null);
+        Task<BlobClient> UploadFileAsync(IFormFile file, string container = null);
 
         /// <summary>
         /// Get the file download link
