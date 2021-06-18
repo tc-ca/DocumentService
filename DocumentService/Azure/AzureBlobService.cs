@@ -32,7 +32,7 @@
                 throw new ArgumentNullException(nameof(file));
             }
 
-            var blobContainer = await this.azureBlobConnectionFactory.GetBlobContainer().ConfigureAwait(false);
+            var blobContainer = await this.azureBlobConnectionFactory.GetBlobContainer(container).ConfigureAwait(false);
 
             var blobName = AzureBlobService.UniqueFileName(file.FileName);
 
