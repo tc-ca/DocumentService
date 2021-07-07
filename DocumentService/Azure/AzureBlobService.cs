@@ -27,7 +27,7 @@
             this.azureBlobConnectionFactory = azureBlobConnectionFactory;
             if (azureKeyVaultService != null)
             {
-                this.connectionString = azureKeyVaultService.GetSecretByName("BlobStorage");
+                this.connectionString = azureKeyVaultService.GetSecretByName("BlobStorageConnectionString");
             }
         }
 

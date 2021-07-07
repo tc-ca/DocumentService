@@ -23,7 +23,7 @@
         {
             if (azureKeyVaultService != null)
             {
-                this.connectionString = azureKeyVaultService.GetSecretByName("DocumentBlobStorage");
+                this.connectionString = azureKeyVaultService.GetSecretByName("BlobStorageConnectionString");
             }
         }
 
