@@ -14,7 +14,32 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
+        "ENVIRONMENT": "Development",
         "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "DEV": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ENVIRONMENT": "Development"
+      }
+    },
+    "ACC": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ENVIRONMENT": "Acceptance"
+      }
+    },
+    "PROD": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ENVIRONMENT": "Production"
       }
     },
     "DocumentService": {

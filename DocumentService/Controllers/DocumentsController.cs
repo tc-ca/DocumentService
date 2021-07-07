@@ -28,6 +28,19 @@
         }
 
         /// <summary>
+        /// Get the current environment
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("v1/documents/environment")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult GetEnvironment()
+        {
+            return Ok(new { environment = configuration.GetSection("Env").Value });
+        }
+
+        /// <summary>
         /// Upload a document.
         /// </summary>
         /// <param name="uploadedDocumentsDTO">The uploaded documents data transfer object.</param>
@@ -51,8 +64,8 @@
             {
                 var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
                 documentUrl = result.Uri.AbsoluteUri;
-            }  
-            catch(Exception e)
+            }
+            catch (Exception e)
             {
                 return BadRequest(e);
             }
@@ -82,7 +95,7 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult UpdateMetadataForDocument([FromBody] UpdateMetaDataDTO updateMetaDataDTO)
         {
-            if(updateMetaDataDTO.DocumentId == Guid.Empty)
+            if (updateMetaDataDTO.DocumentId == Guid.Empty)
             {
                 return new BadRequestObjectResult("DocumentId is required for updating the document");
             }

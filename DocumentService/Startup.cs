@@ -24,7 +24,6 @@ namespace DocumentService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
-
             services.AddTransient<IKeyVaultService, AzureKeyVaultService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();
             services.AddScoped<IAzureBlobConnectionFactory, AzureBlobConnectionFactory>();
