@@ -23,7 +23,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ENVIRONMENT": "Development"
+        "ENVIRONMENT": "ncd"
       }
     },
     "ACC": {
@@ -31,7 +31,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ENVIRONMENT": "Acceptance"
+        "ENVIRONMENT": "nca"
       }
     },
     "PROD": {
@@ -39,7 +39,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ENVIRONMENT": "Production"
+        "ENVIRONMENT": "pcp"
       }
     },
     "DocumentService": {

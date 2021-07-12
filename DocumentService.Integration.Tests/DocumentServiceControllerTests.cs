@@ -33,9 +33,9 @@ namespace DocumentService.Integration.Tests
             this.configuration = testConfigurationBuilder.Build();
 
             var azureKeyVaultService = new AzureKeyVaultService(this.configuration);
-            var azureBlobConnectionFactory = new AzureBlobConnectionFactory(azureKeyVaultService);
+            var azureBlobConnectionFactory = new AzureBlobConnectionFactory(this.configuration, azureKeyVaultService);
 
-            this.azureBlobService = new AzureBlobService(azureBlobConnectionFactory, azureKeyVaultService);
+            this.azureBlobService = new AzureBlobService(this.configuration, azureBlobConnectionFactory, azureKeyVaultService);
             this.databaseFixture = new DatabaseFixture();
             this.documentRepository = new DocumentRepository(this.databaseFixture.Context);
         }

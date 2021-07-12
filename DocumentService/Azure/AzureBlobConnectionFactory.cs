@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using Microsoft.Azure.Storage;
     using Microsoft.Azure.Storage.Blob;
+    using Microsoft.Extensions.Configuration;
 
     /// <summary>
     /// The Azure blob storage connection factor.
@@ -10,6 +11,8 @@
     public class AzureBlobConnectionFactory : IAzureBlobConnectionFactory
     {
         private readonly string connectionString;
+
+        private IConfiguration configuration;
 
         private CloudBlobClient cloudBlobClient;
 
@@ -19,11 +22,13 @@
         /// Initializes a new instance of the <see cref="AzureBlobConnectionFactory"/> class.
         /// </summary>
         /// <param name="azureKeyVaultService">Azure key vault service.</param>
-        public AzureBlobConnectionFactory(IKeyVaultService azureKeyVaultService)
+        public AzureBlobConnectionFactory(IConfiguration configuration, IKeyVaultService azureKeyVaultService)
         {
+            this.configuration = configuration;
+
             if (azureKeyVaultService != null)
             {
-                this.connectionString = azureKeyVaultService.GetSecretByName("DocumentBlobStorage");
+                this.connectionString = azureKeyVaultService.GetSecretByName(this.configuration.GetSection("ConnectionStrings")["AzureBlobStorage"]);
             }
         }
 
