@@ -18,6 +18,14 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
+    "Testing": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ENVIRONMENT": "nct"
+      }
+    },
     "DEV": {
       "commandName": "IISExpress",
       "launchBrowser": true,
