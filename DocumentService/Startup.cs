@@ -1,3 +1,4 @@
+using DocumentService.Authorization;
 using DocumentService.Azure;
 using DocumentService.Contexts;
 using DocumentService.Repositories;
@@ -7,7 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
 
 namespace DocumentService
 {
@@ -23,6 +27,17 @@ namespace DocumentService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
+
+            services.AddAuthorization(options =>
+            {
+                var readerPolicyConfig = Configuration.GetSection(RolePolicy.PolicyConfigKeyReaders).Get<RolePolicy>();
+                var writerPolicyConfig = Configuration.GetSection(RolePolicy.PolicyConfigKeyWriters).Get<RolePolicy>();
+
+                options.AddPolicy(RolePolicy.RoleAssignmentRequiredReaders, policy => policy.RequireRole(readerPolicyConfig.Role));
+                options.AddPolicy(RolePolicy.RoleAssignmentRequiredWriters, policy => policy.RequireRole(writerPolicyConfig.Role));
+            });
+
             services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
 
             services.AddTransient<IKeyVaultService, AzureKeyVaultService>();
@@ -33,6 +48,37 @@ namespace DocumentService
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "DocumentService", Version = "v1" });
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows()
+                    {
+                        Implicit = new OpenApiOAuthFlow()
+                        {
+                            AuthorizationUrl = new Uri($"{Configuration.GetSection("AzureAd:Instance").Value}{Configuration.GetSection("AzureAd:TenantId").Value}/oauth2/v2.0/authorize"),
+                            TokenUrl = new Uri($"{Configuration.GetSection("AzureAd:Instance").Value}{Configuration.GetSection("AzureAd:TenantId").Value}/oauth2/v2.0/token"),
+                            Scopes = new Dictionary<string, string> {
+                                {$"{Configuration.GetSection("AzureAd:Audience").Value}/DocumentService.Read.All", "Allow the application to have create/update access to all work item data."},
+                                {$"{Configuration.GetSection("AzureAd:Audience").Value}/DocumentService.CreateUpdate.All", "Allow the application to have read-only access to all work item data."}
+                            }
+                        }
+                    }
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement() {
+                    {
+                        new OpenApiSecurityScheme {
+                            Reference = new OpenApiReference {
+                                    Type = ReferenceType.SecurityScheme,
+                                        Id = "oauth2"
+                                },
+                                Scheme = "oauth2",
+                                Name = "oauth2",
+                                In = ParameterLocation.Header
+                        },
+                        new List <string>()
+                    }
+                });
             });
         }
 
@@ -43,14 +89,22 @@ namespace DocumentService
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DocumentService v1"));
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "DocumentService v1");
+                c.OAuthClientId(Configuration.GetSection("AzureAd:ClientId").Value);
+                c.OAuthClientSecret(Configuration.GetSection("AzureAd:ClientSecret").Value);
+                c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
+            });
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

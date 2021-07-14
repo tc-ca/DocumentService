@@ -1,19 +1,24 @@
 ﻿namespace DocumentService.Controllers
 {
+    using DocumentService.Authorization;
     using DocumentService.Azure;
     using DocumentService.Models;
     using DocumentService.Repositories;
     using DocumentService.ServiceModels;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Identity.Web.Resource;
     using MimeTypes;
     using System;
     using System.Collections.Generic;
     using System.IO;
 
+    [Authorize]
     [ApiController]
     [Route("api/")]
+    [RequiredScope(RequiredScopesConfigurationKey = ScopePolicy.ReadWritePermission)]
     public class DocumentsController : ControllerBase, IDocumentsController
     {
         private readonly IDocumentRepository documentRepository;
@@ -32,6 +37,7 @@
         /// </summary>
         /// <param name="uploadedDocumentsDTO">The uploaded documents data transfer object.</param>
         /// <returns></returns>
+        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPost]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -75,6 +81,7 @@
         /// <param name="DocumentTypes">Document type of the uploaded document. A document can have multiple types associated with it. The document type id is supplied by the client using the document service.</param>
         /// <param name="CustomMetadata">Document metadata specific to the program using the service.</param>
         /// <returns></returns>
+        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPut]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -115,6 +122,7 @@
         /// </summary>
         /// <param name="Id">Identifier of the document being retrieved.</param>
         /// <returns>Document specificed</returns>
+        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -135,6 +143,7 @@
         /// </summary>
         /// <param name="ListOfIds">List of identifiers of the uploaded documents. Should be like 1,2,3,4</param>
         /// <returns></returns>
+        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -150,6 +159,7 @@
         /// </summary>
         /// <param name="Id">Identifier of the document being deleted.</param>
         /// <returns></returns>
+        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpDelete]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -175,6 +185,7 @@
             }
         }
 
+        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/downloadlink/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -187,6 +198,7 @@
             return Ok(azureDownloadLink);
         }
 
+        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/viewlink/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -198,6 +210,7 @@
             var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8), true).Result;
             return Ok(azureDownloadLink);
         }
+
         private Document populateDocumentFromUploadedDocumentsDTO(UploadedDocumentsDTO uploadedDocumentsDTO, string documentUrl)
         {
             return new Document()
