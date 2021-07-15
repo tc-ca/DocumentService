@@ -85,6 +85,8 @@ namespace DocumentService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IKeyVaultService kvService, IConfiguration appConfiguration)
         {
+            this.SetApplicationSecretsFromKeyVault(kvService, appConfiguration);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -111,8 +113,6 @@ namespace DocumentService
             {
                 endpoints.MapControllers();
             });
-
-             this.SetApplicationSecretsFromKeyVault(kvService, appConfiguration);
         }
 
         private void SetApplicationSecretsFromKeyVault(IKeyVaultService kvService, IConfiguration appConfiguration)
@@ -122,16 +122,15 @@ namespace DocumentService
             var token = kvService.GetSecretByName(secretName);
             appConfiguration.GetSection("AzureAd")["ClientId"] = token;
 
-            //AzureADTenantId  "TenantId": "AzureADTenantId"
+            //"TenantId"
             secretName = appConfiguration.GetSection("AzureAd")["TenantId"];
             token = kvService.GetSecretByName(secretName);
             appConfiguration.GetSection("AzureAd")["TenantId"] = token;
 
-            // "ClientSecret": "DocumentManagementServiceClientSecret" 
+            // "ClientSecret"
             secretName = appConfiguration.GetSection("AzureAd")["ClientSecret"];
             token = kvService.GetSecretByName(secretName);
             appConfiguration.GetSection("AzureAd")["ClientSecret"] = token;
-
         }
     }
 }
