@@ -11,6 +11,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
 
     [ApiController]
     [Route("api/")]
@@ -25,6 +26,31 @@
             this.documentRepository = documentRepository;
             this.azureBlobService = azureBlobService;
             this.configuration = configuration;
+        }
+
+        /// <summary>
+        /// Get the current environment
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("v1/documents/environment")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult GetEnvironment()
+        {
+            var word = string.Format("Environment variable is {0}, which means {1}.", Environment.GetEnvironmentVariable("ENVIRONMENT"), configuration.GetSection("Env").Value);
+            return Ok(word);
+        }
+
+        [HttpPost]
+        [Route("v1/documents/testing")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UploadTestAsync(IFormFile file)
+        {
+           var res =  await azureBlobService.UploadFileAsync(file, "testing");
+            
+            return Ok(new { result = file.Name, res });
         }
 
         /// <summary>
@@ -51,8 +77,8 @@
             {
                 var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
                 documentUrl = result.Uri.AbsoluteUri;
-            }  
-            catch(Exception e)
+            }
+            catch (Exception e)
             {
                 return BadRequest(e);
             }
@@ -82,7 +108,7 @@
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult UpdateMetadataForDocument([FromBody] UpdateMetaDataDTO updateMetaDataDTO)
         {
-            if(updateMetaDataDTO.DocumentId == Guid.Empty)
+            if (updateMetaDataDTO.DocumentId == Guid.Empty)
             {
                 return new BadRequestObjectResult("DocumentId is required for updating the document");
             }

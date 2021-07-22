@@ -4,6 +4,7 @@
     using global::Azure.Storage.Blobs.Models;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Azure.Storage.Blob;
+    using Microsoft.Extensions.Configuration;
     using MimeTypes;
     using System;
     using System.Globalization;
@@ -15,19 +16,25 @@
     /// </summary>
     public class AzureBlobService : IAzureBlobService
     {
+        private IConfiguration configuration;
+
         private readonly string connectionString;
+
         private readonly IAzureBlobConnectionFactory azureBlobConnectionFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureBlobService"/> class.
         /// </summary>
         /// <param name="azureBlobConnectionFactory">The Azure blob connection factory.</param>
-        public AzureBlobService(IAzureBlobConnectionFactory azureBlobConnectionFactory, IKeyVaultService azureKeyVaultService)
+        public AzureBlobService(IConfiguration configuration, IAzureBlobConnectionFactory azureBlobConnectionFactory, IKeyVaultService azureKeyVaultService)
         {
+            this.configuration = configuration;
+
             this.azureBlobConnectionFactory = azureBlobConnectionFactory;
+
             if (azureKeyVaultService != null)
             {
-                this.connectionString = azureKeyVaultService.GetSecretByName("BlobStorage");
+                this.connectionString = azureKeyVaultService.GetSecretByName(configuration.GetSection("ConnectionStrings")["AzureBlobStorage"]);
             }
         }
 
@@ -40,7 +47,7 @@
                 throw new ArgumentNullException(nameof(file));
             }
 
-            var blobName = AzureBlobService.UniqueFileName(file.FileName);
+            var blobName = UniqueFileName(file.FileName);
 
             // Get a reference to the blob
             BlobClient blobClient = GetBlobContainer(container).GetBlobClient(blobName);
