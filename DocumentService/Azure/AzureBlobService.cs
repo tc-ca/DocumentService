@@ -47,7 +47,7 @@
                 throw new ArgumentNullException(nameof(file));
             }
 
-            var blobName = AzureBlobService.UniqueFileName(file.FileName);
+            var blobName = UniqueFileName(file.FileName);
 
             // Get a reference to the blob
             BlobClient blobClient = GetBlobContainer(container).GetBlobClient(blobName);

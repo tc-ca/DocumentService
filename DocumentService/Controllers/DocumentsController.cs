@@ -11,6 +11,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
 
     [ApiController]
     [Route("api/")]
@@ -37,8 +38,19 @@
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult GetEnvironment()
         {
-            var word = string.Format("Environment variable is {0}, which means {1}.",Environment.GetEnvironmentVariable("ENVIRONMENT"), configuration.GetSection("Env").Value);
+            var word = string.Format("Environment variable is {0}, which means {1}.", Environment.GetEnvironmentVariable("ENVIRONMENT"), configuration.GetSection("Env").Value);
             return Ok(word);
+        }
+
+        [HttpPost]
+        [Route("v1/documents/testing")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UploadTestAsync(IFormFile file)
+        {
+           var res =  await azureBlobService.UploadFileAsync(file, "testing");
+            
+            return Ok(new { result = file.Name, res });
         }
 
         /// <summary>
