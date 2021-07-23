@@ -15,7 +15,7 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ENVIRONMENT": "Development",
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "ncd"
       }
     },
     "Testing": {
@@ -23,7 +23,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ENVIRONMENT": "nct"
+        "ASPNETCORE_ENVIRONMENT": "nct"
       }
     },
     "DEV": {
@@ -31,7 +31,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ENVIRONMENT": "ncd"
+        "ASPNETCORE_ENVIRONMENT": "ncd"
       }
     },
     "ACC": {
@@ -39,7 +39,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ENVIRONMENT": "nca"
+        "ASPNETCORE_ENVIRONMENT": "nca"
       }
     },
     "PROD": {
@@ -47,7 +47,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ENVIRONMENT": "pcp"
+        "ASPNETCORE_ENVIRONMENT": "pcp"
       }
     },
     "DocumentService": {
