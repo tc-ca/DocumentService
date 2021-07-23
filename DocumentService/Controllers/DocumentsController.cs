@@ -38,7 +38,7 @@
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult GetEnvironment()
         {
-            var word = string.Format("Environment variable is {0}, which means {1}.", Environment.GetEnvironmentVariable("ENVIRONMENT"), configuration.GetSection("Env").Value);
+            var word = string.Format("Environment variable is {0}, which means {1}.", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"), configuration.GetSection("Env").Value);
             return Ok(word);
         }
 
