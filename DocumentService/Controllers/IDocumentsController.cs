@@ -7,6 +7,8 @@
 
     public interface IDocumentsController
     {
+        public IActionResult GetEnvironment();
+
         public IActionResult UploadDocument([FromBody] UploadedDocumentsDTO uploadedDocumentsDTO);
 
         public IActionResult UpdateMetadataForDocument([FromBody] UpdateMetaDataDTO updateMetaDataDTO);
