@@ -31,9 +31,17 @@
         {
             using (var keyVaultClient = GetKeyVaultClient())
             {
-                var sercret = keyVaultClient.GetSecretAsync(vaultBaseUrl: this.domainNameServer, secretName: secretName).GetAwaiter().GetResult();
+                try
+                {
+                    var sercret = keyVaultClient.GetSecretAsync(vaultBaseUrl: this.domainNameServer, secretName: secretName).GetAwaiter().GetResult();
 
-                return sercret.Value;
+                    return sercret.Value;
+                }
+                catch (System.Exception e)
+                {
+                    return "";
+                }
+
             }
         }
 

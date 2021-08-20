@@ -4,6 +4,7 @@ using DocumentService.Contexts;
 using DocumentService.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,12 +18,12 @@ namespace DocumentService
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -40,7 +41,7 @@ namespace DocumentService
 
             services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
 
-            services.AddTransient<IKeyVaultService, AzureKeyVaultService>();
+            services.AddSingleton<IKeyVaultService, AzureKeyVaultService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();
             services.AddScoped<IAzureBlobConnectionFactory, AzureBlobConnectionFactory>();
             services.AddScoped<IDocumentRepository, DocumentRepository>();
@@ -91,6 +92,17 @@ namespace DocumentService
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.Use(next => context =>
+            {
+                // Set the environment on start up
+                context.Response.Cookies.Append("Version", Configuration.GetValue<string>("Version"), new CookieOptions()
+                {
+                    HttpOnly = true,
+                });
+
+                return next(context);
+            });
 
             app.UseSwagger();
 
