@@ -13,8 +13,6 @@ using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DocumentService
 {
@@ -28,6 +26,8 @@ namespace DocumentService
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
             services.AddAuthorization(options =>
@@ -40,8 +40,6 @@ namespace DocumentService
             });
 
             services.AddDbContext<DocumentContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DocumentContext")));
-        public void ConfigureServices(IServiceCollection services)
-        {
 
             services.AddSingleton<IKeyVaultService, AzureKeyVaultService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();
@@ -91,6 +89,8 @@ namespace DocumentService
             this.SetApplicationSecretsFromKeyVault(kvService, appConfiguration);
 
             if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
             }
 
             app.Use(next => context =>
@@ -113,8 +113,6 @@ namespace DocumentService
                 c.OAuthClientSecret(Configuration.GetSection("AzureAd:ClientSecret").Value);
                 c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
             });
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DocumentService v1"));
-            }
 
             app.UseHttpsRedirection();
 
