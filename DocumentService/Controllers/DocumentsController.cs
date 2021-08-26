@@ -236,6 +236,7 @@
             var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8), true).Result;
             return Ok(azureDownloadLink);
         }
+
         private Document populateDocumentFromUploadedDocumentsDTO(UploadedDocumentsDTO uploadedDocumentsDTO, string documentUrl)
         {
             return new Document()
