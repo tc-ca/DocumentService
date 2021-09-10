@@ -92,7 +92,7 @@
             }
             SharedAccessBlobHeaders headers = new SharedAccessBlobHeaders()
             {
-                ContentDisposition = string.Format("{0};filename=\"{1}\"", viewLink, fileName),
+                ContentDisposition = string.Format("{0}", viewLink),
             };
 
             var sasToken = blob.GetSharedAccessSignature(policy, headers);
