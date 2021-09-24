@@ -13,6 +13,8 @@ using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 namespace DocumentService
 {
@@ -49,6 +51,9 @@ namespace DocumentService
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "DocumentService", Version = "v1" });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
                 c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
                     Type = SecuritySchemeType.OAuth2,
@@ -113,6 +118,7 @@ namespace DocumentService
                 c.OAuthClientSecret(Configuration.GetSection("AzureAd:ClientSecret").Value);
                 c.OAuthUseBasicAuthenticationWithAccessCodeGrant();
             });
+            
 
             app.UseHttpsRedirection();
 
