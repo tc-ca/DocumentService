@@ -48,7 +48,11 @@
             var word = string.Format("Environment variable is {0}, which means {1}.", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"), configuration.GetSection("Env").Value);
             return Ok(word);
         }
-
+        /// <summary>
+        /// Initial testing endpoint
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>Returns the added file</response>
         [HttpPost]
         [Route("v1/documents/testing")]
         [ProducesResponseType(StatusCodes.Status200OK)]
