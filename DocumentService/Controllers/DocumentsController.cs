@@ -36,7 +36,9 @@
         /// <summary>
         /// Get the current environment
         /// </summary>
-        /// <returns></returns>
+        /// <returns>the current working environment</returns>
+        /// <response code="200"></response>
+        /// <response code="400"></response>
         [HttpGet]
         [Route("v1/documents/environment")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -62,7 +64,9 @@
         /// Saves a document.
         /// </summary>
         /// <param name="uploadedDocumentsDTO">The uploaded documents data transfer object.</param>
-        /// <returns></returns>
+        /// <returns>The uploaded document</returns>
+        /// <response code="201">Returns the uploaded document</response>
+        /// <response code="400"></response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPost]
         [Route("v1/documents")]
@@ -98,7 +102,10 @@
         /// Updates metadata for the provided document identifier.
         /// </summary>
         /// <param name="updateMetaDataDTO">Object provided with updated document information</param>
-        /// <returns></returns>
+        /// <returns>updated metadata for the document</returns>
+        /// <response code="200">returns the updated document</response>
+        /// <response code="400"></response>
+        /// <response code="401"></response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPut]
         [Route("v1/documents")]
@@ -140,6 +147,9 @@
         /// </summary>
         /// <param name="id">Identifier of the document being retrieved.</param>
         /// <returns>Document specificed</returns>
+        /// <response code="200">Returns the specified document</response>
+        /// <response code="400"></response>
+        /// <response code="404"></response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/{id}")]
@@ -161,6 +171,8 @@
         /// </summary>
         /// <param name="documentGuid">List of identifiers of the uploaded documents. Should be like 1,2,3,4</param>
         /// <returns>Returns all metadata for specified documents</returns>
+        /// <response code="200">Returns metadata for specific document</response>
+        /// <response code="400"></response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents")]
@@ -178,6 +190,9 @@
         /// <param name="id">Identifier of the document being deleted.</param>
         /// <param name="userName">Identifies who deleted the document</param>
         /// <returns>returns deleted confirmation</returns>
+        /// <response code="200">Returns true or false if the document was deleted</response>
+        /// <response code="400"></response>
+        /// <response code="401"></response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpDelete]
         [Route("v1/documents")]
@@ -208,6 +223,9 @@
         /// </summary>
         /// <param name="id">Id of the document</param>
         /// <returns>Download link for the file</returns>
+        /// <response code="200">Returns download link for document</response>
+        /// <response code="400"></response>
+        /// <response code="401"></response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/downloadlink/{id}")]
@@ -225,6 +243,9 @@
         /// </summary>
         /// <param name="id">Id of the document</param>
         /// <returns>Download link for the file</returns>
+        /// <response code="200">Returns view link for document</response>
+        /// <response code="400"></response>
+        /// <response code="401"></response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/viewlink/{id}")]
