@@ -36,7 +36,9 @@
         /// <summary>
         /// Get the current environment
         /// </summary>
-        /// <returns></returns>
+        /// <returns>the current working environment</returns>
+        /// <response code="200">Returns the environment</response>
+        /// <response code="400">Returns bad request</response>
         [HttpGet]
         [Route("v1/documents/environment")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -46,7 +48,13 @@
             var word = string.Format("Environment variable is {0}, which means {1}.", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"), configuration.GetSection("Env").Value);
             return Ok(word);
         }
-
+        /// <summary>
+        /// Initial testing endpoint
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <response code="200">Returns the added file</response>
+        /// <response code="400">returns bad request</response>
         [HttpPost]
         [Route("v1/documents/testing")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -59,10 +67,12 @@
         }
 
         /// <summary>
-        /// Upload a document.
+        /// Saves a document.
         /// </summary>
         /// <param name="uploadedDocumentsDTO">The uploaded documents data transfer object.</param>
-        /// <returns></returns>
+        /// <returns>The uploaded document</returns>
+        /// <response code="201">Returns the uploaded document</response>
+        /// <response code="400">Returns bad request</response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPost]
         [Route("v1/documents")]
@@ -97,16 +107,11 @@
         /// <summary>
         /// Updates metadata for the provided document identifier.
         /// </summary>
-        /// <param name="CorrelationId">Correlation identifier of the operation.</param>
-        /// <param name="UserName">Azure AD identifier of the user uploading the document.</param>
-        /// <param name="FileName">File name of the document.</param>
-        /// <param name="FileContentType">MIME content type of the document. We only accept the following values: [“application/pdf”, “image/jpeg”, “image/png”, “text/plain”, “application/msword”, “application/vnd.openxmlformats-officedocument.wordprocessingml.document”].</param>
-        /// <param name="ShortDescription">Short description of the document.</param>
-        /// <param name="SubmissionMethod">Indicates how the file was submitted to Transport Canada. (“FAX”, “MAIL”, “EMAIL”, "EMER").</param>
-        /// <param name="FileLanguage">Language of document being uploaded. (1) English, (2) French.</param>
-        /// <param name="DocumentTypes">Document type of the uploaded document. A document can have multiple types associated with it. The document type id is supplied by the client using the document service.</param>
-        /// <param name="CustomMetadata">Document metadata specific to the program using the service.</param>
-        /// <returns></returns>
+        /// <param name="updateMetaDataDTO">Object provided with updated document information</param>
+        /// <returns>updated metadata for the document</returns>
+        /// <response code="200">returns the updated document</response>
+        /// <response code="400">Returns bad request</response>
+        /// <response code="401">Returns Unauthorized</response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPut]
         [Route("v1/documents")]
@@ -146,8 +151,11 @@
         /// <summary>
         /// Retrieve a document by supplying its identifier.
         /// </summary>
-        /// <param name="Id">Identifier of the document being retrieved.</param>
+        /// <param name="id">Identifier of the document being retrieved.</param>
         /// <returns>Document specificed</returns>
+        /// <response code="200">Returns the specified document</response>
+        /// <response code="400">Returns bad request</response>
+        /// <response code="404">Returns not found</response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/{id}")]
@@ -167,8 +175,10 @@
         /// <summary>
         /// Retrieve all metadata for all specified documents. 
         /// </summary>
-        /// <param name="ListOfIds">List of identifiers of the uploaded documents. Should be like 1,2,3,4</param>
-        /// <returns></returns>
+        /// <param name="documentGuid">List of identifiers of the uploaded documents. Should be like 1,2,3,4</param>
+        /// <returns>Returns all metadata for specified documents</returns>
+        /// <response code="200">Returns metadata for specific document</response>
+        /// <response code="400">Returns bad request</response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents")]
@@ -183,8 +193,12 @@
         /// <summary>
         /// Deletes the identified document.
         /// </summary>
-        /// <param name="Id">Identifier of the document being deleted.</param>
-        /// <returns></returns>
+        /// <param name="id">Identifier of the document being deleted.</param>
+        /// <param name="userName">Identifies who deleted the document</param>
+        /// <returns>returns deleted confirmation</returns>
+        /// <response code="200">Returns true or false if the document was deleted</response>
+        /// <response code="400">Returns bad request</response>
+        /// <response code="404">Returns not found</response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpDelete]
         [Route("v1/documents")]
@@ -210,7 +224,14 @@
                 return new BadRequestObjectResult(e);
             }
         }
-
+        /// <summary>
+        /// Returns a download link for the document at the specified Id
+        /// </summary>
+        /// <param name="id">Id of the document</param>
+        /// <returns>Download link for the file</returns>
+        /// <response code="200">Returns download link for document</response>
+        /// <response code="400">Returns bad request</response>
+        /// <response code="404">Returns not found</response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/downloadlink/{id}")]
@@ -223,7 +244,14 @@
             var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8), false).Result;
             return Ok(azureDownloadLink);
         }
-
+        /// <summary>
+        /// Returns link to view the file at the specified Id
+        /// </summary>
+        /// <param name="id">Id of the document</param>
+        /// <returns>Download link for the file</returns>
+        /// <response code="200">Returns view link for document</response>
+        /// <response code="400">Returns bad request</response>
+        /// <response code="404">Returns not found</response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/viewlink/{id}")]
