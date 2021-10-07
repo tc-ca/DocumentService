@@ -19,6 +19,7 @@
     [Authorize]
     [ApiController]
     [Route("api/")]
+
     [RequiredScope(RequiredScopesConfigurationKey = ScopePolicy.ReadWritePermission)]
     public class DocumentsController : ControllerBase, IDocumentsController
     {
@@ -77,6 +78,7 @@
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPost]
         [Route("v1/documents")]
+        [RequestFormLimits(MultipartBodyLengthLimit = 209715200)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UploadDocument([FromBody] UploadedDocumentsDTO uploadedDocumentsDTO)
