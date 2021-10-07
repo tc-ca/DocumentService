@@ -57,6 +57,7 @@
         /// <response code="400">returns bad request</response>
         [HttpPost]
         [Route("v1/documents/testing")]
+        [RequestFormLimits(MultipartBodyLengthLimit = 209715200)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadTestAsync(IFormFile file)
