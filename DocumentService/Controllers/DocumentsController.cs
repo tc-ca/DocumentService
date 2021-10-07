@@ -19,7 +19,6 @@
     [Authorize]
     [ApiController]
     [Route("api/")]
-
     [RequiredScope(RequiredScopesConfigurationKey = ScopePolicy.ReadWritePermission)]
     public class DocumentsController : ControllerBase, IDocumentsController
     {
