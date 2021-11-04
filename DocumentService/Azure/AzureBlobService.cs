@@ -1,5 +1,6 @@
 ﻿namespace DocumentService.Azure
 {
+    using DocumentService.Models;
     using global::Azure.Storage.Blobs;
     using global::Azure.Storage.Blobs.Models;
     using Microsoft.AspNetCore.Http;
@@ -37,35 +38,26 @@
                 this.connectionString = azureKeyVaultService.GetSecretByName(configuration.GetSection("ConnectionStrings")["AzureBlobStorage"]);
             }
         }
-
         /// <inheritdoc/>
-        public async Task<BlobClient> UploadFileAsync(IFormFile file, string container = null)
-        {
-            // Perhaps we can fail more gracefully then just throwing an exception
-            if (file == null)
-            {
-                throw new ArgumentNullException(nameof(file));
-            }
 
-            var blobName = UniqueFileName(file.FileName);
+        public async Task<BlobClient> UploadFileAsync(UploadFileParameters uploadFileParameter)
+        {
+            var blobName = UniqueFileName(uploadFileParameter.FileName);
 
             // Get a reference to the blob
-            BlobClient blobClient = GetBlobContainer(container).GetBlobClient(blobName);
+            BlobClient blobClient = GetBlobContainer(uploadFileParameter.Container).GetBlobClient(blobName);
 
             var blobHttpHeader = new BlobHttpHeaders
             {
-                ContentType = MimeTypeMap.GetMimeType(file.FileName)
+                ContentType = MimeTypeMap.GetMimeType(uploadFileParameter.FileName)
             };
 
             // Send the file to the cloud storage
-            using (var stream = file.OpenReadStream())
-            {
-                await blobClient.UploadAsync(stream, blobHttpHeader);
-            }
-
+           await blobClient.UploadAsync(uploadFileParameter.FileStream, blobHttpHeader);
+          
             return blobClient;
         }
-
+        
         public async Task<string> GetDownloadLinkAsync(string container, string fileUrl, DateTime expiryTime, bool isViewLink)
         {
             string ext = Path.GetExtension(fileUrl);

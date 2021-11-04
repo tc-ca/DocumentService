@@ -63,7 +63,14 @@
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadTestAsync(IFormFile file)
         {
-           var res =  await azureBlobService.UploadFileAsync(file, "testing");
+            var uploadFileParameters = new UploadFileParameters()
+            {
+                FileName = file.FileName,
+                FileStream = file.OpenReadStream(),
+                Container = "testing"
+            };
+
+            var res =  await azureBlobService.UploadFileAsync(uploadFileParameters);
             
             return Ok(new { result = file.Name, res });
         }
@@ -83,18 +90,21 @@
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UploadDocument([FromBody] UploadedDocumentsDTO uploadedDocumentsDTO)
         {
-            // Create FormFile here
-            var stream = new MemoryStream(uploadedDocumentsDTO.FileBytes);
+            // Create Memory stream here
+            var stream = new MemoryStream();
+            stream.Write(uploadedDocumentsDTO.FileBytes, 0, uploadedDocumentsDTO.FileBytes.Length);
+            stream.Position = 0;
             string documentUrl = string.Empty;
-            IFormFile file = new FormFile(stream, 0, uploadedDocumentsDTO.FileBytes.Length, uploadedDocumentsDTO.FileName, uploadedDocumentsDTO.FileName)
+            var uploadFileParameters = new UploadFileParameters()
             {
-                Headers = new HeaderDictionary(),
-                ContentType = MimeTypeMap.GetMimeType(uploadedDocumentsDTO.FileName)
+                FileName = uploadedDocumentsDTO.FileName,
+                FileStream = stream,
+                Container = configuration.GetSection("BlobContainers")["Documents"]
             };
 
             try
             {
-                var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
+                var result = this.azureBlobService.UploadFileAsync(uploadFileParameters).GetAwaiter().GetResult();
                 documentUrl = result.Uri.AbsoluteUri;
             }
             catch (Exception e)
