@@ -1,6 +1,7 @@
 ﻿namespace DocumentService.Models
 {
     using System.Collections.Generic;
+    using System.Net.Http;
     using System.Text.Json.Serialization;
     public class UploadedDocumentsDTO
     {
