@@ -116,17 +116,6 @@
             var uploadedDocument = this.documentRepository.UploadDocumentAsync(document).Result;
             return Ok(uploadedDocument);
         }
-        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
-        [HttpPost]
-        [Route("v1/documents/upload")]
-        [RequestFormLimits(MultipartBodyLengthLimit = 209715200)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetFile([FromForm] IEnumerable<IFormFile> files)
-        {
-            var hat = await Request.ReadFormAsync();
-            return Ok();
-        }
 
         /// <summary>
         /// Updates metadata for the provided document identifier.
