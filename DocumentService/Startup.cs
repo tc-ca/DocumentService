@@ -42,6 +42,8 @@ namespace DocumentService
                 options.Limits.MaxRequestBodySize = int.MaxValue; // if don't set default value is: 30 MB
             });
 
+            services.AddApplicationInsightsTelemetry();
+
             services.Configure<FormOptions>(x =>
             {
                 x.ValueLengthLimit = int.MaxValue;
