@@ -14,6 +14,8 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Net.Http;
+    using System.Text.Json;
     using System.Threading.Tasks;
 
     [Authorize]
@@ -58,7 +60,7 @@
         /// <response code="400">returns bad request</response>
         [HttpPost]
         [Route("v1/documents/testing")]
-        [RequestFormLimits(MultipartBodyLengthLimit = 209715200)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 524288000)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadTestAsync(IFormFile file)
@@ -85,7 +87,7 @@
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPost]
         [Route("v1/documents")]
-        [RequestFormLimits(MultipartBodyLengthLimit = 209715200)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 524288000)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UploadDocument([FromBody] UploadedDocumentsDTO uploadedDocumentsDTO)
@@ -116,6 +118,7 @@
             var uploadedDocument = this.documentRepository.UploadDocumentAsync(document).Result;
             return Ok(uploadedDocument);
         }
+       
 
         /// <summary>
         /// Updates metadata for the provided document identifier.
