@@ -19,6 +19,7 @@
     [Authorize]
     [ApiController]
     [Route("api/")]
+
     [RequiredScope(RequiredScopesConfigurationKey = ScopePolicy.ReadWritePermission)]
     public class DocumentsController : ControllerBase, IDocumentsController
     {
@@ -57,6 +58,7 @@
         /// <response code="400">returns bad request</response>
         [HttpPost]
         [Route("v1/documents/testing")]
+        [RequestFormLimits(MultipartBodyLengthLimit = 524288000)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadTestAsync(IFormFile file)
@@ -76,6 +78,7 @@
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPost]
         [Route("v1/documents")]
+        [RequestFormLimits(MultipartBodyLengthLimit = 524288000)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UploadDocument([FromBody] UploadedDocumentsDTO uploadedDocumentsDTO)
