@@ -209,26 +209,26 @@
         /// <summary>
         /// Deletes the identified document.
         /// </summary>
-        /// <param name="id">Identifier of the document being deleted.</param>
-        /// <param name="userName">Identifies who deleted the document</param>
+        /// <param name="document">Identifies which document will be  flagged as deleted</param>
         /// <returns>returns deleted confirmation</returns>
         /// <response code="200">Returns true or false if the document was deleted</response>
         /// <response code="400">Returns bad request</response>
         /// <response code="404">Returns not found</response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
-        [HttpDelete]
-        [Route("v1/documents")]
+        [HttpPut]
+        [Route("v1/documents/Delete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult DeleteDocumentById(Guid id, string userName)
+        public IActionResult DeleteDocumentById([FromBody] DocumentDeleteDTO document)
         {
             try
             {
-                var isDeleted = this.documentRepository.SetFileDeleted(id, userName).Result;
+                var isDeleted = this.documentRepository.SetFileDeleted(document.Id, document.UserName).Result;
+                document.IsDeleted = isDeleted;
                 if (isDeleted)
                 {
-                    return new JsonResult(isDeleted);
+                    return new JsonResult(document);
                 }
                 else
                 {
