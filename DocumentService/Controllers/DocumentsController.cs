@@ -14,6 +14,8 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Net.Http;
+    using System.Text.Json;
     using System.Threading.Tasks;
 
     [Authorize]
@@ -63,7 +65,14 @@
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadTestAsync(IFormFile file)
         {
-           var res =  await azureBlobService.UploadFileAsync(file, "testing");
+            var uploadFileParameters = new UploadFileParameters()
+            {
+                FileName = file.FileName,
+                FileStream = file.OpenReadStream(),
+                Container = "testing"
+            };
+
+            var res =  await azureBlobService.UploadFileAsync(uploadFileParameters);
             
             return Ok(new { result = file.Name, res });
         }
@@ -83,18 +92,21 @@
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult UploadDocument([FromBody] UploadedDocumentsDTO uploadedDocumentsDTO)
         {
-            // Create FormFile here
-            var stream = new MemoryStream(uploadedDocumentsDTO.FileBytes);
+            // Create Memory stream here
+            var stream = new MemoryStream();
+            stream.Write(uploadedDocumentsDTO.FileBytes, 0, uploadedDocumentsDTO.FileBytes.Length);
+            stream.Position = 0;
             string documentUrl = string.Empty;
-            IFormFile file = new FormFile(stream, 0, uploadedDocumentsDTO.FileBytes.Length, uploadedDocumentsDTO.FileName, uploadedDocumentsDTO.FileName)
+            var uploadFileParameters = new UploadFileParameters()
             {
-                Headers = new HeaderDictionary(),
-                ContentType = MimeTypeMap.GetMimeType(uploadedDocumentsDTO.FileName)
+                FileName = uploadedDocumentsDTO.FileName,
+                FileStream = stream,
+                Container = configuration.GetSection("BlobContainers")["Documents"]
             };
 
             try
             {
-                var result = this.azureBlobService.UploadFileAsync(file, configuration.GetSection("BlobContainers")["Documents"]).GetAwaiter().GetResult();
+                var result = this.azureBlobService.UploadFileAsync(uploadFileParameters).GetAwaiter().GetResult();
                 documentUrl = result.Uri.AbsoluteUri;
             }
             catch (Exception e)
@@ -106,6 +118,7 @@
             var uploadedDocument = this.documentRepository.UploadDocumentAsync(document).Result;
             return Ok(uploadedDocument);
         }
+       
 
         /// <summary>
         /// Updates metadata for the provided document identifier.
@@ -196,26 +209,26 @@
         /// <summary>
         /// Deletes the identified document.
         /// </summary>
-        /// <param name="id">Identifier of the document being deleted.</param>
-        /// <param name="userName">Identifies who deleted the document</param>
+        /// <param name="document">Identifies which document will be  flagged as deleted</param>
         /// <returns>returns deleted confirmation</returns>
         /// <response code="200">Returns true or false if the document was deleted</response>
         /// <response code="400">Returns bad request</response>
         /// <response code="404">Returns not found</response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
-        [HttpDelete]
-        [Route("v1/documents")]
+        [HttpPut]
+        [Route("v1/documents/Delete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult DeleteDocumentById(Guid id, string userName)
+        public IActionResult DeleteDocumentById([FromBody] DocumentDeleteDTO document)
         {
             try
             {
-                var isDeleted = this.documentRepository.SetFileDeleted(id, userName).Result;
+                var isDeleted = this.documentRepository.SetFileDeleted(document.Id, document.UserName).Result;
+                document.IsDeleted = isDeleted;
                 if (isDeleted)
                 {
-                    return new JsonResult(isDeleted);
+                    return new JsonResult(document);
                 }
                 else
                 {

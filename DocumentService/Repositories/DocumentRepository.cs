@@ -156,6 +156,7 @@ namespace DocumentService.Repositories
                 DeletedById = documentInfo.DeletedById,
                 DateCreated = documentInfo.DateCreated,
                 DateDeleted = documentInfo.DateDeleted,
+                IsDeleted = documentInfo.IsDeleted,
                 DateLastUpdated = documentInfo.DateLastUpdated
             };
         }
@@ -186,7 +187,7 @@ namespace DocumentService.Repositories
                 UserCreatedById = document.RequesterId,
                 DateCreated = dateNow,
                 DateLastUpdated = dateNow,
-                IsDeleted = false,
+                IsDeleted = document.IsDeleted,
                 SubmissionMethod = document.SubmissionMethod,
             };
 

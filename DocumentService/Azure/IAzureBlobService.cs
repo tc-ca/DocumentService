@@ -1,5 +1,6 @@
 ﻿namespace DocumentService.Azure
 {
+    using DocumentService.Models;
     using global::Azure.Storage.Blobs;
     using Microsoft.AspNetCore.Http;
     using System;
@@ -13,10 +14,9 @@
         /// <summary>
         /// Uploads a single file to the azure blob storage.
         /// </summary>
-        /// <param name="file">The file to upload.</param>
-        /// <param name="container">The container to connect to..</param>
+        /// <param name="uploadFileParameter">Upload File Parameters</param>
         /// <returns>The uploaded blob.</returns>
-        Task<BlobClient> UploadFileAsync(IFormFile file, string container = null);
+        Task<BlobClient> UploadFileAsync(UploadFileParameters uploadFileParameter);
 
         /// <summary>
         /// Get the file download link
