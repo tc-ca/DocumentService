@@ -216,7 +216,7 @@
         /// <response code="404">Returns not found</response>
         [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPut]
-        [Route("v1/documents/Delete")]
+        [Route("v1/documents/delete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
