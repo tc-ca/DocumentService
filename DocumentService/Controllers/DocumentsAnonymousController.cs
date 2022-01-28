@@ -14,7 +14,7 @@
 
     [Authorize]
     [ApiController]
-    [Route("api/")]
+    [Route("api/Anonymous")]
 
     public class DocumentsAnonymousController : DocumentBase
     {
