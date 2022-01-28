@@ -145,11 +145,7 @@ namespace DocumentService.Controllers
             return Ok(documents);
         }
 
-        [HttpDelete]
-        [Route("v1/documents")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult DeleteDocumentById([FromQuery] Guid id, string userName)
         {
             try
@@ -177,12 +173,8 @@ namespace DocumentService.Controllers
             var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8), false).Result;
             return Ok(azureDownloadLink);
         }
-       
-        [HttpGet]
-        [Route("v1/documents/viewlink/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult GetFileViewLinkByDocumentId(Guid id)
         {
             var document = this.documentRepository.GetDocumentAsync(id).Result;
