@@ -90,7 +90,7 @@
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public new IActionResult GetAllSpecifiedDocuments([FromQuery] List<Guid> documentGuid)
         {
-            return GetAllSpecifiedDocuments(documentGuid);
+            return base.GetAllSpecifiedDocuments(documentGuid);
         }
 
         /// <summary>
