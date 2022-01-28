@@ -16,7 +16,6 @@
     [ApiController]
     [Route("api/")]
 
-    [RequiredScope(RequiredScopesConfigurationKey = ScopePolicy.ReadWritePermission)]
     public class DocumentsAnonymousController : DocumentBase
     {
         public DocumentsAnonymousController(IDocumentRepository documentRepository, IAzureBlobService azureBlobService, IConfiguration configuration)
