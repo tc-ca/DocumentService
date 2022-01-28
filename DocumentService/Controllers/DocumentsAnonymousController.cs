@@ -17,10 +17,9 @@
     [Route("api/")]
 
     [RequiredScope(RequiredScopesConfigurationKey = ScopePolicy.ReadWritePermission)]
-    public class DocumentsController : DocumentBase
+    public class DocumentsAnonymousController : DocumentBase
     {
-
-        public DocumentsController(IDocumentRepository documentRepository, IAzureBlobService azureBlobService, IConfiguration configuration)
+        public DocumentsAnonymousController(IDocumentRepository documentRepository, IAzureBlobService azureBlobService, IConfiguration configuration)
             : base(documentRepository, azureBlobService, configuration)
         {
         }
@@ -32,7 +31,6 @@
         /// <returns>The uploaded document</returns>
         /// <response code="201">Returns the uploaded document</response>
         /// <response code="400">Returns bad request</response>
-        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPost]
         [Route("v1/documents")]
         [RequestFormLimits(MultipartBodyLengthLimit = 524288000)]
@@ -52,7 +50,6 @@
         /// <response code="200">returns the updated document</response>
         /// <response code="400">Returns bad request</response>
         /// <response code="401">Returns Unauthorized</response>
-        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpPut]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -71,7 +68,6 @@
         /// <response code="200">Returns the specified document</response>
         /// <response code="400">Returns bad request</response>
         /// <response code="404">Returns not found</response>
-        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -89,7 +85,6 @@
         /// <returns>Returns all metadata for specified documents</returns>
         /// <response code="200">Returns metadata for specific document</response>
         /// <response code="400">Returns bad request</response>
-        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -107,7 +102,6 @@
         /// <response code="200">Returns true or false if the document was deleted</response>
         /// <response code="400">Returns bad request</response>
         /// <response code="404">Returns not found</response>
-        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredWriters)]
         [HttpDelete]
         [Route("v1/documents")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -115,7 +109,7 @@
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public new IActionResult DeleteDocumentById([FromQuery] Guid id, string userName)
         {
-            return base.DeleteDocumentById(id, userName);
+           return base.DeleteDocumentById(id, userName);
         }
 
         /// <summary>
@@ -126,7 +120,6 @@
         /// <response code="200">Returns download link for document</response>
         /// <response code="400">Returns bad request</response>
         /// <response code="404">Returns not found</response>
-        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/downloadlink/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -145,7 +138,6 @@
         /// <response code="200">Returns view link for document</response>
         /// <response code="400">Returns bad request</response>
         /// <response code="404">Returns not found</response>
-        [Authorize(Policy = RolePolicy.RoleAssignmentRequiredReaders)]
         [HttpGet]
         [Route("v1/documents/viewlink/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
