@@ -66,6 +66,7 @@ namespace DocumentService.Controllers
             return Ok(new { result = file.Name, res });
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult UploadDocument([FromBody] UploadedDocumentsDTO uploadedDocumentsDTO)
         {
             // Create Memory stream here
@@ -95,7 +96,7 @@ namespace DocumentService.Controllers
             return Ok(uploadedDocument);
         }
 
-
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult UpdateMetadataForDocument([FromBody] UpdateMetaDataDTO updateMetaDataDTO)
         {
             if (updateMetaDataDTO.DocumentId == Guid.Empty)
@@ -126,6 +127,7 @@ namespace DocumentService.Controllers
             }
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult GetDocumentById(Guid id)
         {
             var document = this.documentRepository.GetDocumentAsync(id).Result;
@@ -136,6 +138,7 @@ namespace DocumentService.Controllers
             return BadRequest(string.Format("Couldn't find document with id: {0}", id));
         }
 
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult GetAllSpecifiedDocuments([FromQuery] List<Guid> documentGuid)
         {
             var documents = this.documentRepository.GetDocumentsByIds(documentGuid);
@@ -166,7 +169,8 @@ namespace DocumentService.Controllers
                 return new BadRequestObjectResult(e);
             }
         }
-        
+
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult GetFileByDocumentId(Guid id)
         {
             var document = this.documentRepository.GetDocumentAsync(id).Result;
