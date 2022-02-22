@@ -16,8 +16,7 @@
         public IActionResult GetDocumentById(Guid id);
 
         public IActionResult GetAllSpecifiedDocuments([FromQuery] List<Guid> documentGuid);
-
-        public IActionResult DeleteDocumentById(Guid id, string userName);
+        public IActionResult DeleteDocumentById([FromQuery] Guid id, string userName);
 
         public IActionResult GetFileByDocumentId(Guid id);
     }
