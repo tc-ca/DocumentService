@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DocumentService.Controllers
@@ -40,6 +41,7 @@ namespace DocumentService.Controllers
             var word = string.Format("Environment variable is {0}, which means {1}.", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"), configuration.GetSection("Env").Value);
             return Ok(word);
         }
+
         /// <summary>
         /// Initial testing endpoint
         /// </summary>
@@ -54,6 +56,9 @@ namespace DocumentService.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadTestAsync(IFormFile file)
         {
+            if (file == null)
+                return BadRequest();
+        
             var uploadFileParameters = new UploadFileParameters()
             {
                 FileName = file.FileName,
@@ -69,7 +74,9 @@ namespace DocumentService.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult UploadDocument([FromBody] UploadedDocumentsDTO uploadedDocumentsDTO)
         {
-            // Create Memory stream here
+            if (uploadedDocumentsDTO.FileBytes == null)
+                return BadRequest();
+
             var stream = new MemoryStream();
             stream.Write(uploadedDocumentsDTO.FileBytes, 0, uploadedDocumentsDTO.FileBytes.Length);
             stream.Position = 0;
@@ -141,8 +148,15 @@ namespace DocumentService.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult GetAllSpecifiedDocuments([FromQuery] List<Guid> documentGuid)
         {
-            var documents = this.documentRepository.GetDocumentsByIds(documentGuid);
-            return Ok(documents);
+            var documents = this.documentRepository.GetDocumentsByIds(documentGuid)?.ToList();
+            if (documents?.Count > 0)
+            {
+                return Ok(documents);
+            }
+            else 
+            { 
+                return NotFound(); 
+            }
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
@@ -170,16 +184,25 @@ namespace DocumentService.Controllers
         public IActionResult GetFileByDocumentId(Guid id)
         {
             var document = this.documentRepository.GetDocumentAsync(id).Result;
-            var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8), false).Result;
-            return Ok(azureDownloadLink);
+            if (document != null)
+            {
+                var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8), false).Result;
+                return Ok(azureDownloadLink);
+            }
+            return NotFound();
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult GetFileViewLinkByDocumentId(Guid id)
         {
             var document = this.documentRepository.GetDocumentAsync(id).Result;
-            var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8), true).Result;
-            return Ok(azureDownloadLink);
+
+            if (document != null)
+            {
+                var azureDownloadLink = this.azureBlobService.GetDownloadLinkAsync("documents", document.DocumentUrl, DateTime.UtcNow.AddHours(8), true).Result;
+                return Ok(azureDownloadLink);
+            }
+            return NotFound();
         }
 
         private Document populateDocumentFromUploadedDocumentsDTO(UploadedDocumentsDTO uploadedDocumentsDTO, string documentUrl)

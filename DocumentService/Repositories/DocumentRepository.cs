@@ -19,9 +19,9 @@ namespace DocumentService.Repositories
         {
             this.context = context;
         }
-        
+
         /// <inheritdoc/>
-        public async Task<Document> UploadDocumentAsync(Document document) 
+        public async Task<Document> UploadDocumentAsync(Document document)
         {
             if (document == null)
             {
@@ -107,7 +107,7 @@ namespace DocumentService.Repositories
                     this.context.DocumentInfo.Update(updatedDocumentInfo);
                     this.context.SaveChanges();
                 }
-                
+
                 return document;
             }
             catch (Exception)
@@ -122,7 +122,7 @@ namespace DocumentService.Repositories
             var documents = new List<Document>();
 
             var documentInfos = this.Filter(x => ids.Contains(x.DocumentId));
-            foreach(var documentInfo in documentInfos)
+            foreach (var documentInfo in documentInfos)
             {
                 Document document = this.populateDocument(documentInfo);
                 documents.Add(document);
@@ -170,9 +170,8 @@ namespace DocumentService.Repositories
         {
             var query = context.DocumentInfo.Where(x => x.DocumentId == id && !x.IsDeleted);
             return await query.FirstOrDefaultAsync();
-
         }
-      
+
         private DocumentInfo PopulateDocumentInfo(Document document)
         {
             var dateNow = DateTime.UtcNow;
@@ -192,7 +191,6 @@ namespace DocumentService.Repositories
             };
 
             return documentInfo;
-        }            
+        }
     }
 }
-
